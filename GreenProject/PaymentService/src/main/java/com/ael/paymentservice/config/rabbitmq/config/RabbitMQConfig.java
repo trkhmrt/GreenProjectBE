@@ -4,6 +4,7 @@ package com.ael.paymentservice.config.rabbitmq.config;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Configuration;
@@ -22,12 +23,12 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public DirectExchange basketExchange() {
-        return new DirectExchange(BASKET_EXCHANGE);
+    public TopicExchange basketExchange() {
+        return new TopicExchange(BASKET_EXCHANGE);
     }
 
     @Bean
-    public Binding basketBinding(Queue basketQueue, DirectExchange basketExchange) {
+    public Binding basketBinding(Queue basketQueue, TopicExchange basketExchange) {
         return BindingBuilder.bind(basketQueue).to(basketExchange).with(BASKET_ROUTING_KEY);
     }
 }

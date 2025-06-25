@@ -81,6 +81,8 @@ public class BasketProductUnitService implements IBasketProductUnitService {
                                     .productId(pu.getProductId())
                                     .subCategoryId(productClient.getProductById(pu.getProductId()).getSubCategoryId())
                                     .subCategoryName(productClient.getProductById(pu.getProductId()).getSubCategoryName())
+                                    .productModel(productClient.getProductById(pu.getProductId()).getProductModel())
+                                    .productModelYear(productClient.getProductById(pu.getProductId()).getProductModelYear())
                                     .productName(pu.getProductName())  // Basket ID ekleniyor
                                     .productPrice(pu.getProductUnitPrice())// Ürün bilgisi çekiliyor
                                     .productQuantity(pu.getProductQuantity())

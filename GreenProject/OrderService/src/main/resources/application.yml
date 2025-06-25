@@ -6,8 +6,8 @@ spring:
   rabbitmq:
       host: localhost    # veya docker kullanıyorsan 'rabbitmq'
       port: 5672
-      username: admin
-      password: admin
+      username: guest
+      password: guest
 
   devtools:
     restart:

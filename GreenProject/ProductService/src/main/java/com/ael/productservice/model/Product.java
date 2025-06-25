@@ -18,15 +18,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer productId;
     private String productName;
+    private String productModel;
+    private String productModelYear;
     private String productDescription;
     private Double productPrice;
     private Integer productQuantity;
-    private String productModel;
-    private String productModelYear;
     private String productImageUrl;
 
     @ManyToOne
     @JoinColumn(name = "productSubCategoryId")
     private SubCategory subcategory;
+
+
 
 }

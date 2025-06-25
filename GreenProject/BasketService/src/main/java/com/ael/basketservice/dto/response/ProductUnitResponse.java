@@ -16,4 +16,6 @@ public class ProductUnitResponse {
     private String subCategoryName;
     private Double productPrice;
     private Integer productQuantity;
+    private String productModel;
+    private String productModelYear;
 }

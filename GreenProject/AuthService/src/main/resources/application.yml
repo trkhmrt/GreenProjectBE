@@ -3,8 +3,6 @@ server:
 spring:
   application:
     name: "AuthService"
-  profiles:
-    active: "prod"
   config:
     import: "optional:configserver:http://localhost:8071/"
   cloud:
@@ -53,6 +51,13 @@ info:
     name: "authservice"
     description: "Green Project AuthService"
     version: "1.0.0"
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
 
 
 

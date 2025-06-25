@@ -8,8 +8,12 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -29,7 +33,6 @@ public class GatewayserverApplication {
 						.path("/ael/authservice/**")
 						.filters( f -> f.rewritePath("/ael/authservice/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()))
 						)
 						.uri("lb://AUTHSERVICE"))
 				.route(p -> p
@@ -40,10 +43,23 @@ public class GatewayserverApplication {
 				.route(p -> p
 						.path("/ael/basketservice/**")
 						.filters( f -> f.rewritePath("/ael/basketservice/(?<segment>.*)","/${segment}")
-								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
 						.uri("lb://BASKETSERVICE"))
-
-
+				.route(p -> p
+						.path("/ael/paymentservice/**")
+						.filters( f -> f.rewritePath("/ael/paymentservice/(?<segment>.*)","/${segment}")
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
+						.uri("lb://PAYMENTSERVICE"))
+				.route(p -> p
+						.path("/ael/productservice/**")
+						.filters( f -> f.rewritePath("/ael/productservice/(?<segment>.*)","/${segment}")
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+						.uri("lb://PRODUCTSERVICE"))
 				.build();
+
 	}
+
+
 }

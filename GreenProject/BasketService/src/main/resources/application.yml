@@ -2,8 +2,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: admin
-    password: admin
+    username: guest
+    password: guest
 
   application:
     name: BasketService
@@ -46,4 +46,4 @@ logging:
   level:
     org:
       springframework:
-        security=DEBUG:
+        security: DEBUG

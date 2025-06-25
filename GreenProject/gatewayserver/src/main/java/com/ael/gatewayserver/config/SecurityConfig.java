@@ -7,30 +7,41 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.reactive.CorsWebFilter;
 import reactor.core.publisher.Mono;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity serverHttpSecurity) {
-        serverHttpSecurity
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.GET).permitAll()
-                        .pathMatchers(HttpMethod.POST).permitAll()
-                        .pathMatchers("/ael/authservice/auth/login").permitAll() // Login endpoint'ini açık bırak
-                        .pathMatchers("/ael/authservice/auth/register").permitAll() // Register endpoint'ini açık bırak// Customer service için USER rolü gerekli
-                        .pathMatchers("/ael/basketservice/**").permitAll() // Register endpoint'ini açık bırak// Customer service için USER rolü gerekli
-                        .anyExchange().permitAll()
-                )
-                .csrf(csrfSpec -> csrfSpec.disable());
 
-        return serverHttpSecurity.build();
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers(
+                                "/auth/**",
+                                "/ael/auth/**",
+                                "/ael/authservice/auth/**",
+                                "/ael/productservice/**",
+                                "/ael/basketservice/**",
+                                "/ael/paymentservice/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .anyExchange().authenticated()
+                );
+        return http.build();
     }
 
 

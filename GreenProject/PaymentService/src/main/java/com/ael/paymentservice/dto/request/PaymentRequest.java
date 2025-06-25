@@ -20,5 +20,7 @@ public class PaymentRequest {
     private String address;
     private Integer basketId;
     private CheckOutRequest checkOutRequest;
+    private Integer couponId;
+    private String couponCode;
     private List<BasketItem> basketItems = new ArrayList<>();
 }

@@ -6,12 +6,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum OrderStatusesEnum {
-    Aktif(1) ,
-    Beklemede(2) ,
-    İptal(3) ,
-    Kargolandı(4);
+    Aktif(1, "Aktif"),
+    Beklemede(2, "Beklemede"),
+    Iptal(3, "İptal"),
+    Kargolandi(4, "Kargolandı");
 
     private final Integer orderStatusId;
+    private final String orderStatusName;
 }
 
 

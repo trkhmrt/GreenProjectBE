@@ -1,5 +1,6 @@
 package com.ael.paymentservice.dto.response;
 
+import com.ael.paymentservice.model.SeedDonation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,4 +16,5 @@ public class PaymentResponse {
     private String hostReference;
     private String responseCode;
     private String responseMessage;
+    private String couponCode;
 }

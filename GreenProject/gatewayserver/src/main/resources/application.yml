@@ -45,4 +45,4 @@ logging:
         gatewayserver: DEBUG
 
 server:
-  port: 8020
+  port: 8072

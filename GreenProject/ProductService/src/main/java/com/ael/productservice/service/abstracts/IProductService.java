@@ -16,5 +16,6 @@ public interface IProductService  {
     ProductCreateResponse createProduct(ProductRequest productRequest);
     List<ProductGetAllResponse> getAllProducts();
     ProductUnitResponse getProduct(Integer productId);
+    String deleteProduct(Integer productId);
     ProductUpdateResponse updateProduct(Integer productId, ProductUpdateRequest productUpdateRequest);
 }

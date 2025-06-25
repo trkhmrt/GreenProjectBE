@@ -25,6 +25,10 @@ public class Payment {
 
     private String cardNumber;
 
+    private Integer couponId;
+
+
+
 
 
 }

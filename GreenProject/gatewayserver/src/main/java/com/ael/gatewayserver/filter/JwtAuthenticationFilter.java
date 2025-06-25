@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod; // Bu import önemli
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -21,26 +23,50 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     @Autowired
     private JwtUtil jwtUtil;
 
+    public JwtAuthenticationFilter() {
+        super(Config.class);
+    }
+
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+            logger.info(">>>>>> GATEWAY FILTRESINE GELEN ISTEK: METHOD = " + exchange.getRequest().getMethod());
+
+            ServerHttpRequest request = exchange.getRequest();
+
+            // Preflight (OPTIONS) isteklerini kimlik kontrolü yapmadan devam ettir
+            // BU BLOK ÇOK ÖNEMLİ
+            if (request.getMethod() == HttpMethod.OPTIONS) {
+                return chain.filter(exchange);
+            }
+
             // Check if JwtUtil is properly injected
             if (jwtUtil == null) {
                 logger.error("JwtUtil is null! Dependency injection failed.");
                 return onError(exchange, "JWT service not available", HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            ServerHttpRequest request = exchange.getRequest();
+            String token = null;
 
-            // Authorization header'ı kontrol et
+            // Önce Authorization header'ı kontrol et
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                logger.debug("No valid authorization header found");
-                return onError(exchange, "No valid authorization header", HttpStatus.UNAUTHORIZED);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                logger.debug("Token found in Authorization header.");
+            } else {
+                // Eğer header'da yoksa, cookie'yi kontrol et
+                HttpCookie jwtCookie = request.getCookies().getFirst("jwt");
+                if (jwtCookie != null) {
+                    token = jwtCookie.getValue();
+                    logger.debug("Token found in 'jwt' cookie.");
+                }
             }
 
-            String token = authHeader.substring(7);
+            if (token == null) {
+                logger.debug("No JWT token found in Authorization header or in 'jwt' cookie.");
+                return onError(exchange, "Authorization token is missing", HttpStatus.UNAUTHORIZED);
+            }
+
             logger.debug("Processing JWT token: {}", token.substring(0, Math.min(10, token.length())) + "...");
 
             try {

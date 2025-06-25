@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,8 @@ public class Basket {
         @JoinColumn(name = "basketStatusId")
         private BasketStatus basketStatus;
 
+        @CreationTimestamp // Bu anotasyon, nesne veritabanına kaydedildiğinde alanı otomatik olarak doldurur
+        private Instant createDate;
 
         @OneToMany(mappedBy = "basket",cascade = CascadeType.ALL,orphanRemoval = true)
         private List<BasketProductUnit> products = new ArrayList<>();

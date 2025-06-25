@@ -25,6 +25,8 @@ public class BasketProductUnit {
     private Integer productQuantity;
     private Double productUnitPrice;
     private Double productTotalPrice;
+    private String productModel;
+    private String productModelYear;
 
 
 }

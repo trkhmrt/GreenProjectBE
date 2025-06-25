@@ -25,16 +25,26 @@ public class OrderService implements IOrderService {
     private final IOrderDetailRepository orderDetailRepository;
     private final IOrderStatusRepository orderStatusRepository;
 
+    // Sipariş durumları için static sabitler
+    public static final String STATUS_AKTIF = "Aktif";
+    public static final String STATUS_BEKLEMEDE = "Beklemede";
+    public static final String STATUS_IPTAL = "İptal";
+    public static final String STATUS_KARGOLANDI = "Kargolandı";
 
     @Override
     public void createOrder(OrderDetailRequest orderDetailRequest) {
+        String statusName = STATUS_AKTIF; // Burada ihtiyaca göre farklı bir sabit de kullanılabilir
+        OrderStatus orderStatus = orderStatusRepository
+                .findByOrderStatusName(statusName)
+                .orElseThrow(() -> new RuntimeException("Order Status not Found"));
 
-        OrderStatus orderStatus = orderStatusRepository.findByOrderStatusName(OrderStatusesEnum.Aktif).orElseThrow(() -> new RuntimeException("Order Status not Found"));
+        System.out.println("Aranan sipariş durumu: [" + statusName + "]");
 
         Order order = Order.builder()
                 .customerId(orderDetailRequest.getCustomerId())
                 .basketId(orderDetailRequest.getBasketId())
                 .orderAddress(orderDetailRequest.getOrderAddress())
+                .orderStatus(orderStatus)
                 .build();
 
         orderRepository.save(order);
