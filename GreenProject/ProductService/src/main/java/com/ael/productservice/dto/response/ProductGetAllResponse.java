@@ -9,5 +9,6 @@ public class ProductGetAllResponse {
     private String productDescription;
     private Double productPrice;
     private Integer productQuantity;
+    private String productImageUrl;
     private Integer subCategoryId;
 }

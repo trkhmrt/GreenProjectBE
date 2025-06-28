@@ -13,4 +13,12 @@ export const authLogin = async (data) => {
 };
 
 
+
+export const authRegister = async (data) => {
+        const response = await axios.post(`${gatewayServiceUrl}/auth/register`, data,{ withCredentials: true });
+        console.log(response)
+        return response;
+};
+
+
 export const authLogout = () =>{}

@@ -24,7 +24,7 @@ public class CustomerDataLoader implements CommandLineRunner {
                     .phoneNumber("+905551112233")
                     .address("Örnek Mah. No:123")
                     .city("İstanbul")
-                    .userName("tarikhamarat")
+                    .username("tarikhamarat")
                     .password("güçlüŞifre123")
                     .build();
 

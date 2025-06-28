@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {routes} from '../../routes/Routes.js'
+import {authRegister} from "../../services/AuthService.js";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -50,11 +51,11 @@ const Register = () => {
         }
 
         try {
-            // TODO: Implement actual registration logic here
+
             console.log('Registration data:', formData);
 
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await authRegister(formData);
 
             // Navigate to login page after successful registration
             navigate('/login');

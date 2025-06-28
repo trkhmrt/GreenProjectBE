@@ -15,4 +15,5 @@ public class ProductUnitResponse {
     private String subCategoryName;
     private String categoryName;
     private Double productPrice;
+    private String productImageUrl;
 }

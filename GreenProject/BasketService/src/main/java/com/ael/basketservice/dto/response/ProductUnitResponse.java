@@ -18,4 +18,5 @@ public class ProductUnitResponse {
     private Integer productQuantity;
     private String productModel;
     private String productModelYear;
+    private String productImageUrl;
 }

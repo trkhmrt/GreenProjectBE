@@ -5,8 +5,8 @@ import {useAuth} from '../../context/AuthContext.jsx'
 import {routes} from '../../routes/Routes.js'
 
 const Login = () => {
-    const [username, setUsername] = useState('tarikhamarat');
-    const [password, setPassword] = useState('güçlüŞifre123');
+    const [username, setUsername] = useState('lealcandemir');
+    const [password, setPassword] = useState('123456');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);

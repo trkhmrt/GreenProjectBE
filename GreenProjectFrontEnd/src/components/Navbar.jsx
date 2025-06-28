@@ -23,7 +23,7 @@ const Navbar = () => {
                     {/* Logo */}
                     <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center">
-                            <span className="text-2xl font-bold text-green-600 hover:text-green-700 transition-colors duration-200">ShopEase</span>
+                            <span className="text-2xl font-bold text-green-600 hover:text-green-700 transition-colors duration-200">HOPE-HUB</span>
                         </Link>
                     </div>
 

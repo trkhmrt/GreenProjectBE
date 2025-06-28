@@ -437,9 +437,7 @@ const ProductCard = ({product, isFavorite, onToggleFavorite, onAddToBasket, isAd
             {/* Ürün Görseli */}
             <div className="aspect-square bg-gray-100 relative overflow-hidden">
                 <div className="w-full h-full flex items-center justify-center">
-                    <svg className="w-16 h-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"/>
-                    </svg>
+                   <img src={product.productImageUrl} className=""/>
                 </div>
 
                 {/* Favori Butonu */}
@@ -505,8 +503,12 @@ const ProductCard = ({product, isFavorite, onToggleFavorite, onAddToBasket, isAd
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                         ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2"
+                                 strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                             </svg>
                         )}
                     </button>

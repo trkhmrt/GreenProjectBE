@@ -37,6 +37,7 @@ public class BasketController {
     BasketProducer basketProducer;
     IBasketProductUnitService basketProductUnitService;
 
+
     @GetMapping("/addProductToBasket/{basketId}/{productId}")
     public String addProductToBasket(HttpServletRequest request,@PathVariable Integer basketId, @PathVariable Integer productId){
         Enumeration<String> headerNames = request.getHeaderNames();

@@ -67,7 +67,8 @@ public class ProductService implements IProductService {
                     dto.setProductDescription(product.getProductDescription());
                     dto.setProductPrice(product.getProductPrice());
                     dto.setProductQuantity(product.getProductQuantity());
-                    dto.setSubCategoryId(product.getSubcategory().getSubCategoryId()); // SubCategoryId'yi al
+                    dto.setSubCategoryId(product.getSubcategory().getSubCategoryId());
+                    dto.setProductImageUrl(product.getProductImageUrl());// SubCategoryId'yi al
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -87,6 +88,7 @@ public class ProductService implements IProductService {
                 .productId(product.getProductId())
                 .subCategoryName(product.getSubcategory().getSubCategoryName())
                 .subCategoryId(product.getSubcategory().getSubCategoryId())
+                .productImageUrl(product.getProductImageUrl())
                 .build();
 
 

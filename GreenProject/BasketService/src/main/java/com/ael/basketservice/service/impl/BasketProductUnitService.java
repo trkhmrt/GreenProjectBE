@@ -146,6 +146,7 @@ public class BasketProductUnitService implements IBasketProductUnitService {
                                     .productName(pu.getProductName())
                                     .productPrice(pu.getProductUnitPrice())
                                     .productQuantity(pu.getProductQuantity())
+                                    .productImageUrl(productInfo.getProductImageUrl())
                                     .build();
                         } catch (Exception e) {
                             logger.error("Error getting product info for product ID: {}", pu.getProductId(), e);

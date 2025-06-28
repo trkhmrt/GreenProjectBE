@@ -33,13 +33,13 @@ public class CustomerService implements ICustomerService {
     @Override
     public Customer createCustomer(Customer customer) {
 
-        existsByEmailOrUserName(customer.getEmail(), customer.getUserName());
+        existsByEmailOrUserName(customer.getEmail(), customer.getUsername());
 
         Customer newCustomer = Customer.builder()
                 .firstName(customer.getFirstName())
                 .lastName(customer.getLastName())
                 .email(customer.getEmail())
-                .userName(customer.getUserName())
+                .username(customer.getUsername())
                 .password(customer.getPassword())
                 .phoneNumber(customer.getPhoneNumber())
                 .city(customer.getCity())
@@ -69,7 +69,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public Boolean existsByEmailOrUserName(String email, String username) {
 
-        return customerRepository.existsByEmailOrUserName(email, username)
+        return customerRepository.existsByEmailOrUsername(email, username)
                 .filter(e -> !e)
                 .orElseThrow(() -> new CustomerAlreadyExistsException("Bu kullanıcı zaten mevcut."));
 
@@ -82,13 +82,13 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public Customer findCustomerByUserNameOrEmail(String email, String userName) {
-        return customerRepository.findCustomerByUserNameOrEmail(userName, email).orElseThrow(() -> new CustomerNotFoundException("Müşteri bulunamadı"));
+        return customerRepository.findCustomerByUsernameOrEmail(userName, email).orElseThrow(() -> new CustomerNotFoundException("Müşteri bulunamadı"));
     }
 
     @Override
     public CustomerResponse findCustomerByUserNameAndPassword(String username, String password) {
         //İlk etapta kullanıcıyı buluyor sonra gelen kullanıcının şifresi girilen şifreyle eşleşiyor mu ona bakılıyor
-        Customer foundedCustomer = customerRepository.findCustomerByUserNameOrEmail(username, null)
+        Customer foundedCustomer = customerRepository.findCustomerByUsernameOrEmail(username, null)
                 .filter(customer -> customer.getPassword().equals(password))
                 .orElseThrow(() -> new WrongUserNameOrPasswordException("Kullanıcı adı veya şifre hatalı."));
 

@@ -83,7 +83,7 @@ const Basket = () => {
                                 <div key={index} className="flex items-center p-4 border-b last:border-b-0">
                                     <div className="w-24 h-24 flex-shrink-0">
                                         <img
-
+                                            src={item.productImageUrl}
                                             className="w-full h-full object-cover rounded"
                                         />
                                     </div>

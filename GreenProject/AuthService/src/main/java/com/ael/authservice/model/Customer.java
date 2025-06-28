@@ -25,6 +25,6 @@ public class Customer{
     private String phoneNumber;
     private String address;
     private String city;
-    private String userName;
+    private String username;
     private String password;
 }
