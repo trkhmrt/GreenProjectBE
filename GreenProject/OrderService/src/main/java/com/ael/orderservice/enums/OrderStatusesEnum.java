@@ -1,10 +1,5 @@
 package com.ael.orderservice.enums;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
 public enum OrderStatusesEnum {
     Aktif(1, "Aktif"),
     Beklemede(2, "Beklemede"),
@@ -13,6 +8,19 @@ public enum OrderStatusesEnum {
 
     private final Integer orderStatusId;
     private final String orderStatusName;
+
+    OrderStatusesEnum(Integer orderStatusId, String orderStatusName) {
+        this.orderStatusId = orderStatusId;
+        this.orderStatusName = orderStatusName;
+    }
+
+    public Integer getOrderStatusId() {
+        return orderStatusId;
+    }
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
 }
 
 

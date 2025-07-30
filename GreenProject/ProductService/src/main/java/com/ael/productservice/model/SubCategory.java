@@ -26,6 +26,8 @@ public class SubCategory {
     @JoinColumn(name = "categoryId")
     private Category category;
 
+    private Boolean isActive;
+    private Boolean isDeleted;
 
     @OneToMany(mappedBy = "subcategory",cascade = CascadeType.ALL)
     private List<Product> products;

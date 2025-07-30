@@ -50,13 +50,21 @@ public class GatewayserverApplication {
 						.path("/ael/paymentservice/**")
 						.filters( f -> f.rewritePath("/ael/paymentservice/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()))
+								)
 						.uri("lb://PAYMENTSERVICE"))
 				.route(p -> p
 						.path("/ael/productservice/**")
 						.filters( f -> f.rewritePath("/ael/productservice/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
 						.uri("lb://PRODUCTSERVICE"))
+				.route(p -> p
+						.path("/ael/orderservice/**")
+						.filters( f -> f.rewritePath("/ael/orderservice/(?<segment>.*)","/${segment}")
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()))
+						)
+						.uri("lb://ORDERSERVICE"))
 				.build();
 
 	}

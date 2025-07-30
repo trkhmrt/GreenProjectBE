@@ -214,7 +214,7 @@ services:
 
 
   configserver:
-    image: "tarikhamarat/configserver:s1"
+    image: "tarikhamarat/configserver:s19"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -229,7 +229,7 @@ services:
       service: microservice-base-config
 
   eurekaserver:
-    image: "tarikhamarat/eurekaserver:s2"
+    image: "tarikhamarat/eurekaserver:s19"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
@@ -272,7 +272,7 @@ services:
       service: microservice-eureka-config
 
   basketservice:
-    image: tarikhamarat/basketservice:s17
+    image: "tarikhamarat/basketservice:s19"
     container_name: basketservice-ms
     ports:
       - "8040:8040"
@@ -301,7 +301,7 @@ services:
       service: microservice-eureka-config
 
   customerservice:
-    image: tarikhamarat/customerservice:s2
+    image: tarikhamarat/customerservice:s19
     container_name: customerservice-ms
     ports:
       - "8078:8078"
@@ -326,7 +326,7 @@ services:
       service: microservice-eureka-config
 
   orderservice:
-    image: tarikhamarat/orderservice:s17
+    image: "tarikhamarat/orderservice:s19"
     container_name: orderservice-ms
     ports:
       - "8085:8085"
@@ -346,12 +346,16 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "orderservice"
       SPRING_DATASOURCE_URL: "jdbc:mysql://orderdb:3306/orderservicedb"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
 
   paymentservice:
-    image: tarikhamarat/paymentservice:s17
+    image: "tarikhamarat/paymentservice:s19"
     container_name: paymentservice-ms
     ports:
       - "8086:8086"
@@ -371,12 +375,16 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "paymentservice"
       SPRING_DATASOURCE_URL: "jdbc:mysql://paymentdb:3306/paymentservicedb"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
 
   productservice:
-    image: tarikhamarat/productservice:s17
+    image: tarikhamarat/productservice:s19
     container_name: productservice-ms
     ports:
       - "8088:8088"
@@ -520,7 +528,7 @@ services:
 
 
   gatewayserver:
-    image: tarikhamarat/gatewayserver:s17
+    image: tarikhamarat/gatewayserver:s19
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"

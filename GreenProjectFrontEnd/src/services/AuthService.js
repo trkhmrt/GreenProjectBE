@@ -1,13 +1,11 @@
-import axios from "axios";
+import axios from "../lib/axios.js";
 
-const gatewayServiceUrl = "http://localhost:8072/ael/authservice"
+//const gatewayServiceUrl = "http://localhost:8072/ael/authservice"
 
 
 export const authLogin = async (data) => {
-        const response = await axios.post(`${gatewayServiceUrl}/auth/login`, data,{ withCredentials: true });
+        const response = await axios.post(`/authservice/auth/login`, data);
         console.log(response)
-        localStorage.setItem("activeBasketId",response.data.activeBasketId);
-        localStorage.setItem("customerId",response.data.customerId);
         console.log("Giriş başarılı, token:", response.data.accessToken);
         return response;
 };
@@ -15,10 +13,12 @@ export const authLogin = async (data) => {
 
 
 export const authRegister = async (data) => {
-        const response = await axios.post(`${gatewayServiceUrl}/auth/register`, data,{ withCredentials: true });
+        const response = await axios.post(`/authservice/auth/register`, data,{ withCredentials: true });
         console.log(response)
         return response;
 };
 
 
-export const authLogout = () =>{}
+export const authLogout = () =>{
+
+}

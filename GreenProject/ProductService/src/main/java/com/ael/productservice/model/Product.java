@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Set;
+
 @Table(name="products")
 @Data
 @Builder
@@ -23,12 +26,16 @@ public class Product {
     private String productDescription;
     private Double productPrice;
     private Integer productQuantity;
-    private String productImageUrl;
+
 
     @ManyToOne
     @JoinColumn(name = "productSubCategoryId")
     private SubCategory subcategory;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<ProductImageFile> imageFiles;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<ProductPropertyValue> productPropertyValues;
 
 }

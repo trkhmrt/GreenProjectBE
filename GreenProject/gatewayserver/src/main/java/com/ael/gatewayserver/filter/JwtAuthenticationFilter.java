@@ -95,6 +95,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                         .header("X-Customer-Id", customerId.toString())
                         .build();
 
+
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
             } catch (Exception e) {

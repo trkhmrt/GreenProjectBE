@@ -13,5 +13,6 @@ import java.util.List;
 @Builder
 public class BasketProductUnitResponse {
     private Integer basketId;
+    private Integer customerId;
     private List<ProductUnitResponse> basketProducts;
 }

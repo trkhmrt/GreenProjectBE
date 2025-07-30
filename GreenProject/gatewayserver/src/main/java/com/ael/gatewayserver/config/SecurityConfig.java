@@ -27,6 +27,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(
                                 "/auth/**",
@@ -35,6 +36,7 @@ public class SecurityConfig {
                                 "/ael/productservice/**",
                                 "/ael/basketservice/**",
                                 "/ael/paymentservice/**",
+                                "/ael/orderservice/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"

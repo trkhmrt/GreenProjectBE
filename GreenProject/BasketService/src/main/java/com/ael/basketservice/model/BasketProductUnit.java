@@ -28,5 +28,4 @@ public class BasketProductUnit {
     private String productModel;
     private String productModelYear;
 
-
 }

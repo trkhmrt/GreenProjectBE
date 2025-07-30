@@ -38,3 +38,7 @@ eureka:
       defaultZone: http://localhost:8070/eureka/
 
 
+iyzico:
+  api-key: sandbox-kaRR3Llj55mtPTPgxRgjRO9EG3fmPijW
+  secret-key: sandbox-8mrerFZWc60bveHsnJxxEOKe0GGfBMRQ
+  base-url: https://sandbox-api.iyzipay.com

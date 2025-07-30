@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
     // Statik değerler
-    private static final String BASKET_QUEUE = "basket.queue";
-    private static final String BASKET_EXCHANGE = "basket.exchange";
-    private static final String BASKET_ROUTING_KEY = "basket.routingKey";
+    private static final String BASKET_QUEUE = "basket.paid.queue";
+    private static final String BASKET_EXCHANGE = "basket.paid.exchange";
+    private static final String BASKET_ROUTING_KEY = "basket.paid.routingKey";
 
     @Bean
     public Queue googleAdsQueue(){

@@ -13,6 +13,7 @@ public class ProductUnitResponse {
     private String productName;
     private String productDescription;
     private Integer subCategoryId;
+    private String categoryName;
     private String subCategoryName;
     private Double productPrice;
     private Integer productQuantity;

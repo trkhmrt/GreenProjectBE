@@ -1,14 +1,18 @@
 import PaymentScreen from "../pages/Payment.jsx";
+import AdminCategoryPage from "../pages/AdminPanel/AdminCategoryPage.jsx";
 
 export const routes = {
     "HomePage":"/",
     "Basket":"/Basket",
     "Login":"/Login",
     "Register":"/Register",
-    "AdminPanelHome":"/AdminPanelHome",
-    "AddProductToStore":"/AddProductToStore",
+    "AdminOffice":"/Admin",
+    "AdminProduct":"/adminproduct",
     "Payment":"/Payment",
     "Orders":"/Orders",
-    "PaymentSuccess":"/PaymentSuccess",
+    "PaymentSuccess":"/PaymentResult",
     "Donation":"/Donation",
+    "CategoryPage":"/category",
+    "AdminCategory": "/admincategory",
+    "ProductDetail": "/product",
 }

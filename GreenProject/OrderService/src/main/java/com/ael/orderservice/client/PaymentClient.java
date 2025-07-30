@@ -1,8 +1,8 @@
 package com.ael.orderservice.client;
 
 
-import com.ael.orderservice.dto.request.PaymentRequest;
-import com.ael.orderservice.dto.response.PaymentResponseMessage;
+import com.ael.orderservice.request.PaymentRequest;
+import com.ael.orderservice.response.PaymentResponseMessage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

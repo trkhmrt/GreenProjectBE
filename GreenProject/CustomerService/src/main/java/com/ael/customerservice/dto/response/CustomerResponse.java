@@ -16,5 +16,6 @@ public class CustomerResponse {
     private String address;
     private String city;
     private Integer activeBasketId;
+    private String roles;
 
 }

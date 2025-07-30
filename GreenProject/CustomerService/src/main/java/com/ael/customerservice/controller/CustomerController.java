@@ -6,9 +6,8 @@ import com.ael.customerservice.dto.response.CheckoutInfoResponse;
 import com.ael.customerservice.dto.response.CreditCardResponse;
 import com.ael.customerservice.dto.response.CustomerResponse;
 import com.ael.customerservice.model.Customer;
-import com.ael.customerservice.model.CustomerCreditCard;
+import com.ael.customerservice.service.CustomerService;
 import com.ael.customerservice.service.ICustomerCreditCardService;
-import com.ael.customerservice.service.ICustomerService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerController {
 
-    ICustomerService customerService;
+    CustomerService customerService;
     ICustomerCreditCardService customerCreditCardService;
     IBasketClient basketClient;
 

@@ -1,7 +1,41 @@
-import axios from 'axios';
-
-const gatewayServiceUrl = "http://localhost:8072/ael/productservice/category"
+import axios from "../lib/axios.js";
+const gatewayServiceUrl = "http://localhost:8072/ael/productservice"
 
 export const getAllCategories = async () => {
-    return await axios.get(`${gatewayServiceUrl}/getAllCategories`,{ withCredentials: true });
+    return await axios.get(`${gatewayServiceUrl}/category/getAllCategories`);
+}
+
+export const createCategory = async (categoryName) => {
+    // POST /createCategory, body: { categoryName }
+    return await axios.post(`${gatewayServiceUrl}/category/createCategory`, { categoryName });
+}
+
+export const deleteCategory = async (id) => {
+    // DELETE /deleteCategory/{id}
+    return await axios.delete(`${gatewayServiceUrl}/category/deleteCategory/${id}`);
+}
+
+export const createSubCategory = async ({ categoryId, subCategoryName }) => {
+    // POST /createSubCategory, body: { categoryId, subCategoryName }
+    return await axios.post(`${gatewayServiceUrl}/subCategory/createSubCategory`, { categoryId, subCategoryName });
+}
+
+export const updateCategoryName = async (id, name) => {
+    // PUT /updateCategoryName?id=...&name=...
+    return await axios.put(`${gatewayServiceUrl}/category/updateCategoryName`, null, { params: { id, name } });
+}
+
+export const deleteSubCategory = async (id) => {
+    // DELETE /deleteSubCategory/{id}
+    return await axios.delete(`${gatewayServiceUrl}/subCategory/deleteSubCategory/${id}`);
+}
+
+export const updateSubCategoryName = async (id, name) => {
+    // PUT /updateSubCategoryName?id=...&name=...
+    return await axios.put(`${gatewayServiceUrl}/subCategory/updateSubCategoryName`, null, { params: { id, name } });
+}
+
+// Kategori aktif/pasif toggle
+export const toggleCategoryActive = async (categoryId) => {
+    return await axios.post(`${gatewayServiceUrl}/category/toggle-active/${categoryId}`);
 }

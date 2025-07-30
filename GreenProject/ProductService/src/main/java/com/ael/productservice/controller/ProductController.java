@@ -1,14 +1,13 @@
 package com.ael.productservice.controller;
 
 
-import com.ael.productservice.dto.request.ProductRequest;
-import com.ael.productservice.dto.request.ProductUpdateRequest;
-import com.ael.productservice.dto.response.ProductCreateResponse;
-import com.ael.productservice.dto.response.ProductGetAllResponse;
-import com.ael.productservice.dto.response.ProductUnitResponse;
-import com.ael.productservice.dto.response.ProductUpdateResponse;
-import com.ael.productservice.model.Product;
-import com.ael.productservice.service.abstracts.IProductService;
+import com.ael.productservice.request.ProductRequest;
+import com.ael.productservice.request.ProductUpdateRequest;
+import com.ael.productservice.response.ProductCreateResponse;
+import com.ael.productservice.response.ProductResponse;
+import com.ael.productservice.response.ProductUnitResponse;
+import com.ael.productservice.response.ProductUpdateResponse;
+import com.ael.productservice.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,31 +19,32 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductController {
 
-    IProductService productService;
+    private final ProductService productService;
 
     @GetMapping("/getAllProducts")
-    public List<ProductGetAllResponse> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
 
-        return productService.getAllProducts();
+        return productService.getAllProductsWithImages();
     };
 
 
     @PostMapping("/createProduct")
-    public ResponseEntity<ProductCreateResponse> createProduct(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductCreateResponse> createProduct(@ModelAttribute ProductRequest productRequest) {
+        ProductCreateResponse response = productService.createProduct(productRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/addPropertyToProduct")
+    public ResponseEntity<String> addPropertyToProduct(@RequestBody ProductRequest productRequest) {
 
         productService.createProduct(productRequest);
 
-        return ResponseEntity.ok()
-                .body(ProductCreateResponse.builder()
-                        .message("Created Succesfuly")
-                        .build()
-                );
-
+        return ResponseEntity.ok().body("Created Succesfuly");
     };
 
     @GetMapping("/getProductById/{productId}")
-    public ProductUnitResponse getProductById(@PathVariable Integer productId){
-        return productService.getProduct(productId);
+    public ProductResponse getProductById(@PathVariable Integer productId){
+        return productService.getProductById(productId);
     }
 
     @DeleteMapping("/deleteProduct/{productId}")
@@ -52,10 +52,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.deleteProduct(productId));
     }
 
+
     @PutMapping("/updateProduct/{productId}")
     public ResponseEntity<ProductUpdateResponse> updateProduct(
             @PathVariable Integer productId,
-            @RequestBody ProductUpdateRequest productUpdateRequest) {
+            @ModelAttribute ProductUpdateRequest productUpdateRequest) {
 
         ProductUpdateResponse response = productService.updateProduct(productId, productUpdateRequest);
         return ResponseEntity.ok(response);

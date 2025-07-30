@@ -3,10 +3,19 @@ import {authLogin} from '../../services/AuthService.js';
 import {useNavigate} from "react-router-dom";
 import {useAuth} from '../../context/AuthContext.jsx'
 import {routes} from '../../routes/Routes.js'
+import axios from 'axios';
+
+// GUID (UUID v4) oluşturucu fonksiyon
+function generateGUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 const Login = () => {
-    const [username, setUsername] = useState('lealcandemir');
-    const [password, setPassword] = useState('123456');
+    const [username, setUsername] = useState('aysenaz1');
+    const [password, setPassword] = useState('Password123');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +31,6 @@ const Login = () => {
             const response = await authLogin({ username, password });
             const customerInfo = {
                 "accessToken": response.data.accessToken,
-                "username": response.data.userName,
-                "customerId": response.data.customerId
             }
             login(customerInfo);
             navigate(`${routes.HomePage}`);

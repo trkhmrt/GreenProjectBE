@@ -1,31 +1,24 @@
-import axios from "axios";
-
-const serviceUrl = "http://localhost:8040/basket"
+import axios from "../lib/axios.js";
+//const serviceUrl = "http://localhost:8040/basket"
 const gatewayServiceUrl = "http://localhost:8072/ael/basketservice/basket"
 
 
 
-    //`${serviceUrl}/basketProductListing/${customerId}
 
-
-export const getBasketCustomerById = async(customerId) => {
-    const response = await axios.get(`http://localhost:8072/ael/basketservice/basket/basketProductListing/${customerId}`,{
+export const getBasketCustomerById = async() => {
+    const response = await axios.get(`/basketservice/basket/getCustomerbasket`,{
         withCredentials: true,
     });
-    localStorage.setItem("customerBasketId",response.data.basketId);
-    //console.log(response.data);
-    return response.data;
-}
-export const getBasketBasketById = async(basketId) => {
-    const response = await axios.get(`${serviceUrl}/getBasketProductUnitByBasketId/${basketId}`);
-    //console.log(response.data);
+    console.log(response);
+    console.log(response.data.basketId);
     return response.data;
 }
 
 
-export const deleteProductFromBasket = async(productId) => {
-    const basketId = localStorage.getItem("customerBasketId");
-    const response = await axios.get(`${gatewayServiceUrl}/removeProductFromBasket/${basketId}/${productId}`,{
+
+export const removeProductFromBasket = async(basketProductUnitId) => {
+
+    const response = await axios.get(`/basketservice/basket/removeProductFromBasket/${basketProductUnitId}`,{
         withCredentials: true, // <-- BU SATIR ÇOK ÖNEMLİ!
     });
 
@@ -33,42 +26,24 @@ export const deleteProductFromBasket = async(productId) => {
 }
 
 export const addProductToBasket = async(productId) => {
-    const customerId = localStorage.getItem("customerId");
-    const response = await axios.get(`${gatewayServiceUrl}/addProductToCustomerBasket/${customerId}/${productId}`,{
-        withCredentials: true, // <-- BU SATIR ÇOK ÖNEMLİ!
+
+    const response = await axios.get(`/basketservice/basket/addProductToCustomerBasket/${productId}`,{
+        withCredentials: true,
     });
     //console.log(response.data);
     return response.data;
 }
 
 
-export const readyForCheckout = async (basketId) => {
-    const response = await axios.put(`${serviceUrl}/ready-for-checkout/${basketId}`)
-    return response.data;
-}
-
 export const decrementProductFromBasket = async(basketProductUnitId) => {
-    return await axios.put(`${gatewayServiceUrl}/decrementProductQuantity/${basketProductUnitId}`,{},{
+    return await axios.put(`/basketservice/basket/decrementProductQuantity/${basketProductUnitId}`,{},{
         withCredentials: true// <-- BU SATIR ÇOK ÖNEMLİ!
     });
 }
 
 export const incrementProductFromBasket = async(basketProductUnitId) => {
-    return await axios.put(`${gatewayServiceUrl}/incrementProductQuantity/${basketProductUnitId}`,{},{
+    return await axios.put(`/basketservice/basket/incrementProductQuantity/${basketProductUnitId}`,{},{
         withCredentials: true // <-- BU SATIR ÇOK ÖNEMLİ!
     });
 }
 
-export const recommendProductFromBasket = async(products) => {
-
-        console.log("API isteği gönderiliyor:", products);
-
-        const response = await axios.post("http://localhost:5000/recommend", {
-            products: products,
-            top_n: 5
-        });
-
-        console.log("API cevabı:", response.data.recommendations);
-        return response.data.recommendations;
-
-}

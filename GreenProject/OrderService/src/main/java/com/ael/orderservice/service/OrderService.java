@@ -1,11 +1,7 @@
 package com.ael.orderservice.service;
 
 
-import com.ael.orderservice.client.PaymentClient;
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
-import com.ael.orderservice.dto.request.OrderRequest;
-import com.ael.orderservice.dto.request.PaymentRequest;
-import com.ael.orderservice.enums.OrderStatusesEnum;
 import com.ael.orderservice.model.Order;
 import com.ael.orderservice.model.OrderDetail;
 import com.ael.orderservice.model.OrderStatus;
@@ -16,10 +12,12 @@ import com.ael.orderservice.repository.IOrderStatusRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @AllArgsConstructor
-public class OrderService implements IOrderService {
+public class OrderService  {
 
     private final IOrderRepository orderRepository;
     private final IOrderDetailRepository orderDetailRepository;
@@ -31,7 +29,7 @@ public class OrderService implements IOrderService {
     public static final String STATUS_IPTAL = "İptal";
     public static final String STATUS_KARGOLANDI = "Kargolandı";
 
-    @Override
+
     public void createOrder(OrderDetailRequest orderDetailRequest) {
         String statusName = STATUS_AKTIF; // Burada ihtiyaca göre farklı bir sabit de kullanılabilir
         OrderStatus orderStatus = orderStatusRepository
@@ -66,6 +64,12 @@ public class OrderService implements IOrderService {
 
 
 
+    }
+    public List<Order> getOrderByCustomerId(Integer customerId) {
+        return orderRepository.getOrderByCustomerId(customerId);
+    }
+    public List<OrderDetail> getOrderDetailsByOrderId(Integer orderId) {
+        return orderDetailRepository.findOrderDetailByOrder_OrderId(orderId);
     }
 
 }

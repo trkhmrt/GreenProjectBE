@@ -27,4 +27,5 @@ public class Customer{
     private String city;
     private String username;
     private String password;
+    private String roles;
 }

@@ -19,6 +19,8 @@ public class Category {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Integer categoryId;
         private String categoryName;
+        private Boolean isActive;
+        private Boolean isDeleted;
 
         @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
         private List<SubCategory> subCategories;

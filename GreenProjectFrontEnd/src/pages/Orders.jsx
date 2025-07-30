@@ -1,149 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { getCustomerOrders } from '../services/OrderService';
+import { useToast } from '../context/ToastContext';
 
 const OrderList = () => {
+    const { showToast } = useToast();
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('all');
-    const [sortBy, setSortBy] = useState('date');
+    const [sortBy, setSortBy] = useState('orderId');
     const [sortOrder, setSortOrder] = useState('desc');
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // Mock data - replace with actual API call
+    // API'den siparişleri çek
     useEffect(() => {
-        const mockOrders = [
-            {
-                id: 'ORD-2024-001',
-                customerName: 'Ahmet Yılmaz',
-                product: 'Yeşil Teknoloji Paketi',
-                amount: 1250.00,
-                status: 'completed',
-                date: '2024-01-15',
-                paymentMethod: 'Kredi Kartı',
-                items: 3
-            },
-            {
-                id: 'ORD-2024-002',
-                customerName: 'Fatma Demir',
-                product: 'Sürdürülebilir Enerji Çözümü',
-                amount: 890.50,
-                status: 'processing',
-                date: '2024-01-14',
-                paymentMethod: 'Banka Transferi',
-                items: 2
-            },
-            {
-                id: 'ORD-2024-003',
-                customerName: 'Mehmet Kaya',
-                product: 'Çevre Dostu Ürün Seti',
-                amount: 2100.00,
-                status: 'shipped',
-                date: '2024-01-13',
-                paymentMethod: 'Kredi Kartı',
-                items: 5
-            },
-            {
-                id: 'ORD-2024-004',
-                customerName: 'Ayşe Özkan',
-                product: 'Yeşil Teknoloji Paketi',
-                amount: 750.00,
-                status: 'pending',
-                date: '2024-01-12',
-                paymentMethod: 'Nakit',
-                items: 1
-            },
-            {
-                id: 'ORD-2024-005',
-                customerName: 'Ali Çelik',
-                product: 'Sürdürülebilir Enerji Çözümü',
-                amount: 1650.00,
-                status: 'completed',
-                date: '2024-01-11',
-                paymentMethod: 'Kredi Kartı',
-                items: 4
-            },
-            {
-                id: 'ORD-2024-006',
-                customerName: 'Zeynep Arslan',
-                product: 'Çevre Dostu Ürün Seti',
-                amount: 950.00,
-                status: 'completed',
-                date: '2024-01-10',
-                paymentMethod: 'Kredi Kartı',
-                items: 2
-            },
-            {
-                id: 'ORD-2024-007',
-                customerName: 'Mustafa Özkan',
-                product: 'Yeşil Teknoloji Paketi',
-                amount: 1800.00,
-                status: 'shipped',
-                date: '2024-01-09',
-                paymentMethod: 'Banka Transferi',
-                items: 3
-            },
-            {
-                id: 'ORD-2024-008',
-                customerName: 'Elif Yıldız',
-                product: 'Sürdürülebilir Enerji Çözümü',
-                amount: 2200.00,
-                status: 'processing',
-                date: '2024-01-08',
-                paymentMethod: 'Kredi Kartı',
-                items: 4
-            },
-            {
-                id: 'ORD-2024-009',
-                customerName: 'Burak Demir',
-                product: 'Çevre Dostu Ürün Seti',
-                amount: 1200.00,
-                status: 'pending',
-                date: '2024-01-07',
-                paymentMethod: 'Nakit',
-                items: 2
-            },
-            {
-                id: 'ORD-2024-010',
-                customerName: 'Selin Kaya',
-                product: 'Yeşil Teknoloji Paketi',
-                amount: 1600.00,
-                status: 'completed',
-                date: '2024-01-06',
-                paymentMethod: 'Kredi Kartı',
-                items: 3
-            },
-            {
-                id: 'ORD-2024-011',
-                customerName: 'Emre Çelik',
-                product: 'Sürdürülebilir Enerji Çözümü',
-                amount: 1950.00,
-                status: 'shipped',
-                date: '2024-01-05',
-                paymentMethod: 'Banka Transferi',
-                items: 5
-            },
-            {
-                id: 'ORD-2024-012',
-                customerName: 'Deniz Arslan',
-                product: 'Çevre Dostu Ürün Seti',
-                amount: 850.00,
-                status: 'completed',
-                date: '2024-01-04',
-                paymentMethod: 'Kredi Kartı',
-                items: 1
+        const fetchOrders = async () => {
+            try {
+                setIsLoading(true);
+                const ordersData = await getCustomerOrders();
+                console.log('API Orders:', ordersData);
+                setOrders(ordersData);
+                setFilteredOrders(ordersData);
+            } catch (error) {
+                console.error('Siparişler yüklenirken hata:', error);
+                showToast('Siparişler yüklenirken bir hata oluştu', 'error');
+            } finally {
+                setIsLoading(false);
             }
-        ];
+        };
 
-        setTimeout(() => {
-            setOrders(mockOrders);
-            setFilteredOrders(mockOrders);
-            setIsLoading(false);
-        }, 1000);
-    }, []);
+        fetchOrders();
+    }, [showToast]);
 
     // Search and filter functionality
     useEffect(() => {
@@ -152,13 +43,13 @@ const OrderList = () => {
         // Search by order ID
         if (searchTerm) {
             filtered = filtered.filter(order =>
-                order.id.toLowerCase().includes(searchTerm.toLowerCase())
+                order.orderId.toString().toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
         // Filter by status
         if (selectedStatus !== 'all') {
-            filtered = filtered.filter(order => order.status === selectedStatus);
+            filtered = filtered.filter(order => order.orderStatus.orderStatusName === selectedStatus);
         }
 
         // Sort orders
@@ -166,17 +57,17 @@ const OrderList = () => {
             let aValue, bValue;
 
             switch (sortBy) {
-                case 'date':
-                    aValue = new Date(a.date);
-                    bValue = new Date(b.date);
+                case 'orderId':
+                    aValue = a.orderId;
+                    bValue = b.orderId;
                     break;
-                case 'amount':
-                    aValue = a.amount;
-                    bValue = b.amount;
+                case 'basketId':
+                    aValue = a.basketId;
+                    bValue = b.basketId;
                     break;
-                case 'id':
-                    aValue = a.id;
-                    bValue = b.id;
+                case 'customerId':
+                    aValue = a.customerId;
+                    bValue = b.customerId;
                     break;
                 default:
                     aValue = a[sortBy];
@@ -215,14 +106,16 @@ const OrderList = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'completed':
+            case 'Aktif':
                 return 'bg-green-100 text-green-800 border-green-200';
-            case 'processing':
+            case 'İşleniyor':
                 return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'shipped':
+            case 'Kargoda':
                 return 'bg-purple-100 text-purple-800 border-purple-200';
-            case 'pending':
+            case 'Beklemede':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'Tamamlandı':
+                return 'bg-green-100 text-green-800 border-green-200';
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-200';
         }
@@ -230,25 +123,19 @@ const OrderList = () => {
 
     const getStatusText = (status) => {
         switch (status) {
-            case 'completed':
-                return 'Tamamlandı';
-            case 'processing':
+            case 'Aktif':
+                return 'Aktif';
+            case 'İşleniyor':
                 return 'İşleniyor';
-            case 'shipped':
+            case 'Kargoda':
                 return 'Kargoda';
-            case 'pending':
+            case 'Beklemede':
                 return 'Beklemede';
+            case 'Tamamlandı':
+                return 'Tamamlandı';
             default:
                 return status;
         }
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('tr-TR', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
     };
 
     const formatCurrency = (amount) => {
@@ -314,10 +201,11 @@ const OrderList = () => {
                                 className="block w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
                             >
                                 <option value="all">Tüm Durumlar</option>
-                                <option value="pending">Beklemede</option>
-                                <option value="processing">İşleniyor</option>
-                                <option value="shipped">Kargoda</option>
-                                <option value="completed">Tamamlandı</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Beklemede">Beklemede</option>
+                                <option value="İşleniyor">İşleniyor</option>
+                                <option value="Kargoda">Kargoda</option>
+                                <option value="Tamamlandı">Tamamlandı</option>
                             </select>
                         </div>
 
@@ -328,9 +216,9 @@ const OrderList = () => {
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="block w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors duration-200"
                             >
-                                <option value="date">Tarihe Göre</option>
-                                <option value="amount">Tutara Göre</option>
-                                <option value="id">Sipariş ID'ye Göre</option>
+                                <option value="orderId">Sipariş ID'ye Göre</option>
+                                <option value="basketId">Sepet ID'ye Göre</option>
+                                <option value="customerId">Müşteri ID'ye Göre</option>
                             </select>
                         </div>
 
@@ -397,19 +285,16 @@ const OrderList = () => {
                                     Sipariş ID
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Müşteri
+                                    Müşteri ID
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ürün
+                                    Sepet ID
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tutar
+                                    Adres
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Durum
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tarih
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     İşlemler
@@ -418,7 +303,7 @@ const OrderList = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                             {currentOrders.map((order) => (
-                                <tr key={order.id} className="hover:bg-gray-50 transition-colors duration-200">
+                                <tr key={order.orderId} className="hover:bg-gray-50 transition-colors duration-200">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
                                             <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
@@ -426,27 +311,24 @@ const OrderList = () => {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             </div>
-                                            <span className="text-sm font-medium text-gray-900">{order.id}</span>
+                                            <span className="text-sm font-medium text-gray-900">#{order.orderId}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{order.customerName}</div>
-                                        <div className="text-sm text-gray-500">{order.items} ürün</div>
+                                        <div className="text-sm font-medium text-gray-900">{order.customerId}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm text-gray-900">{order.basketId}</div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="text-sm text-gray-900">{order.product}</div>
-                                        <div className="text-sm text-gray-500">{order.paymentMethod}</div>
+                                        <div className="text-sm text-gray-900 max-w-xs truncate">
+                                            {order.orderAddress || 'Adres bilgisi yok'}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm font-semibold text-gray-900">{formatCurrency(order.amount)}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                                {getStatusText(order.status)}
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(order.orderStatus.orderStatusName)}`}>
+                                                {getStatusText(order.orderStatus.orderStatusName)}
                                             </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatDate(order.date)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex space-x-2">

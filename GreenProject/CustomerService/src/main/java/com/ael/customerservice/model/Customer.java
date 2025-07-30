@@ -20,6 +20,7 @@ import java.util.List;
 @Entity
 @Table(name="Customers")
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer customerId;
@@ -31,6 +32,16 @@ public class Customer {
     private String city;
     private String username;
     private String password;
+    private String identityNumber;
+    private String vkn;
+    private Integer customerTypeId;
+    private Boolean isDeleted = false;
+    private Boolean isEmailConfirmed = false;
+    private Boolean isSmsConfirmed = false;
+    private String roles;
+
+
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)

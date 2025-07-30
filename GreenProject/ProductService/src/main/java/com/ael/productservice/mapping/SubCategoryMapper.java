@@ -1,7 +1,7 @@
 package com.ael.productservice.mapping;
 
 
-import com.ael.productservice.dto.response.SubCategoryResponse;
+import com.ael.productservice.response.SubCategoryResponse;
 import com.ael.productservice.model.SubCategory;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;

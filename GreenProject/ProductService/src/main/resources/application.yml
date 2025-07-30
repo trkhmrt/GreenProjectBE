@@ -23,7 +23,30 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 dakika
+      cache-null-values: false
+      key-prefix: "product:"
+      use-key-prefix: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:  # Şifre varsa
+      database: 0
+      # timeout deprecated, yerine connection-timeout kullan
+      connection-timeout: 2000ms
+      # Yeni timeout ayarları
+      timeout: 2000ms  # Command timeout
+      lettuce:
+        pool:
+          max-active: 8      # Maksimum aktif bağlantı
+          max-idle: 8        # Maksimum boşta bağlantı
+          min-idle: 0        # Minimum boşta bağlantı
+          max-wait: -1ms     # Bağlantı bekleme süresi
+          time-between-eviction-runs: 30000ms  # Eviction çalışma aralığı
 
 server:
   port: 8088
@@ -36,3 +59,12 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
+
+aws:
+  s3:
+    bucket: smartspirit-ecommerce-photos-eu-central
+    cloudfront-url: https://d2asj86e04rqv6.cloudfront.net
+    region: eu-central-1 # bucket'ı hangi bölgede oluşturduysan
+    access-key: AKIAS66UDDNEULUZCOVN
+    secret-key: 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
+

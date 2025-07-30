@@ -35,13 +35,4 @@ public class Basket {
         private List<BasketProductUnit> products = new ArrayList<>();
 
 
-        @Override
-        public String toString() {
-                return "Basket{" +
-                        "basketId=" + basketId +
-                        ", customerId=" + customerId +
-                        ", basketStatus=" + basketStatus +
-                        ", products=" + products +
-                        '}';
-        }
 }

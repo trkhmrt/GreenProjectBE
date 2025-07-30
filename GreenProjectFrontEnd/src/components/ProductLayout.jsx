@@ -24,6 +24,9 @@ const ProductLayout = () => {
     const [isAddingToBasket, setIsAddingToBasket] = useState(new Set());
     const [addedToBasketProduct, setAddedToBasketProduct] = useState(null);
 
+    // Sıralama state'i
+    const [sortOption, setSortOption] = useState('default');
+
     // Kategori dropdown için ref
     const categoryRef = useRef(null);
 
@@ -43,16 +46,7 @@ const ProductLayout = () => {
 
     const handleAddProductToBasket = async (productId) => {
         try {
-            // Önce customerId kontrolü yap
-            const customerId = localStorage.getItem("customerId");
-            if (!customerId) {
-                alert('Sepete ürün eklemek için giriş yapmanız gerekiyor.');
-                return;
-            }
-
-            // Bu ürün için loading durumunu başlat
             setIsAddingToBasket(prev => new Set(prev).add(productId));
-
             const response = await addProductToBasket(productId);
             console.log('Ürün sepete eklendi:', response);
 
@@ -237,6 +231,20 @@ const ProductLayout = () => {
         });
     };
 
+    // Sıralama fonksiyonu
+    const sortProducts = (products) => {
+        if (sortOption === 'price-asc') {
+            return [...products].sort((a, b) => a.productPrice - b.productPrice);
+        } else if (sortOption === 'price-desc') {
+            return [...products].sort((a, b) => b.productPrice - a.productPrice);
+        } else if (sortOption === 'latest') {
+            return [...products].sort((a, b) => new Date(b.createdAt || b.created_date) - new Date(a.createdAt || a.created_date));
+        }
+        return products;
+    };
+
+    const sortedProducts = sortProducts(currentProducts);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -251,8 +259,8 @@ const ProductLayout = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Soft Minimal Arama Alanı */}
-            <div className="mb-6 px-4">
-                <div className="max-w-2xl mx-auto">
+            <div className="mb-6 px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="max-w-2xl mx-auto w-full">
                     <div className="relative">
                         <input
                             type="text"
@@ -300,6 +308,19 @@ const ProductLayout = () => {
                             ))}
                         </div>
                     )}
+                </div>
+                {/* Sıralama Dropdown */}
+                <div className="ml-auto">
+                    <select
+                        value={sortOption}
+                        onChange={e => setSortOption(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    >
+                        <option value="default">Sıralama: Varsayılan</option>
+                        <option value="price-asc">Fiyat: Artan</option>
+                        <option value="price-desc">Fiyat: Azalan</option>
+                        <option value="latest">Son Eklenen</option>
+                    </select>
                 </div>
             </div>
 
@@ -362,7 +383,22 @@ const ProductLayout = () => {
             {/* Ürün Listesi */}
             <div className="px-4 pb-8">
                 <div className="max-w-7xl mx-auto">
-                    {currentProducts.length === 0 ? (
+                    <div className="flex items-center justify-between mb-4">
+                        <div></div>
+                        <div className="ml-auto">
+                            <select
+                                value={sortOption}
+                                onChange={e => setSortOption(e.target.value)}
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            >
+                                <option value="default">Sıralama: Varsayılan</option>
+                                <option value="price-asc">Fiyat: Artan</option>
+                                <option value="price-desc">Fiyat: Azalan</option>
+                                <option value="latest">Son Eklenen</option>
+                            </select>
+                        </div>
+                    </div>
+                    {sortedProducts.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,8 +409,8 @@ const ProductLayout = () => {
                             <p className="text-gray-500">Arama kriterlerinize uygun ürün bulunamadı.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                            {currentProducts.map((product, index) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                            {sortedProducts.map((product, index) => (
                                 <ProductCard
                                     key={product.productId}
                                     product={product}

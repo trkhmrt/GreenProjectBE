@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
     public static final String ORDER_EXCHANGE = "order.exchange";
     public static final String ORDER_ROUTING_KEY = "order.routingKey";
-    public static final String BASKET_EXCHANGE = "basket.exchange";
-    public static final String BASKET_ROUTING_KEY = "basket.routingKey";
-    public static final String BASKET_QUEUE = "basket.queue";
+    public static final String BASKET_EXCHANGE = "basket.paid.exchange";
+    public static final String BASKET_ROUTING_KEY = "basket.paid.routingKey";
+    public static final String BASKET_QUEUE = "basket.paid.queue";
 
     @Bean
     public Queue basketQueue() {

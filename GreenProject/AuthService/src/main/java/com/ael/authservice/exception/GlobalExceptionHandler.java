@@ -27,4 +27,10 @@ public class GlobalExceptionHandler {
                 .body("Kullanıcı mevcut");
     }
 
+    {/*Kullanıcı adı ve şifrenin kontrolü yapılıyor*/}
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 }

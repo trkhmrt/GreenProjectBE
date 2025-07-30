@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.ael.authservice.util.AuthValidator;
 
 import java.util.Enumeration;
 
@@ -38,6 +39,8 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         log.info("Login request received for username: {}", loginRequest.getUsername());
         
+     
+
         CustomerResponse customer = customerClient.authenticateCustomer(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()
@@ -49,7 +52,7 @@ public class AuthController {
             // JWT token üret
             String token = jwtUtil.generateToken(
                     customer.getEmail(),
-                    "USER",
+                    customer.getRoles(),
                     customer.getCustomerId()
             );
             
@@ -88,27 +91,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Customer customer) {
-
+        AuthValidator.validateUsername(customer.getUsername());
+        AuthValidator.validatePassword(customer.getPassword());
         customerClient.createCustomer(customer);
         return ResponseEntity.ok("Customer registered successfully!");
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<?> test(HttpServletRequest request) {
-        log.info("AuthContactInfo message: {}", authContactInfo != null ? authContactInfo.getMessage() : "null");
-
-        log.info("=== ALL REQUEST HEADERS ===");
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String headerValue = request.getHeader(headerName);
-            log.info("Header: {} = {}", headerName, headerValue);
-        }
-
-
-        if (authContactInfo == null || authContactInfo.getMessage() == null) {
-            return ResponseEntity.status(500).body("Configuration not loaded properly");
-        }
-        return ResponseEntity.ok(authContactInfo.getMessage());
     }
 }
