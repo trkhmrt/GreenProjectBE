@@ -11,7 +11,6 @@ export const routes = {
     "Payment":"/Payment",
     "Orders":"/Orders",
     "PaymentSuccess":"/PaymentResult",
-    "Donation":"/Donation",
     "CategoryPage":"/category",
     "AdminCategory": "/admincategory",
     "ProductDetail": "/product",

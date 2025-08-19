@@ -21,18 +21,18 @@ public class FileController {
     /**
      * EU-Central-1'e toplu ürün fotoğrafı yükleme
      */
-    @PostMapping("/upload-multiple-product-images-eu-central")
-    public ResponseEntity<List<String>> uploadMultipleProductImagesToEuCentral(
-            @RequestParam("files") List<MultipartFile> files,
-            @RequestParam("productId") Integer productId) throws IOException {
-
-        // Ürünün var olduğunu kontrol et
-        productService.getProductById(productId);
-
-        List<String> imageUrls = s3Service.uploadMultipleProductImagesToEuCentral(files, productId);
-
-        return ResponseEntity.ok(imageUrls);
-    }
+//    @PostMapping("/upload-multiple-product-images-eu-central")
+//    public ResponseEntity<List<String>> uploadMultipleProductImagesToEuCentral(
+//            @RequestParam("files") List<MultipartFile> files,
+//            @RequestParam("productId") Integer productId) throws IOException {
+//
+//        // Ürünün var olduğunu kontrol et
+//        productService.getProductById(productId);
+//
+//        List<String> imageUrls = s3Service.uploadMultipleProductImagesToEuCentral(files, productId);
+//
+//        return ResponseEntity.ok(imageUrls);
+//    }
 
     /**
      * EU-Central-1'deki ürün fotoğraflarını listele

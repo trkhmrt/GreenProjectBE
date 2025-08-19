@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { routes } from "../routes/Routes.js";
 import { useAuth } from '../context/AuthContext';
-import { getAllCategories } from "../services/CategoryService.js";
 import { getAllProducts } from "../services/ProductService.js";
+import { getHierarchicalNestedCategories } from "../services/CategoryService.js";
 // import { Transition } from 'react-transition-group'; // KALDIRILDI
 
 const Navbar = () => {
@@ -57,8 +57,16 @@ const Navbar = () => {
                 const productsData = await getAllProducts();
                 setProducts(productsData);
                 
-                const categoriesData = await getAllCategories();
-                setCategories(categoriesData.data || []);
+                const hierarchicalData = await getHierarchicalNestedCategories();
+                // Sadece ana kategorileri al
+                const mainCategories = (hierarchicalData.data || [])
+                    .filter(cat => cat.isActive === true)
+                    .map(cat => ({
+                        categoryId: cat.categoryId,
+                        categoryName: cat.categoryName,
+                        subcategories: cat.children || []
+                    }));
+                setCategories(mainCategories);
             } catch (error) {
                 console.error('Data loading error:', error);
             }
@@ -206,22 +214,13 @@ const Navbar = () => {
                     {/* Sağ Menü */}
                     <div className="flex items-center space-x-4">
                         {/* Sepet */}
-                        <div className="relative">
-                            <Link to={routes.Basket} className="group p-2 rounded-full text-gray-500 hover:text-[#6C2BD7] hover:bg-gray-50 focus:outline-none transition-all duration-200">
-                                <div className="relative">
-                                    <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="relative hidden md:block">
+                            <Link to={routes.Basket} className="group">
+                                <span className="flex items-center px-3 py-2 rounded-lg text-gray-600 hover:text-purple-700 hover:bg-purple-100/50 hover:underline transition-all duration-300 cursor-pointer">
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    {cartItems > 0 && (
-                                        <span
-                                            className="absolute top-0 right-0 min-w-[12px] h-[12px] px-0.5 bg-[#6C2BD7] text-white text-[9px] leading-[12px] rounded-full flex items-center justify-center shadow ring-2 ring-white group-hover:scale-110 group-hover:shadow-lg transition-all duration-200 select-none"
-                                            style={{ maxWidth: 18, fontWeight: 600, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                                            title={cartItems > 99 ? String(cartItems) : undefined}
-                                        >
-                                            {cartItems > 99 ? '99+' : cartItems}
-                                        </span>
-                                    )}
-                                </div>
+                                </span>
                             </Link>
                         </div>
 
@@ -229,91 +228,82 @@ const Navbar = () => {
                         <div className="hidden md:flex md:items-center md:space-x-4">
                             {isAuthenticated ? (
                                 <div className="relative">
-                                    <button
+                                    <span
                                         onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                            className="p-2 rounded-full text-gray-500 hover:text-[#6C2BD7] hover:bg-gray-50 focus:outline-none transition-all duration-200"
+                                        className="flex items-center px-3 py-2 rounded-lg text-gray-600 hover:text-purple-700 hover:bg-purple-100/50 hover:underline transition-all duration-300 cursor-pointer"
                                     >
-                                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#6C2BD7] to-[#8B5CF6] flex items-center justify-center shadow-md border border-white">
-                                                {/* Modern, soft, minimal, futuristik profil SVG */}
-                                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                    <circle cx="12" cy="8.5" r="3.5" stroke="currentColor"/>
-                                                    <path d="M4.5 19c0-3.038 3.134-5.5 7.5-5.5s7.5 2.462 7.5 5.5" stroke="currentColor"/>
-                                            </svg>
-                                        </div>
-                                    </button>
+                                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </span>
 
-                                        {/* Profil Dropdown - daha soft, modern, minimal */}
+                                        {/* Profil Dropdown - şeffaf, minimal, modern */}
                                     {isProfileOpen && (
-                                            <div className="absolute right-0 mt-2 w-56 bg-[#fafaff] rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 transition-all duration-300 animate-softDrop">
-                                                <div className="bg-gradient-to-r from-[#6C2BD7] to-[#8B5CF6] px-5 py-4 rounded-t-2xl flex items-center gap-3">
-                                                    <div className="h-7 w-7 rounded-full bg-white/20 flex items-center justify-center shadow-md border border-white">
-                                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                            <circle cx="12" cy="8.5" r="3.5" stroke="currentColor"/>
-                                                            <path d="M4.5 19c0-3.038 3.134-5.5 7.5-5.5s7.5 2.462 7.5 5.5" stroke="currentColor"/>
+                                            <div className="absolute right-0 mt-2 w-56 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-purple-100/50 overflow-hidden z-50 transition-all duration-300">
+                                                <div className="bg-gradient-to-r from-purple-600/90 to-purple-700/90 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+                                                    <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center">
+                                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                         </svg>
                                                     </div>
                                                     <div>
-                                                        <p className="text-white font-semibold text-base">Hoş geldiniz</p>
+                                                        <p className="text-white font-medium text-sm">Hoş geldiniz</p>
                                                         <p className="text-purple-100 text-xs">Hesabınızı yönetin</p>
                                                 </div>
                                             </div>
 
-                                                <div className="py-2 px-3 flex flex-col gap-0.5">
-                                                    <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-[#f3eaff] hover:text-[#6C2BD7] transition-all duration-200 text-sm" onClick={() => setIsProfileOpen(false)}>
-                                                        <svg className="w-4 h-4 text-[#6C2BD7]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                            <circle cx="12" cy="8.5" r="3.5" stroke="currentColor"/>
-                                                            <path d="M4.5 19c0-3.038 3.134-5.5 7.5-5.5s7.5 2.462 7.5 5.5" stroke="currentColor"/>
+                                                <div className="py-2 px-2 flex flex-col gap-1">
+                                                    <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-purple-100/50 hover:text-purple-700 transition-all duration-200 text-sm" onClick={() => setIsProfileOpen(false)}>
+                                                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                         </svg>
                                                     <span className="font-medium">Profilim</span>
                                                 </Link>
-                                                    <Link to="/orders" className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-[#f3eaff] hover:text-[#6C2BD7] transition-all duration-200 text-sm" onClick={() => setIsProfileOpen(false)}>
-                                                        <svg className="w-4 h-4 text-[#6C2BD7]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <Link to="/orders" className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-purple-100/50 hover:text-purple-700 transition-all duration-200 text-sm" onClick={() => setIsProfileOpen(false)}>
+                                                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                             <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor"/>
                                                             <path d="M16 3v4M8 3v4M3 11h18" stroke="currentColor"/>
                                                         </svg>
                                                     <span className="font-medium">Siparişlerim</span>
                                                 </Link>
-                                                    <Link to={routes.Donation} className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-[#f3eaff] hover:text-[#6C2BD7] transition-all duration-200 text-sm" onClick={() => setIsProfileOpen(false)}>
-                                                        <svg className="w-4 h-4 text-[#6C2BD7]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor"/>
-                                                        </svg>
-                                                    <span className="font-medium">Bağış Puanları</span>
-                                                </Link>
                                             </div>
 
-                                                <div className="border-t border-gray-100 mx-3"></div>
+                                                <div className="border-t border-purple-100/30 mx-2"></div>
 
-                                                <div className="py-2 px-3">
-                                                <button
+                                                <div className="py-2 px-2">
+                                                <span
                                                     onClick={() => {
                                                         handleLogout();
                                                         setIsProfileOpen(false);
                                                     }}
-                                                        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium text-sm"
+                                                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-red-600 hover:bg-red-50/50 transition-all duration-200 font-medium text-sm cursor-pointer"
                                                 >
                                                         <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                                         </svg>
                                                         Çıkış Yap
-                                                    </button>
+                                                    </span>
                                                     </div>
-                                                <style>{`
-                                                    .animate-softDrop { animation: softDrop 0.25s cubic-bezier(0.4,0,0.2,1); }
-                                                    @keyframes softDrop {
-                                                        0% { opacity: 0; transform: translateY(-16px) scale(0.98); }
-                                                        100% { opacity: 1; transform: translateY(0) scale(1); }
-                                                    }
-                                                `}</style>
                                         </div>
                                     )}
                                 </div>
                             ) : (
                                 <>
-                                        <Link to={routes.Login} className="px-4 py-2 rounded-full text-sm font-medium text-white bg-[#6C2BD7] hover:bg-[#4B1C8C] transition-colors duration-200">
-                                        Giriş Yap
+                                    <Link to={routes.Login} className="group">
+                                        <span className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-100/50 hover:underline transition-all duration-300 cursor-pointer">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span>Giriş Yap</span>
+                                        </span>
                                     </Link>
-                                        <Link to={routes.Register} className="px-4 py-2 rounded-full text-sm font-medium text-[#6C2BD7] border border-[#6C2BD7] hover:bg-[#6C2BD7] hover:text-white transition-colors duration-200">
-                                        Kayıt ol
+                                    <Link to={routes.Register} className="group">
+                                        <span className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-100/50 hover:underline transition-all duration-300 cursor-pointer">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                            </svg>
+                                            <span>Kayıt Ol</span>
+                                        </span>
                                     </Link>
                                 </>
                             )}
@@ -321,14 +311,19 @@ const Navbar = () => {
 
                             {/* Mobil Menü Butonu */}
                         <div className="md:hidden">
-                            <button
+                            <span
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                    className="p-2 rounded-full text-gray-500 hover:text-[#6C2BD7] hover:bg-gray-50 focus:outline-none transition-colors duration-200"
+                                className="flex items-center px-3 py-2 rounded-lg text-gray-600 hover:text-purple-700 hover:bg-purple-100/50 hover:underline transition-all duration-300 cursor-pointer"
                             >
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
+                                <div className="relative w-6 h-6">
+                                    {/* Üst çizgi */}
+                                    <span className={`absolute top-1 left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                                    {/* Orta çizgi */}
+                                    <span className={`absolute top-3 left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
+                                    {/* Alt çizgi */}
+                                    <span className={`absolute top-5 left-0 w-6 h-0.5 bg-current transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                                </div>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -377,19 +372,18 @@ const Navbar = () => {
             {/* Mobil Menü */}
             <div className={`fixed top-16 left-0 w-full z-40 transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : '-translate-y-8 opacity-0 pointer-events-none'}`}
                 style={{willChange: 'transform, opacity'}}>
-                <div className="bg-white border-t border-gray-200 shadow-xl rounded-b-2xl px-4 py-6 flex flex-col gap-4">
-                    <Link to="/profile" className="flex items-center gap-2 px-4 py-3 rounded-xl text-gray-700 hover:bg-[#f3eaff] hover:text-[#6C2BD7] transition-all duration-200 text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
-                        <svg className="w-5 h-5 text-[#6C2BD7]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="8.5" r="3.5" stroke="currentColor"/>
-                            <path d="M4.5 19c0-3.038 3.134-5.5 7.5-5.5s7.5 2.462 7.5 5.5" stroke="currentColor"/>
+                <div className="bg-white/95 backdrop-blur-md border-t border-purple-100/50 shadow-lg rounded-b-xl px-4 py-4 flex flex-col gap-2">
+                    <Link to="/profile" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-100/50 hover:text-purple-700 transition-all duration-200 text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         Hesabım
                     </Link>
-                    <Link to={routes.Basket} className="flex items-center gap-2 px-4 py-3 rounded-xl text-gray-700 hover:bg-[#f3eaff] hover:text-[#6C2BD7] transition-all duration-200 text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
-                        <svg className="w-5 h-5 text-[#6C2BD7]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <Link to={routes.Basket} className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-100/50 hover:text-purple-700 transition-all duration-200 text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                        <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        Sepetim
+                        <span>Sepetim</span>
                     </Link>
                 </div>
             </div>

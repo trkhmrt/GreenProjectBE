@@ -47,17 +47,35 @@ spring:
           min-idle: 0        # Minimum boşta bağlantı
           max-wait: -1ms     # Bağlantı bekleme süresi
           time-between-eviction-runs: 30000ms  # Eviction çalışma aralığı
-
+  # elasticsearch:
+  #     rest:
+  #       uris: http://localhost:9200
+  #       connection-timeout: 5000
+  #       read-timeout: 5000
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          max-interval: 10000
+          multiplier: 1.0
 server:
   port: 8088
 
 eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
+   instance:
+     preferIpAddress: true
+   client:
+     fetchRegistry: true
+     registerWithEureka: true
+     serviceUrl:
       defaultZone: http://localhost:8070/eureka/
 
 aws:
@@ -67,4 +85,14 @@ aws:
     region: eu-central-1 # bucket'ı hangi bölgede oluşturduysan
     access-key: AKIAS66UDDNEULUZCOVN
     secret-key: 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
+
+
+# elasticsearch:
+#   index:
+#     category: categories
+#     product: products
+#   cluster:
+#     name: elasticsearch
+#     nodes: localhost:9200
+
 

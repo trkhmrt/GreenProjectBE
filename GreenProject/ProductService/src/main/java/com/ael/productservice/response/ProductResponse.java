@@ -1,4 +1,5 @@
 package com.ael.productservice.response;
+import com.ael.productservice.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,14 +15,16 @@ public class ProductResponse {
     private Integer productId;
     private String productName;
     private String productModel;
-    private String productModelYear;
+    private String productBrand;
+    private ProductType productType;
     private String productDescription;
     private Double productPrice;
     private Integer productQuantity;
     private String productImageUrl;
-    private Integer subCategoryId;
-    private String subCategoryName;
+    private Integer categoryId;
     private String categoryName;
+    private Integer level;
     private List<ProductPropertyValueResponse> productProperties;
     private List<ImageFileResponse> imageFiles;
+    private List<ProductVariantResponse> variants;
 }

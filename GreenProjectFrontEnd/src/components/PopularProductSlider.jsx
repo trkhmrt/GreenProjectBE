@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { addProductToBasket } from '../services/BasketService';
 
 const PopulerProductSlider = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -133,6 +134,16 @@ const PopulerProductSlider = () => {
             }
             return newFavorites;
         });
+    };
+
+    const handleAddToBasket = async (productId) => {
+        try {
+            await addProductToBasket(productId);
+            alert('Ürün sepete eklendi!');
+        } catch (error) {
+            console.error('Sepete ekleme hatası:', error);
+            alert('Ürün sepete eklenirken bir hata oluştu.');
+        }
     };
 
     const startIndex = currentIndex * productsPerPage;
@@ -275,6 +286,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
 
                         {/* Sepet İkonu */}
                         <button
+                            onClick={() => handleAddToBasket(product.productId)}
                             className="p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
                             aria-label="Sepete ekle"
                         >
@@ -282,6 +294,18 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
                                  strokeWidth="2"
                                  strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart">
                                 <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default PopulerProductSlider;
                                 <circle cx="20" cy="21" r="1"/>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                             </svg>

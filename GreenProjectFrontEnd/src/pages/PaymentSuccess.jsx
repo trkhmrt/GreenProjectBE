@@ -5,7 +5,7 @@ const PaymentSuccess = () => {
     const navigate = useNavigate();
     const handleGoHome = () => navigate('/');
     const handleViewOrders = () => navigate('/orders');
-    // const donationCount = location.state?.count || 0; // Eğer bağış bilgisi gerekiyorsa ekle
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">

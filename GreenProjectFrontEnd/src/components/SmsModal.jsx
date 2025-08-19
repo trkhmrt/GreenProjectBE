@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import iyzicoLogo from "../assets/SmsLogos/iyzico_ile_ode_colored_horizontal.svg";
+import Modal from "./Modal";
 
 export default function SmsModal({ open, onClose, onSuccess, onFailure, orderId, bin, PaReq }) {
   const [sms, setSms] = useState("");
@@ -99,4 +100,4 @@ const buttonStyle = {
   color: "#fff",
   border: "none",
   cursor: "pointer"
-}; 
+};

@@ -8,15 +8,8 @@ export const createPayment = async (paymentRequest) => {
     return payment;
 }
 
-export const getDonation = async (userId) => {
-    const donation = await axios.get(`/paymentservice/donation/getDonation/${userId}`);
-    return donation;
-}
 
-export const toDonate = async (userId) => {
-    const donation = await axios.get(`/paymentservice/donation/toDonate/${userId}`);
-    return donation;
-}
+
 
 export const getActiveCoupons = async (userId) => {
     // Bu endpoint'in doğru olduğundan emin ol

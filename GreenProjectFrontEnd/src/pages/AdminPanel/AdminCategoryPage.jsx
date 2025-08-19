@@ -1,88 +1,152 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCategories, createCategory, deleteCategory, updateCategoryName, createSubCategory, deleteSubCategory, updateSubCategoryName, toggleCategoryActive } from '../../services/categoryService';
-import { toggleCategoryPropertyStatus, addPropertyToCategoryByName, updatePropertyName, toggleCategoryPropertyDeleted } from '../../services/CategoryPropertyService';
+import axios from '../../lib/axios';
+
+// Minimal CSS
+const customStyles = `
+  .hover-effect {
+    transition: background-color 0.15s ease;
+  }
+  
+  .indent-1 { margin-left: 2rem; }
+  .indent-2 { margin-left: 4rem; }
+  .indent-3 { margin-left: 6rem; }
+  .indent-4 { margin-left: 8rem; }
+  .indent-5 { margin-left: 10rem; }
+  .indent-6 { margin-left: 12rem; }
+  
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin: 0.125rem 0;
+    position: relative;
+  }
+  
+  .category-item:hover {
+    background-color: #f9fafb;
+  }
+  
+  /* Children wrapper: subtle vertical guideline to emphasize hierarchy */
+  .children-list {
+    border-left: 1px solid #eef2f7;
+    padding-left: 0.75rem;
+    margin-left: 0.5rem;
+  }
+  
+  .category-item.indent-1::before,
+  .category-item.indent-2::before,
+  .category-item.indent-3::before,
+  .category-item.indent-4::before,
+  .category-item.indent-5::before,
+  .category-item.indent-6::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.125rem;
+    height: 1.5rem;
+    background-color: #d1d5db;
+    border-radius: 0.0625rem;
+  }
+  
+  .action-span {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    transition: background-color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .action-span:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .action-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+`;
 
 const AdminCategoryPage = () => {
     const [categories, setCategories] = useState([]);
-  const [activeTab, setActiveTab] = useState('category'); // 'category' | 'filter'
-    const [expandedCategoryId, setExpandedCategoryId] = useState(null);
-  const [expandedFilterCategoryId, setExpandedFilterCategoryId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [addingProperty, setAddingProperty] = useState(null); // { categoryId: number, propertyName: string }
-  const [newPropertyName, setNewPropertyName] = useState('');
-  const [editingProperty, setEditingProperty] = useState(null); // { propertyId: number, newName: string }
-  const [editingPropertyName, setEditingPropertyName] = useState('');
-  
-  // Kategori yönetimi için state'ler
-  const [addingCategory, setAddingCategory] = useState(false);
-    const [newCategoryName, setNewCategoryName] = useState('');
-  const [editingCategory, setEditingCategory] = useState(null); // { categoryId: number, newName: string }
-  const [editingCategoryName, setEditingCategoryName] = useState('');
-  const [addingSubCategory, setAddingSubCategory] = useState(null); // { categoryId: number }
+    const [expandedCategories, setExpandedCategories] = useState([]);
+    const [activeTab, setActiveTab] = useState('active'); // 'active' | 'deleted'
+    
+    // Popup state'leri
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmMessage, setConfirmMessage] = useState('');
+    
+    // Ana kategori ekleme
+    const [addingMainCategory, setAddingMainCategory] = useState(false);
+    const [newMainCategoryName, setNewMainCategoryName] = useState('');
+    
+    // Alt kategori ekleme
+    const [addingSubCategory, setAddingSubCategory] = useState(null);
     const [newSubCategoryName, setNewSubCategoryName] = useState('');
-  const [editingSubCategory, setEditingSubCategory] = useState(null); // { subCategoryId: number, newName: string }
-  const [editingSubCategoryName, setEditingSubCategoryName] = useState('');
+    
+    // Kategori düzenleme
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [editingCategoryName, setEditingCategoryName] = useState('');
 
     useEffect(() => {
         fetchCategories();
     }, []);
 
   const fetchCategories = async () => {
-    const response = await getAllCategories();
-    setCategories(response.data);
-  };
-
-  // Kategori işlemleri
-  const handleAddCategory = async () => {
-        if (!newCategoryName.trim()) return;
-    
     setLoading(true);
         try {
-            await createCategory(newCategoryName);
-      await fetchCategories();
-      setAddingCategory(false);
-            setNewCategoryName('');
+            const response = await axios.get('/productservice/category/admin/hierarchical-nested');
+            console.log('🔍 API Response:', response.data);
+            console.log('🔍 Active Categories:', response.data.filter(cat => !cat.isDeleted));
+            console.log('🔍 Deleted Categories:', response.data.filter(cat => cat.isDeleted));
+            setCategories(response.data);
     } catch (error) {
-      console.error('Kategori ekleme başarısız:', error);
+            console.error('Kategoriler yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateCategory = async (categoryId) => {
-    if (!editingCategoryName.trim()) return;
+    // Ana kategori ekleme
+    const handleAddMainCategory = async () => {
+        if (!newMainCategoryName.trim()) return;
     
     setLoading(true);
     try {
-      await updateCategoryName(categoryId, editingCategoryName);
+            await axios.post('/productservice/category/create', {
+                categoryName: newMainCategoryName,
+                parentId: null
+            });
       await fetchCategories();
-      setEditingCategory(null);
-      setEditingCategoryName('');
+            setAddingMainCategory(false);
+            setNewMainCategoryName('');
     } catch (error) {
-      console.error('Kategori güncelleme başarısız:', error);
+            console.error('Ana kategori ekleme başarısız:', error);
     } finally {
       setLoading(false);
         }
     };
 
-  const handleDeleteCategory = async (categoryId) => {
-    setLoading(true);
-    try {
-      await deleteCategory(categoryId);
-      await fetchCategories();
-    } catch (error) {
-      console.error('Kategori silme başarısız:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddSubCategory = async (categoryId) => {
+    // Alt kategori ekleme
+    const handleAddSubCategory = async (parentId) => {
         if (!newSubCategoryName.trim()) return;
     
     setLoading(true);
         try {
-      await createSubCategory({ categoryId, subCategoryName: newSubCategoryName });
+            await axios.post('/productservice/category/create', {
+                categoryName: newSubCategoryName,
+                parentId: parentId
+            });
       await fetchCategories();
       setAddingSubCategory(null);
             setNewSubCategoryName('');
@@ -93,125 +157,184 @@ const AdminCategoryPage = () => {
     }
   };
 
-  const handleUpdateSubCategory = async (subCategoryId) => {
-    if (!editingSubCategoryName.trim()) return;
+        // Kategori düzenleme
+    const handleUpdateCategory = async (categoryId) => {
+        if (!editingCategoryName.trim()) return;
     
     setLoading(true);
     try {
-      await updateSubCategoryName(subCategoryId, editingSubCategoryName);
+            // Güncellenecek kategoriyi bul
+            const findCategory = (categories, targetId) => {
+                for (let category of categories) {
+                    if (category.categoryId === targetId) {
+                        return category;
+                    }
+                    if (category.children && category.children.length > 0) {
+                        const found = findCategory(category.children, targetId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+            
+            const categoryToUpdate = findCategory(categories, categoryId);
+            
+            if (!categoryToUpdate) {
+                console.error('Güncellenecek kategori bulunamadı:', categoryId);
+                return;
+            }
+            
+            await axios.put(`/productservice/category/${categoryId}`, {
+                categoryId: categoryId,
+                categoryName: editingCategoryName,
+                parentId: categoryToUpdate.parentId
+            });
       await fetchCategories();
-      setEditingSubCategory(null);
-      setEditingSubCategoryName('');
+            setEditingCategory(null);
+            setEditingCategoryName('');
     } catch (error) {
-      console.error('Alt kategori güncelleme başarısız:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteSubCategory = async (subCategoryId) => {
-    setLoading(true);
-        try {
-      await deleteSubCategory(subCategoryId);
-      await fetchCategories();
-    } catch (error) {
-      console.error('Alt kategori silme başarısız:', error);
+            console.error('Kategori güncelleme başarısız:', error);
         } finally {
       setLoading(false);
         }
     };
 
-  // Property işlemleri
-  const handleToggleFilter = async (propertyId) => {
+        // Kategori silme
+    const handleDeleteCategory = async (categoryId) => {
+        // Silinecek kategoriyi bul
+        const findCategory = (categories, targetId) => {
+            for (let category of categories) {
+                if (category.categoryId === targetId) {
+                    return category;
+                }
+                if (category.children && category.children.length > 0) {
+                    const found = findCategory(category.children, targetId);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+        
+        const categoryToDelete = findCategory(categories, categoryId);
+        
+        if (!categoryToDelete) {
+            console.error('Silinecek kategori bulunamadı:', categoryId);
+            return;
+        }
+        
+        // Popup'ı göster
+        setConfirmMessage(`"${categoryToDelete.categoryName}" kategorisini silmek istediğinizden emin misiniz?`);
+        setConfirmAction(() => async () => {
     setLoading(true);
     try {
-      await toggleCategoryPropertyStatus(propertyId);
-      await fetchCategories(); // Kategorileri yeniden çek
+                await axios.delete(`/productservice/category/${categoryId}`, {
+                    data: {
+                        categoryId: categoryId,
+                        categoryName: categoryToDelete.categoryName,
+                        isActive: categoryToDelete.isActive,
+                        isDeleted: true
+                    }
+                });
+                await fetchCategories();
     } catch (error) {
-      console.error('Toggle işlemi başarısız:', error);
+                console.error('Kategori silme başarısız:', error);
     } finally {
       setLoading(false);
     }
+        });
+        setShowConfirmPopup(true);
   };
 
-  const handleAddProperty = async (categoryId) => {
-    if (!newPropertyName.trim()) return;
-    
+      // Kategori aktif/pasif toggle
+    const handleToggleCategoryActive = async (categoryId) => {
     setLoading(true);
     try {
-      await addPropertyToCategoryByName(categoryId, newPropertyName);
-      await fetchCategories(); // Kategorileri yeniden çek
-      setAddingProperty(null);
-      setNewPropertyName('');
+            // Toggle edilecek kategoriyi bul
+            const findCategory = (categories, targetId) => {
+                for (let category of categories) {
+                    if (category.categoryId === targetId) {
+                        return category;
+                    }
+                    if (category.children && category.children.length > 0) {
+                        const found = findCategory(category.children, targetId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+            
+            const categoryToToggle = findCategory(categories, categoryId);
+            
+            if (!categoryToToggle) {
+                console.error('Toggle edilecek kategori bulunamadı:', categoryId);
+                return;
+            }
+            
+            await axios.put(`/productservice/category/${categoryId}/toggle-active`, {
+                categoryId: categoryId,
+                categoryName: categoryToToggle.categoryName,
+                isActive: !categoryToToggle.isActive, // Mevcut durumun tersini gönder
+                isDeleted: categoryToToggle.isDeleted
+            });
+            await fetchCategories();
     } catch (error) {
-      console.error('Property ekleme başarısız:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdatePropertyName = async (propertyId) => {
-    if (!editingPropertyName.trim()) return;
-    
-    setLoading(true);
-    try {
-      await updatePropertyName(propertyId, editingPropertyName);
-      await fetchCategories(); // Kategorileri yeniden çek
-      setEditingProperty(null);
-      setEditingPropertyName('');
-    } catch (error) {
-      console.error('Property güncelleme başarısız:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteProperty = async (propertyId) => {
-    setLoading(true);
-    try {
-      await toggleCategoryPropertyDeleted(propertyId);
-      await fetchCategories(); // Kategorileri yeniden çek
-    } catch (error) {
-      console.error('Property silme başarısız:', error);
+            console.error('Kategori aktif/pasif değiştirme başarısız:', error);
     } finally {
       setLoading(false);
         }
     };
 
-  // Kategori aktif/pasif toggle
-  const handleToggleCategoryActive = async (categoryId) => {
+        // Silinen kategoriyi geri taşıma
+    const handleRestoreCategory = async (categoryId) => {
     setLoading(true);
         try {
-      await toggleCategoryActive(categoryId);
+            // Geri taşınacak kategoriyi bul
+            const findCategory = (categories, targetId) => {
+                for (let category of categories) {
+                    if (category.categoryId === targetId) {
+                        return category;
+                    }
+                    if (category.children && category.children.length > 0) {
+                        const found = findCategory(category.children, targetId);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+            
+            const categoryToRestore = findCategory(categories, categoryId);
+            
+            if (!categoryToRestore) {
+                console.error('Geri taşınacak kategori bulunamadı:', categoryId);
+                return;
+            }
+            
+            await axios.put(`/productservice/category/admin/${categoryId}/restore-with-children`, {
+                categoryId: categoryId,
+                categoryName: categoryToRestore.categoryName,
+                isActive: categoryToRestore.isActive,
+                isDeleted: false
+            });
       await fetchCategories();
     } catch (error) {
-      console.error('Kategori aktif/pasif işlemi başarısız:', error);
+            console.error('Kategori geri taşıma başarısız:', error);
         } finally {
       setLoading(false);
         }
     };
 
-  // Helper fonksiyonlar
-  const startAddingProperty = (categoryId) => {
-    setAddingProperty(categoryId);
-    setNewPropertyName('');
-  };
+    // Expand/Collapse toggle
+    const toggleCategoryExpansion = (categoryId) => {
+        setExpandedCategories(prev => {
+            if (prev.includes(categoryId)) {
+                return prev.filter(id => id !== categoryId);
+            } else {
+                return [...prev, categoryId];
+            }
+        });
+    };
 
-  const cancelAddingProperty = () => {
-    setAddingProperty(null);
-    setNewPropertyName('');
-  };
-
-  const startEditingProperty = (propertyId, currentName) => {
-    setEditingProperty(propertyId);
-    setEditingPropertyName(currentName);
-  };
-
-  const cancelEditingProperty = () => {
-    setEditingProperty(null);
-    setEditingPropertyName('');
-  };
-
+    // Helper fonksiyonlar
   const startEditingCategory = (categoryId, currentName) => {
     setEditingCategory(categoryId);
     setEditingCategoryName(currentName);
@@ -222,420 +345,624 @@ const AdminCategoryPage = () => {
     setEditingCategoryName('');
   };
 
-  const startEditingSubCategory = (subCategoryId, currentName) => {
-    setEditingSubCategory(subCategoryId);
-    setEditingSubCategoryName(currentName);
-  };
-
-  const cancelEditingSubCategory = () => {
-    setEditingSubCategory(null);
-    setEditingSubCategoryName('');
+    const startAddingSubCategory = (categoryId) => {
+        setAddingSubCategory(categoryId);
+        setNewSubCategoryName('');
     };
 
-  // Tab menü
-    const tabList = [
-        { key: 'category', label: 'Kategori Yönetimi' },
-        { key: 'filter', label: 'Kategori Filtre Yönetimi' }
-    ];
+    const cancelAddingSubCategory = () => {
+        setAddingSubCategory(null);
+        setNewSubCategoryName('');
+    };
 
-    return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      {/* Tab Menü */}
-                <div className="flex border-b border-gray-200 mb-8">
-                    {tabList.map(tab => (
+            return (
+        <>
+            <style>{customStyles}</style>
+            
+            {/* Onay Popup'ı */}
+            {showConfirmPopup && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-gray-200">
+                        <div className="flex items-center mb-4">
+                            <div className="flex-shrink-0">
+                                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <h3 className="text-lg font-medium text-gray-900">Onay Gerekli</h3>
+                            </div>
+                        </div>
+                        <div className="mb-6">
+                            <p className="text-sm text-gray-500">{confirmMessage}</p>
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setShowConfirmPopup(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none"
+                            >
+                                Hayır
+                            </button>
                         <button
-                            key={tab.key}
-            className={`px-6 py-2 text-sm font-semibold transition-colors duration-200 ${activeTab === tab.key ? 'border-b-2 border-purple-600 text-purple-600 bg-white' : 'text-gray-500 hover:text-purple-600 border-b-2 border-transparent bg-gray-50 hover:bg-white'}`}
-                            onClick={() => setActiveTab(tab.key)}
-                        >
-                            {tab.label}
+                                onClick={() => {
+                                    if (confirmAction) {
+                                        confirmAction();
+                                    }
+                                    setShowConfirmPopup(false);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
+                            >
+                                Evet
                         </button>
-                    ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            <div className="max-w-6xl mx-auto py-4 px-4">
+                <div className="bg-white rounded-lg border border-gray-100">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-gray-50">
+                        <div>
+                            <h1 className="text-lg font-medium text-gray-900">Kategori Yönetimi</h1>
+                            <p className="text-gray-500 text-sm">Hiyerarşik kategori yapısını yönetin</p>
                 </div>
 
-      {/* Kategori Yönetimi Sekmesi */}
-                {activeTab === 'category' && (
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">Kategoriler</h2>
-            {!addingCategory && (
-              <button
-                onClick={() => setAddingCategory(true)}
-                disabled={loading}
-                className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 disabled:opacity-50"
+                                                {/* Ana Kategori Ekleme Butonu */}
+                        {activeTab === 'active' && !addingMainCategory && (
+                            <span
+                                onClick={() => setAddingMainCategory(true)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium cursor-pointer hover-effect ${
+                                    loading 
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                Yeni Kategori
-                                </button>
+                                Ana Kategori Ekle
+                            </span>
                             )}
                         </div>
 
-          {/* Yeni Kategori Ekleme */}
-          {addingCategory && (
-            <div className="flex items-center gap-2 mb-4 p-3 bg-gray-50 rounded">
+                {/* Tab Menü */}
+                <div className="flex border-b border-gray-100">
+                    <span
+                        onClick={() => setActiveTab('active')}
+                        className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 cursor-pointer hover-effect ${
+                            activeTab === 'active' 
+                                ? 'text-purple-600 border-purple-600' 
+                                : 'text-gray-500 border-transparent hover:text-purple-600'
+                        }`}
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Aktif Kategoriler
+                    </span>
+                    
+                    <span
+                        onClick={() => setActiveTab('deleted')}
+                        className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 cursor-pointer hover-effect ${
+                            activeTab === 'deleted' 
+                                ? 'text-red-600 border-red-600' 
+                                : 'text-gray-500 border-transparent hover:text-red-600'
+                        }`}
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Silinen Kategoriler
+                    </span>
+                </div>
+
+                {/* Ana Kategori Ekleme Formu */}
+                {activeTab === 'active' && addingMainCategory && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-25 border-b border-gray-50">
                         <input
                             type="text"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Kategori adı girin..."
-                className="border border-gray-300 rounded px-3 py-1 text-sm flex-1"
+                            value={newMainCategoryName}
+                            onChange={(e) => setNewMainCategoryName(e.target.value)}
+                            placeholder="Ana kategori adı girin..."
+                            className="flex-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddCategory();
-                  if (e.key === 'Escape') { setAddingCategory(false); setNewCategoryName(''); }
+                                if (e.key === 'Enter') handleAddMainCategory();
+                                if (e.key === 'Escape') { setAddingMainCategory(false); setNewMainCategoryName(''); }
                 }}
                 autoFocus
               />
-              <button
-                onClick={handleAddCategory}
-                disabled={loading || !newCategoryName.trim()}
-                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
+                                      <span
+                            onClick={handleAddMainCategory}
+                            className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer hover-effect ${
+                                loading || !newMainCategoryName.trim()
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            }`}
               >
                 Kaydet
-              </button>
-              <button
-                onClick={() => { setAddingCategory(false); setNewCategoryName(''); }}
-                disabled={loading}
-                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 disabled:opacity-50"
+                        </span>
+                        <span
+                            onClick={() => { setAddingMainCategory(false); setNewMainCategoryName(''); }}
+                            className={`px-3 py-2 rounded-md text-sm font-medium cursor-pointer hover-effect ${
+                                loading
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
               >
                 İptal
-              </button>
+                        </span>
             </div>
           )}
 
-          <ul>
-            {categories.map(cat => (
-              <li key={cat.categoryId} className="mb-2">
-                <div className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50 rounded">
-                  <div
-                    className="flex items-center cursor-pointer flex-1"
-                    onClick={() => setExpandedCategoryId(expandedCategoryId === cat.categoryId ? null : cat.categoryId)}
-                  >
-                    <span className="font-semibold text-gray-800">{cat.categoryName}</span>
-                    {/* Aktif/Pasif Chip Badge */}
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${cat.isActive ? 'bg-blue-500 text-white' : 'bg-gradient-to-r from-red-500 to-orange-400 text-white'}`}>
-                      {cat.isActive ? 'Aktif' : 'Pasif'}
-                    </span>
-                    <svg className={`w-5 h-5 text-gray-400 transition-transform ml-2 ${expandedCategoryId === cat.categoryId ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                  </div>
-                  {/* Aktif/Pasif Toggle Butonu */}
-                  <button
-                    onClick={() => handleToggleCategoryActive(cat.categoryId)}
-                    disabled={loading}
-                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border ${cat.isActive ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100' : 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100'} disabled:opacity-50`}
-                    title={cat.isActive ? 'Pasif Yap' : 'Aktif Yap'}
-                  >
-                    {cat.isActive ? (
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    ) : (
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {/* Content Area */}
+                <div className="relative">
+                    {/* Loading */}
+                    {loading && (
+                        <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                            <span className="ml-2 text-sm text-gray-500">Yükleniyor...</span>
+                        </div>
                     )}
-                    {cat.isActive ? 'Pasif Yap' : 'Aktif Yap'}
-                  </button>
-                  {/* Kategori Düzenleme/Silme Butonları */}
-                  {editingCategory === cat.categoryId ? (
+
+                {/* Aktif Kategoriler Tab */}
+                <div className={`${
+                    activeTab === 'active' 
+                        ? 'block' 
+                        : 'hidden'
+                }`}>
+                    {!loading && (
+                        <div className="p-4 space-y-2">
+                        {(() => {
+                            const rootCategories = categories.filter(category => 
+                                (!category.parentId || category.parentId === 0 || category.parentId === null) && 
+                                !category.isDeleted
+                            );
+                            console.log('🌳 Active Root Categories:', rootCategories);
+                            return rootCategories.map(category => (
+                                <CategoryItem
+                                    key={category.categoryId}
+                                    category={category}
+                                    expandedCategories={expandedCategories}
+                                    toggleCategoryExpansion={toggleCategoryExpansion}
+                                    loading={loading}
+                                    editingCategory={editingCategory}
+                                    editingCategoryName={editingCategoryName}
+                                    setEditingCategoryName={setEditingCategoryName}
+                                    addingSubCategory={addingSubCategory}
+                                    newSubCategoryName={newSubCategoryName}
+                                    setNewSubCategoryName={setNewSubCategoryName}
+                                    handleToggleCategoryActive={handleToggleCategoryActive}
+                                    handleUpdateCategory={handleUpdateCategory}
+                                    handleDeleteCategory={handleDeleteCategory}
+                                    handleAddSubCategory={handleAddSubCategory}
+                                    startEditingCategory={startEditingCategory}
+                                    cancelEditingCategory={cancelEditingCategory}
+                                    startAddingSubCategory={startAddingSubCategory}
+                                    cancelAddingSubCategory={cancelAddingSubCategory}
+                                    level={0}
+                                    isActiveTab={true}
+                                />
+                            ));
+                        })()}
+                        </div>
+                    )}
+                </div>
+
+                {/* Silinen Kategoriler Tab */}
+                <div className={`${
+                    activeTab === 'deleted' 
+                        ? 'block' 
+                        : 'hidden'
+                }`}>
+                    {!loading && (
+                        <div className="p-4 space-y-2">
+                        {(() => {
+                            const deletedCategories = categories.filter(category => 
+                                (!category.parentId || category.parentId === 0 || category.parentId === null) && 
+                                category.isDeleted
+                            );
+                            console.log('🗑️ Deleted Root Categories:', deletedCategories);
+                            return deletedCategories.map(category => (
+                                <DeletedCategoryItem
+                                    key={category.categoryId}
+                                    category={category}
+                                    expandedCategories={expandedCategories}
+                                    toggleCategoryExpansion={toggleCategoryExpansion}
+                                    loading={loading}
+                                    editingCategory={editingCategory}
+                                    editingCategoryName={editingCategoryName}
+                                    setEditingCategoryName={setEditingCategoryName}
+                                    handleRestoreCategory={handleRestoreCategory}
+                                    startEditingCategory={startEditingCategory}
+                                    cancelEditingCategory={cancelEditingCategory}
+                                    level={0}
+                                />
+                            ));
+                        })()}
+                  </div>
+                    )}
+                </div>
+                </div>
+            </div>
+        </div>
+        </>
+    );
+};
+
+// Category Item Component
+const CategoryItem = ({ 
+    category, 
+    expandedCategories, 
+    toggleCategoryExpansion, 
+    loading, 
+    editingCategory, 
+    editingCategoryName, 
+    setEditingCategoryName, 
+    addingSubCategory, 
+    newSubCategoryName, 
+    setNewSubCategoryName, 
+    handleToggleCategoryActive, 
+    handleUpdateCategory, 
+    handleDeleteCategory, 
+    handleAddSubCategory, 
+    startEditingCategory, 
+    cancelEditingCategory, 
+    startAddingSubCategory, 
+    cancelAddingSubCategory, 
+    level,
+    isActiveTab = false
+}) => {
+    const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.includes(category.categoryId);
+    
+    console.log(`📁 CategoryItem [Level ${level}]:`, {
+        id: category.categoryId,
+        name: category.categoryName,
+        parentId: category.parentId,
+        isActive: category.isActive,
+        isDeleted: category.isDeleted,
+        hasChildren,
+        childrenCount: category.children?.length || 0,
+        isExpanded
+    });
+    
+    return (
+        <div className="w-full">
+            {/* Ana Kategori Satırı */}
+            <div className={`category-item ${level > 0 ? `indent-${Math.min(level, 6)} bg-gray-25` : ''}`}>
+                {/* Expand/Collapse İkonu */}
+                {hasChildren && (
+                    <svg 
+                        className={`w-4 h-4 cursor-pointer text-gray-400 hover:text-gray-600 ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={() => toggleCategoryExpansion(category.categoryId)}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                )}
+                {!hasChildren && <div className="w-4 h-4"></div>}
+                
+                {/* Kategori İçeriği */}
+                <div className="flex items-center justify-between flex-1">
+                    <div className="flex items-center gap-3">
+                        {/* Kategori Adı */}
+                        {editingCategory === category.categoryId ? (
                     <div className="flex items-center gap-2">
                                                         <input
                                                             type="text"
                         value={editingCategoryName}
                         onChange={(e) => setEditingCategoryName(e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-32"
+                                    className="px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleUpdateCategory(cat.categoryId);
+                                        if (e.key === 'Enter') handleUpdateCategory(category.categoryId);
                           if (e.key === 'Escape') cancelEditingCategory();
                         }}
                                                             autoFocus
                                                         />
-                      <button
-                        onClick={() => handleUpdateCategory(cat.categoryId)}
-                        disabled={loading || !editingCategoryName.trim()}
-                        className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        Kaydet
-                      </button>
-                      <button
+                                <span
+                                    onClick={() => handleUpdateCategory(category.categoryId)}
+                                    className="action-span bg-green-100 text-green-700 hover:bg-green-200"
+                                    title="Kaydet"
+                                >
+                                    <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </span>
+                                <span
                         onClick={cancelEditingCategory}
-                        disabled={loading}
-                        className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
-                      >
-                        İptal
-                      </button>
+                                    className="action-span bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    title="İptal"
+                                >
+                                    <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => startEditingCategory(cat.categoryId, cat.categoryName)}
-                        disabled={loading}
-                        className="text-orange-500 hover:text-orange-700 p-1"
-                                                    title="Düzenle"
-                                                >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                        <path d="M16.862 5.487l1.65 1.65a2.121 2.121 0 0 1 0 3l-8.486 8.486a2 2 0 0 1-.707.464l-3.243 1.081a.5.5 0 0 1-.632-.632l1.08-3.243a2 2 0 0 1 .465-.707l8.486-8.486a2.121 2.121 0 0 1 3 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                                    </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCategory(cat.categoryId)}
-                        disabled={loading}
-                        className="text-red-500 hover:text-red-700 p-1"
-                                                    title="Sil"
-                                                >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                        <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2M9 10v6M15 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                                                    </svg>
-                      </button>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-sm ${category.isActive ? 'text-gray-900' : 'text-gray-500'}`}>
+                                    {category.categoryName}
+                                </span>
+                                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                    category.isActive 
+                                        ? 'bg-green-50 text-green-600' 
+                                        : 'bg-red-50 text-red-600'
+                                }`}>
+                                    {category.isActive ? 'Aktif' : 'Pasif'}
+                                </span>
                                             </div>
                   )}
                                         </div>
 
-                {/* Alt Kategoriler */}
-                {expandedCategoryId === cat.categoryId && (
-                  <ul className="ml-6 mt-2 border-l border-gray-200 pl-4">
-                    {cat.subcategories.length === 0 && <li className="text-gray-400 text-sm py-1">Alt kategori yok</li>}
-                                                        {cat.subcategories.map(sub => (
-                      <li key={sub.id} className="flex items-center gap-2 py-1">
-                        {editingSubCategory === sub.id ? (
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="text-gray-700">-</span>
-                                                                        <input
-                                                                            type="text"
-                              value={editingSubCategoryName}
-                              onChange={(e) => setEditingSubCategoryName(e.target.value)}
-                              className="border border-gray-300 rounded px-2 py-1 text-sm flex-1"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleUpdateSubCategory(sub.id);
-                                if (e.key === 'Escape') cancelEditingSubCategory();
-                              }}
-                                                                            autoFocus
-                                                                        />
-                            <button
-                              onClick={() => handleUpdateSubCategory(sub.id)}
-                              disabled={loading || !editingSubCategoryName.trim()}
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 disabled:opacity-50"
-                            >
-                              Kaydet
-                            </button>
-                            <button
-                              onClick={cancelEditingSubCategory}
-                              disabled={loading}
-                              className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
-                            >
-                              İptal
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="text-gray-700">- {sub.name}</span>
-                            <button
-                              onClick={() => startEditingSubCategory(sub.id, sub.name)}
-                              disabled={loading}
-                              className="text-orange-500 hover:text-orange-700 p-1"
+                                        {/* Aksiyon Butonları */}
+                    <div className="flex items-center gap-1">
+                        {/* Aktif/Pasif Butonu */}
+                        <span
+                            onClick={() => handleToggleCategoryActive(category.categoryId)}
+                            className={`action-span ${
+                                category.isActive 
+                                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                            title={category.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                        >
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        
+                        {/* Alt Kategori Ekleme */}
+                        <span
+                            onClick={() => startAddingSubCategory(category.categoryId)}
+                            className="action-span bg-purple-100 text-purple-700 hover:bg-purple-200"
+                            title="Alt Kategori Ekle"
+                        >
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5" />
+                            </svg>
+                        </span>
+                        
+                        {/* Düzenleme */}
+                        <span
+                            onClick={() => startEditingCategory(category.categoryId, category.categoryName)}
+                            className="action-span bg-blue-100 text-blue-700 hover:bg-blue-200"
                               title="Düzenle"
                                                                 >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                                        <path d="M16.862 5.487l1.65 1.65a2.121 2.121 0 0 1 0 3l-8.486 8.486a2 2 0 0 1-.707.464l-3.243 1.081a.5.5 0 0 1-.632-.632l1.08-3.243a2 2 0 0 1 .465-.707l8.486-8.486a2.121 2.121 0 0 1 3 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                                     </svg>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSubCategory(sub.id)}
-                              disabled={loading}
-                              className="text-red-500 hover:text-red-700 p-1"
+                        </span>
+                        
+                        {/* Silme */}
+                        <span
+                            onClick={() => handleDeleteCategory(category.categoryId)}
+                            className="action-span bg-red-100 text-red-700 hover:bg-red-200"
                               title="Sil"
                             >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                                        <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2M9 10v6M15 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                     </svg>
-                            </button>
+                        </span>
+                    </div>
+                </div>
                           </div>
-                        )}
-                                                            </li>
-                                                        ))}
-                    
-                    {/* Yeni Alt Kategori Ekleme */}
-                    {addingSubCategory === cat.categoryId ? (
-                      <li className="flex items-center gap-2 py-1">
-                        <span className="text-gray-700">-</span>
+            
+            {/* Alt Kategori Ekleme Formu */}
+            {addingSubCategory === category.categoryId && (
+                <div className={`ml-4 mt-1 p-2 bg-gray-50 rounded ${level > 0 ? `indent-${Math.min(level + 1, 6)}` : ''}`}>
+                    <div className="flex items-center gap-2">
                                                             <input
                                                                 type="text"
                                                                 value={newSubCategoryName}
                           onChange={(e) => setNewSubCategoryName(e.target.value)}
                           placeholder="Alt kategori adı girin..."
-                          className="border border-gray-300 rounded px-2 py-1 text-sm flex-1"
+                            className="flex-1 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAddSubCategory(cat.categoryId);
-                            if (e.key === 'Escape') { setAddingSubCategory(null); setNewSubCategoryName(''); }
+                                if (e.key === 'Enter') handleAddSubCategory(category.categoryId);
+                                if (e.key === 'Escape') cancelAddingSubCategory();
                           }}
                                                                 autoFocus
                                                             />
-                        <button
-                          onClick={() => handleAddSubCategory(cat.categoryId)}
-                          disabled={loading || !newSubCategoryName.trim()}
-                          className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 disabled:opacity-50"
-                                                            >
-                          Kaydet
-                        </button>
-                        <button
-                          onClick={() => { setAddingSubCategory(null); setNewSubCategoryName(''); }}
-                          disabled={loading}
-                          className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
-                                                            >
-                                                                İptal
-                        </button>
-                      </li>
-                    ) : (
-                      <li className="py-1">
-                        <button
-                          onClick={() => setAddingSubCategory(cat.categoryId)}
-                          disabled={loading}
-                          className="flex items-center gap-1 text-purple-600 hover:text-purple-800 text-xs font-medium disabled:opacity-50"
+                        <span
+                            onClick={() => handleAddSubCategory(category.categoryId)}
+                            className="action-span bg-green-100 text-green-700 hover:bg-green-200"
+                            title="Kaydet"
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </span>
+                        <span
+                            onClick={cancelAddingSubCategory}
+                            className="action-span bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            title="İptal"
+                        >
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                                                            Alt Kategori Ekle
-                                                        </button>
-                      </li>
-                                                    )}
-                  </ul>
-                                        )}
-              </li>
-                                ))}
-          </ul>
+                        </span>
+                    </div>
                     </div>
                 )}
 
-      {/* Kategori Filtre Yönetimi Sekmesi */}
-                {activeTab === 'filter' && (
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">Kategori Filtreleri</h2>
-          <ul>
-            {categories.map(cat => (
-              <li key={cat.categoryId} className="mb-2">
-                <div
-                  className="flex items-center cursor-pointer hover:bg-gray-50 rounded px-2 py-1"
-                  onClick={() => setExpandedFilterCategoryId(expandedFilterCategoryId === cat.categoryId ? null : cat.categoryId)}
-                >
-                  <span className="font-semibold text-gray-800 flex-1">{cat.categoryName}</span>
-                  <svg className={`w-5 h-5 text-gray-400 transition-transform ${expandedFilterCategoryId === cat.categoryId ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                                        </div>
-                {expandedFilterCategoryId === cat.categoryId && (
-                  <ul className="ml-6 mt-2 border-l border-gray-200 pl-4">
-                    {cat.filters.length === 0 && <li className="text-gray-400 text-sm">Filtre yok</li>}
-                    {cat.filters.map(filter => (
-                      <li key={filter.propertyId} className="flex items-center gap-2 py-1">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!filter.isActive}
-                          onChange={() => handleToggleFilter(filter.propertyId)}
-                          disabled={loading}
-                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-600" 
-                                                        />
-                        
-                        {editingProperty === filter.propertyId ? (
-                          <div className="flex items-center gap-2 flex-1">
+            {/* Alt Kategoriler */}
+            {hasChildren && isExpanded && (
+                <div className="mt-3 space-y-2 children-list">
+                    {category.children
+                        .filter(childCategory => !childCategory.isDeleted)
+                        .map((childCategory) => (
+                            <CategoryItem
+                                key={childCategory.categoryId}
+                                category={childCategory}
+                                expandedCategories={expandedCategories}
+                                toggleCategoryExpansion={toggleCategoryExpansion}
+                                loading={loading}
+                                editingCategory={editingCategory}
+                                editingCategoryName={editingCategoryName}
+                                setEditingCategoryName={setEditingCategoryName}
+                                addingSubCategory={addingSubCategory}
+                                newSubCategoryName={newSubCategoryName}
+                                setNewSubCategoryName={setNewSubCategoryName}
+                                handleToggleCategoryActive={handleToggleCategoryActive}
+                                handleUpdateCategory={handleUpdateCategory}
+                                handleDeleteCategory={handleDeleteCategory}
+                                handleAddSubCategory={handleAddSubCategory}
+                                startEditingCategory={startEditingCategory}
+                                cancelEditingCategory={cancelEditingCategory}
+                                startAddingSubCategory={startAddingSubCategory}
+                                cancelAddingSubCategory={cancelAddingSubCategory}
+                                level={level + 1}
+                            />
+                        ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Deleted Category Item Component
+const DeletedCategoryItem = ({ 
+    category, 
+    expandedCategories, 
+    toggleCategoryExpansion, 
+    loading, 
+    editingCategory, 
+    editingCategoryName, 
+    setEditingCategoryName, 
+    handleRestoreCategory, 
+    startEditingCategory, 
+    cancelEditingCategory, 
+    level 
+}) => {
+    const hasChildren = category.children && category.children.length > 0;
+    const isExpanded = expandedCategories.includes(category.categoryId);
+    
+    console.log(`🗑️ DeletedCategoryItem [Level ${level}]:`, {
+        id: category.categoryId,
+        name: category.categoryName,
+        parentId: category.parentId,
+        isActive: category.isActive,
+        isDeleted: category.isDeleted,
+        hasChildren,
+        childrenCount: category.children?.length || 0,
+        isExpanded
+    });
+    
+    return (
+        <div className="w-full">
+            {/* Silinen Kategori Satırı */}
+            <div className={`category-item ${level > 0 ? `indent-${Math.min(level, 6)}` : ''} bg-red-25`}>
+                {/* Expand/Collapse İkonu */}
+                {hasChildren && (
+                    <svg 
+                        className={`w-4 h-4 cursor-pointer text-red-400 hover:text-red-600 ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={() => toggleCategoryExpansion(category.categoryId)}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                )}
+                {!hasChildren && <div className="w-4 h-4"></div>}
+                
+                {/* Kategori İçeriği */}
+                <div className="flex items-center justify-between flex-1">
+                    <div className="flex items-center gap-3">
+                        {/* Kategori Adı */}
+                        {editingCategory === category.categoryId ? (
+                            <div className="flex items-center gap-2">
                                                                 <input
                                                                     type="text"
-                              value={editingPropertyName}
-                              onChange={(e) => setEditingPropertyName(e.target.value)}
-                              className="border border-gray-300 rounded px-2 py-1 text-sm flex-1"
+                                    value={editingCategoryName}
+                                    onChange={(e) => setEditingCategoryName(e.target.value)}
+                                    className="px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleUpdatePropertyName(filter.propertyId);
-                                if (e.key === 'Escape') cancelEditingProperty();
+                                        if (e.key === 'Enter') handleUpdateCategory(category.categoryId);
+                                        if (e.key === 'Escape') cancelEditingCategory();
                               }}
                                                                     autoFocus
                                                                 />
-                            <button
-                              onClick={() => handleUpdatePropertyName(filter.propertyId)}
-                              disabled={loading || !editingPropertyName.trim()}
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 disabled:opacity-50"
-                            >
-                              Kaydet
-                            </button>
-                            <button
-                              onClick={cancelEditingProperty}
-                              disabled={loading}
-                              className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
-                            >
-                              İptal
-                            </button>
+                                <span
+                                    onClick={() => handleUpdateCategory(category.categoryId)}
+                                    className="action-span bg-green-100 text-green-700 hover:bg-green-200"
+                                    title="Kaydet"
+                                >
+                                    <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </span>
+                                <span
+                                    onClick={cancelEditingCategory}
+                                    className="action-span bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    title="İptal"
+                                >
+                                    <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </span>
                         </div>
                         ) : (
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="text-gray-700">{filter.propertyValue}</span>
-                            <button
-                              onClick={() => startEditingProperty(filter.propertyId, filter.propertyValue)}
-                              disabled={loading}
-                              className="text-orange-500 hover:text-orange-700 p-1"
-                              title="Düzenle"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M16.862 5.487l1.65 1.65a2.121 2.121 0 0 1 0 3l-8.486 8.486a2 2 0 0 1-.707.464l-3.243 1.081a.5.5 0 0 1-.632-.632l1.08-3.243a2 2 0 0 1 .465-.707l8.486-8.486a2.121 2.121 0 0 1 3 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProperty(filter.propertyId)}
-                              disabled={loading}
-                              className="text-red-500 hover:text-red-700 p-1"
-                              title="Sil"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2M9 10v6M15 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                              </svg>
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-red-800">{category.categoryName}</span>
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-red-50 text-red-600">
+                                    Silinen
+                                </span>
                         </div>
                         )}
-                      </li>
-                    ))}
+                    </div>
                     
-                    {/* Yeni Property Ekleme Alanı */}
-                    {addingProperty === cat.categoryId ? (
-                      <li className="flex items-center gap-2 py-2 mt-2">
-                        <input
-                          type="text"
-                          value={newPropertyName}
-                          onChange={(e) => setNewPropertyName(e.target.value)}
-                          placeholder="Property adı girin..."
-                          className="border border-gray-300 rounded px-2 py-1 text-sm flex-1"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAddProperty(cat.categoryId);
-                            if (e.key === 'Escape') cancelAddingProperty();
-                          }}
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => handleAddProperty(cat.categoryId)}
-                          disabled={loading || !newPropertyName.trim()}
-                          className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 disabled:opacity-50"
+                    {/* Aksiyon Butonları */}
+                    <div className="flex items-center gap-1">
+                        {/* Geri Taşıma */}
+                        <span
+                            onClick={() => handleRestoreCategory(category.categoryId)}
+                            className="action-span bg-green-100 text-green-700 hover:bg-green-200"
+                            title="Geri Taşı"
                         >
-                          Kaydet
-                        </button>
-                        <button
-                          onClick={cancelAddingProperty}
-                          disabled={loading}
-                          className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 disabled:opacity-50"
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                        </span>
+                        
+                        {/* Düzenleme */}
+                        <span
+                            onClick={() => startEditingCategory(category.categoryId, category.categoryName)}
+                            className="action-span bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            title="Düzenle"
                         >
-                          İptal
-                        </button>
-                      </li>
-                    ) : (
-                      <li className="py-2 mt-2">
-                        <button
-                          onClick={() => startAddingProperty(cat.categoryId)}
-                          disabled={loading}
-                          className="flex items-center gap-1 text-purple-600 hover:text-purple-800 text-sm font-medium disabled:opacity-50"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <svg className="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
-                          Yeni Property Ekle
-                        </button>
-                      </li>
-                    )}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Alt Kategoriler */}
+            {hasChildren && isExpanded && (
+                <div className="mt-3 space-y-2 children-list">
+                    {category.children
+                        .filter(childCategory => childCategory.isDeleted)
+                        .map((childCategory) => (
+                            <DeletedCategoryItem
+                                key={childCategory.categoryId}
+                                category={childCategory}
+                                expandedCategories={expandedCategories}
+                                toggleCategoryExpansion={toggleCategoryExpansion}
+                                loading={loading}
+                                editingCategory={editingCategory}
+                                editingCategoryName={editingCategoryName}
+                                setEditingCategoryName={setEditingCategoryName}
+                                handleRestoreCategory={handleRestoreCategory}
+                                startEditingCategory={startEditingCategory}
+                                cancelEditingCategory={cancelEditingCategory}
+                                level={level + 1}
+                            />
+                        ))}
                 </div>
             )}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllCategories } from "../services/CategoryService.js";
+import { getHierarchicalNestedCategories } from "../services/CategoryService.js";
 
 const HeroSection = () => {
     const [categories, setCategories] = useState([]);
@@ -21,12 +21,14 @@ const HeroSection = () => {
     useEffect(() => {
         const loadCategories = async () => {
             try {
-                const categoriesData = await getAllCategories();
-                // API'den gelen ana kategorileri doğrudan kullan
-                const apiCategories = (categoriesData.data || []).map(cat => ({
-                    id: cat.categoryId,
-                    name: cat.categoryName
-                }));
+                const hierarchicalData = await getHierarchicalNestedCategories();
+                // Hierarchical'dan sadece ana kategorileri al
+                const apiCategories = (hierarchicalData.data || [])
+                    .filter(cat => cat.isActive === true)
+                    .map(cat => ({
+                        id: cat.categoryId,
+                        name: cat.categoryName
+                    }));
                 setCategories(apiCategories);
             } catch (error) {
                 console.error('Categories loading error:', error);
@@ -117,5 +119,7 @@ const HeroSection = () => {
         </div>
     );
 };
+
+export default HeroSection;
 
 export default HeroSection;

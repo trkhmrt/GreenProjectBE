@@ -147,4 +147,52 @@ public class S3Service {
                 .map(obj -> cloudfrontUrl + "/" + obj.key())
                 .collect(Collectors.toList());
     }
+
+    public String uploadProductImageToEuCentral(MultipartFile file, Integer productId) throws IOException {
+        S3Client s3 = getEuCentralS3Client();
+
+        // products/ klasörü altında ürün ID'si ile alt klasör
+        String folderKey = "products/" + productId + "/";
+
+        // Mevcut dosya sayısını bul
+        int nextFileNumber = getNextFileNumberInEuCentral(s3, folderKey);
+
+        // Dosya uzantısını al
+        String fileExtension = getFileExtension(file.getOriginalFilename());
+
+        // Dosya adı: productId-sıraNo.uzantı
+        String fileName = productId + "-" + nextFileNumber + fileExtension;
+        String fullKey = folderKey + fileName;
+
+        // Dosyayı yükle
+        s3.putObject(PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fullKey)
+                        .contentType(file.getContentType())
+                        .build(),
+                RequestBody.fromBytes(file.getBytes()));
+
+        // CDN URL'i döndür
+        return cloudfrontUrl + "/" + fullKey;
+    }
+
+    /**
+     * Tek bir resmi S3'e yükle (RabbitMQ consumer için)
+     */
+    public String uploadImageToS3(byte[] imageBytes, String key, String contentType) {
+        S3Client s3 = getEuCentralS3Client();
+        
+        try {
+            s3.putObject(PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .contentType(contentType)
+                            .build(),
+                    RequestBody.fromBytes(imageBytes));
+
+            return cloudfrontUrl + "/" + key;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload image to S3: " + e.getMessage(), e);
+        }
+    }
 }

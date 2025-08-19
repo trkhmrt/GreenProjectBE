@@ -8,13 +8,10 @@ import {routes} from "./routes/Routes.js"
 import {AuthProvider} from "./context/AuthContext.jsx";
 import GuestRoute from "./routes/GuestRoute";
 import Register from "./pages/Auth/Register.jsx";
-import AdminPanelHome from "./pages/AdminPanel/AdminOffice.jsx";
-import AddProductToStore from "./pages/AdminPanel/AdminProductPage.jsx";
 import Payment from "./pages/Payment.jsx";
 import PaymentResult from "./pages/PaymentResult.jsx";
 import Orders from "./pages/Orders.jsx";
-import Donation from "./pages/Donation.jsx";
-import CategoryPage from "./pages/CategoryPage.jsx";
+import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import AdminOffice from "./pages/AdminPanel/AdminOffice.jsx";
 import AdminLayout from "./layout/AdminLayout.jsx";
@@ -49,8 +46,7 @@ function App() {
 
                                 <Route path={routes.Payment} element={<Payment/>}></Route>
                                 <Route path={routes.Orders} element={<Orders/>}></Route>
-                                <Route path={routes.Donation} element={<Donation/>}></Route>
-                                <Route path="/category/:categoryId" element={<CategoryPage/>}></Route>
+                                <Route path="/category/:categoryId" element={<Products/>}></Route>
                             </Route>
                             <Route element={<AdminLayout/>}>
                                 <Route path={routes.AdminOffice} element={<AdminOffice/>}/>

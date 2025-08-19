@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ImageFileResponse {
     private Integer fileId;
-    private String path;
+    private String imageUrl;
 }

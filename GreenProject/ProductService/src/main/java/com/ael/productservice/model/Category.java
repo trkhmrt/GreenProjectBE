@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Table(name="categories")
 @Data
 @AllArgsConstructor
@@ -15,14 +13,17 @@ import java.util.List;
 @Builder
 @Entity
 public class Category {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer categoryId;
-        private String categoryName;
-        private Boolean isActive;
-        private Boolean isDeleted;
-
-        @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        private List<SubCategory> subCategories;
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer categoryId;
+    
+    private String categoryName;
+    
+    private Integer parentId; // NULL = root, sayı = parent ID
+    
+    private Boolean isActive;
+    
+    private Boolean isDeleted;
+    
+    private Integer level; // 0: root, 1: child, 2: grandchild, 3: great-grandchild, ...
 }

@@ -1,8 +1,16 @@
 import axios from "../lib/axios.js";
-const gatewayServiceUrl = "http://localhost:8072/ael/productservice"
+const gatewayServiceUrl = "/productservice"
+
+export const getHierarchicalNestedCategories = async () => {
+    return await axios.get(`${gatewayServiceUrl}/category/hierarchical-nested`);
+}
 
 export const getAllCategories = async () => {
     return await axios.get(`${gatewayServiceUrl}/category/getAllCategories`);
+}
+
+export const getAllCategoryProperty = async (categoryId) => {
+    return await axios.get(`${gatewayServiceUrl}/category/getAllCategories?categoryId=${categoryId}`);
 }
 
 export const createCategory = async (categoryName) => {
@@ -39,3 +47,6 @@ export const updateSubCategoryName = async (id, name) => {
 export const toggleCategoryActive = async (categoryId) => {
     return await axios.post(`${gatewayServiceUrl}/category/toggle-active/${categoryId}`);
 }
+
+
+
