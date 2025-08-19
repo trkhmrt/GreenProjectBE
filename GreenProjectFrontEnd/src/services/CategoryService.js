@@ -47,6 +47,3 @@ export const updateSubCategoryName = async (id, name) => {
 export const toggleCategoryActive = async (categoryId) => {
     return await axios.post(`${gatewayServiceUrl}/category/toggle-active/${categoryId}`);
 }
-
-
-

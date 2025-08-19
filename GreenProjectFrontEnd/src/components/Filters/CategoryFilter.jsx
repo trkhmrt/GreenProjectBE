@@ -178,3 +178,4 @@ const CategoryFilter = ({ hierarchicalCategories = [], filters, updateFilter }) 
 };
 
 export default CategoryFilter;
+

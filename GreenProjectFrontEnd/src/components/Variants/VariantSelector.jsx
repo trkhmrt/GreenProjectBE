@@ -123,3 +123,4 @@ const VariantSelector = ({ productVariants, onVariantChange }) => {
 };
 
 export default VariantSelector;
+

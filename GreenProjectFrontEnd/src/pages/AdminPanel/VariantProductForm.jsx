@@ -748,3 +748,4 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
 };
 
 export default VariantProductForm;
+

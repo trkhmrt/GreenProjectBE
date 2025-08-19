@@ -67,3 +67,12 @@ button:focus-visible {
 .animate-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Scrollbar gizleme */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}

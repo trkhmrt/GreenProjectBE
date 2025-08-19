@@ -100,4 +100,4 @@ const buttonStyle = {
   color: "#fff",
   border: "none",
   cursor: "pointer"
-};
+}; 

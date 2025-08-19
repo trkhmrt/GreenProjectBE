@@ -77,3 +77,4 @@ const VariantGallery = ({ variantImagePaths = [], imageFiles = [] }) => {
 };
 
 export default VariantGallery;
+

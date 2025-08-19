@@ -96,3 +96,4 @@ export const getCategoryPropertiesById = async (categoryId) => {
         throw error;
     }
 };
+

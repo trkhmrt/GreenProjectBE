@@ -474,3 +474,4 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
 };
 
 export default SimpleProductForm;
+
