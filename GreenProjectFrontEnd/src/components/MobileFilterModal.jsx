@@ -306,35 +306,54 @@ const MobileFilterModal = ({
       return (
         <div key={category.categoryId} className="w-full">
           <div 
-            className={`flex items-center justify-between py-3 px-4 rounded-lg text-sm font-medium cursor-pointer ${
+            className={`group flex items-center justify-between py-2 px-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
               isSelected 
-                ? 'text-purple-600' 
+                ? 'bg-purple-50/80 text-purple-700' 
                 : 'hover:bg-gray-50 text-gray-700'
             }`}
-            style={{ paddingLeft: `${level * 16 + 16}px` }}
             onClick={(e) => handleCategoryClick(category, e)}
           >
-            <span className={`${isSelected ? 'text-purple-600 font-semibold border-b-2 border-purple-500' : 'text-gray-800'}`}>
-              {category.categoryName}
-            </span>
-            {hasChildren && (
-              <span
-                className={`text-gray-400 text-lg ${
-                  isExpanded ? 'rotate-90' : ''
-                }`}
-              >
-                ›
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {/* Level indicator - kompakt nokta sistemi */}
+              {level > 0 && (
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: level }, (_, i) => (
+                    <div key={i} className="w-1 h-1 bg-purple-300 rounded-full"></div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Expand/Collapse icon */}
+              {hasChildren && (
+                <span
+                  className={`text-purple-500 text-lg transition-transform duration-300 ease-in-out cursor-pointer hover:text-purple-700 ${
+                    isExpanded ? 'rotate-90' : ''
+                  }`}
+                >
+                  ›
+                </span>
+              )}
+              
+              {/* Category name */}
+              <span className={`truncate font-medium ${isSelected ? 'text-purple-600 font-semibold border-b-2 border-purple-500' : 'text-gray-800'}`}>
+                {category.categoryName}
               </span>
-            )}
+              
+              {/* Children count */}
+              {hasChildren && (
+                <span className="text-xs text-purple-500 bg-purple-100/60 px-2 py-0.5 rounded-full font-medium flex-shrink-0">
+                  {getSubCategories(category.categoryId).length}
+                </span>
+              )}
+            </div>
           </div>
           
+          {/* Subcategories - direkt altında, boşluksuz */}
           {hasChildren && (
-            <div className={`overflow-hidden transition-all duration-150 ease-out ${
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
               isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
             }`}>
-              <div className="mt-1">
-                {renderCategoryTree(getSubCategories(category.categoryId), level + 1)}
-              </div>
+              {renderCategoryTree(getSubCategories(category.categoryId), level + 1)}
             </div>
           )}
         </div>

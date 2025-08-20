@@ -178,6 +178,19 @@ const PropertyFilter = ({ selectedCategoryId, filters, updateFilter, hierarchica
                             />
                         </div>
                     ))}
+                    
+                    {/* Filtre Uygula Butonu */}
+                    <div className="pt-4">
+                        <button
+                            onClick={() => {
+                                console.log('🎯 PropertyFilter: Filtre uygulandı');
+                                // Filtreler zaten otomatik uygulanıyor, burada ek işlem yapılabilir
+                            }}
+                            className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md"
+                        >
+                            Filtre Uygula
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

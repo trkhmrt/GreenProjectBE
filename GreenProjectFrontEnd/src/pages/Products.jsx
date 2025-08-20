@@ -270,10 +270,10 @@ const Products = () => {
         <div className="min-h-screen bg-gradient-to-br from-purple-50/30 to-purple-100/20">
             {/* Desktop Layout */}
             <div className="hidden md:block">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    <div className="flex gap-8">
                         {/* Sol Taraf - Filtreler */}
-                        <div className="lg:col-span-1 space-y-6 desktop-filters">
+                        <div className="w-[230px] space-y-4 desktop-filters flex-shrink-0">
                             {/* Kategori Filtresi */}
                             <CategoryFilter 
                                 hierarchicalCategories={hierarchicalCategories}
@@ -290,8 +290,8 @@ const Products = () => {
                             />
 
                             {/* Fiyat Filtresi */}
-                            <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-4 sm:p-6 shadow-lg">
-                                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                            <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-3 sm:p-4 shadow-lg">
+                                <div className="flex items-center justify-between mb-3 sm:mb-4">
                                     <h3 className="text-base sm:text-lg font-bold text-purple-800">Fiyat Aralığı</h3>
                                     {(filters.priceRange.min > 0 || filters.priceRange.max) && (
                                         <span
@@ -302,7 +302,7 @@ const Products = () => {
                                         </span>
                                     )}
                                 </div>
-                                <div className="space-y-3 sm:space-y-4">
+                                <div className="space-y-2 sm:space-y-3">
                                     <div className="flex gap-2 sm:gap-3">
                                         <div className="flex-1">
                                                 <input
@@ -333,8 +333,8 @@ const Products = () => {
                                 </div>
 
                             {/* Arama */}
-                            <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-4 sm:p-6 shadow-lg">
-                                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                            <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-3 sm:p-4 shadow-lg">
+                                <div className="flex items-center justify-between mb-3 sm:mb-4">
                                     <h3 className="text-base sm:text-lg font-bold text-purple-800">Arama</h3>
                                     {filters.searchQuery && (
                                         <span
@@ -361,7 +361,7 @@ const Products = () => {
                         </div>
 
                         {/* Sağ Taraf - Ürünler */}
-                        <div className="lg:col-span-3">
+                        <div className="flex-1">
                             {/* Başlık */}
                             <div className="mb-6">
                                 <h1 className="text-2xl sm:text-3xl font-bold text-purple-800 mb-2">
@@ -396,8 +396,8 @@ const Products = () => {
 
                             {/* Ürün Grid */}
                             {loading ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {[...Array(6)].map((_, index) => (
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {[...Array(12)].map((_, index) => (
                                         <div key={index} className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 animate-pulse">
                                             <div className="bg-gray-200 rounded-xl h-48 mb-4"></div>
                                             <div className="space-y-2">
@@ -419,7 +419,7 @@ const Products = () => {
                                     <p className="text-gray-500">Seçtiğiniz kriterlere uygun ürün bulunamadı.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                                     {filteredProducts.map(product => (
                                         <ProductCard key={product.productId} product={product} />
                                     ))}

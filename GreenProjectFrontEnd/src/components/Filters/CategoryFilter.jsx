@@ -93,43 +93,55 @@ const CategoryFilter = ({ hierarchicalCategories = [], filters, updateFilter }) 
             return (
                 <div key={category.categoryId} className="w-full">
                     <div 
-                        className="flex items-center justify-between py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer"
-                        style={{ paddingLeft: `${level * 20 + 16}px` }}
+                        className={`group flex items-center justify-between py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer hover:bg-purple-50/40 ${
+                            isSelected ? 'bg-purple-50/80 text-purple-700' : 'text-gray-700'
+                        }`}
                         onClick={() => handleCategorySelect(category)}
                     >
-                        <span 
-                            className={`flex items-center gap-2 font-medium transition-all duration-200 px-3 py-1 rounded-lg cursor-pointer ${
-                                isSelected
-                                    ? 'text-purple-700 bg-purple-50/80'
-                                    : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50/40'
-                            }`}
-                        >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {/* Level indicator - daha kompakt */}
+                            {level > 0 && (
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: level }, (_, i) => (
+                                        <div key={i} className="w-1 h-1 bg-purple-300 rounded-full"></div>
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {/* Expand/Collapse icon */}
                             {hasChildren && (
-                                <svg 
+                                <span
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleToggleExpand(category.categoryId);
                                     }}
-                                    className={`w-4 h-4 transition-transform duration-200 text-purple-600 cursor-pointer ${isExpanded ? 'rotate-90' : ''}`} 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    viewBox="0 0 24 24"
+                                    className={`text-purple-500 text-lg transition-transform duration-200 cursor-pointer hover:text-purple-700 ${
+                                        isExpanded ? 'rotate-90' : ''
+                                    }`}
                                 >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                </svg>
+                                    ›
+                                </span>
                             )}
-                            {!hasChildren && <div className="w-4 h-4"></div>}
-                            {category.categoryName}
+                            
+                            {/* Category name */}
+                            <span className="truncate font-medium">
+                                {category.categoryName}
+                            </span>
+                            
+                            {/* Children count */}
                             {hasChildren && (
-                                <span className="text-xs text-purple-500 bg-purple-100/60 px-2 py-1 rounded-full font-medium">
+                                <span className="text-xs text-purple-500 bg-purple-100/60 px-2 py-0.5 rounded-full font-medium flex-shrink-0">
                                     {category.children.length}
                                 </span>
                             )}
-                        </span>
+                        </div>
                     </div>
                     
+                    {/* Subcategories - direkt altında, boşluksuz */}
                     {hasChildren && isExpanded && (
-                        <div className="mt-1 ml-2 border-l border-purple-200/30">
+                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                        }`}>
                             {renderCategoryTree(category.children, level + 1)}
                         </div>
                     )}
@@ -139,8 +151,8 @@ const CategoryFilter = ({ hierarchicalCategories = [], filters, updateFilter }) 
     };
 
     return (
-        <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-4 sm:p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="bg-gradient-to-br from-purple-50/30 to-purple-100/20 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-purple-200/30 p-3 sm:p-4 shadow-lg">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 className="text-base sm:text-lg font-bold text-purple-800">Kategoriler</h3>
                 {filters.categoryId && (
                     <span
@@ -159,7 +171,7 @@ const CategoryFilter = ({ hierarchicalCategories = [], filters, updateFilter }) 
                 {/* Tümü seçeneği */}
                 <span
                     onClick={() => handleCategorySelect({ categoryId: 'all', categoryName: 'Tümü' })}
-                    className={`block py-3 px-4 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    className={`block py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
                         !filters.categoryId
                             ? 'text-purple-700 bg-purple-50/80'
                             : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50/40'

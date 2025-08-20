@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '../services/ProductService';
 import { addProductToBasket } from '../services/BasketService';
 import VariantGallery from '../components/Variants/VariantGallery';
@@ -7,6 +7,7 @@ import VariantSelector from '../components/Variants/VariantSelector';
 
 const ProductDetail = () => {
     const { productId } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedVariant, setSelectedVariant] = useState(null);
@@ -91,7 +92,18 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50/30 to-purple-100/20">
-            <div className="container mx-auto px-4 py-8">
+            {/* Geri Dönüş Butonu */}
+            <div className="container mx-auto px-4 pt-6">
+                <span
+                    onClick={() => navigate(-1)}
+                    className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium cursor-pointer transition-colors duration-200 mb-6"
+                >
+                    <span className="text-xl">‹</span>
+                    <span>Geri Dön</span>
+                </span>
+            </div>
+            
+            <div className="container mx-auto px-4 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Sol Taraf - Ürün Görselleri */}
                     <div className="space-y-6">

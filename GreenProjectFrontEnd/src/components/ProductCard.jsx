@@ -71,11 +71,11 @@ const ProductCard = ({ product }) => {
 
     return (
         <div 
-            className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 w-[230px] h-[552px]"
             onClick={handleCardClick}
         >
             {/* Ürün Görseli */}
-            <div className="aspect-square bg-gray-100 relative">
+            <div className="w-full h-[300px] bg-gray-100 relative">
                 {imageUrl ? (
                     <img
                         src={imageUrl}
@@ -115,34 +115,34 @@ const ProductCard = ({ product }) => {
             </div>
 
             {/* Ürün Bilgileri */}
-            <div className="p-3 sm:p-4">
+            <div className="p-3 h-[252px] flex flex-col justify-between">
                 {/* Ürün Adı */}
-                <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 line-clamp-2 hover:text-purple-600 transition-colors text-sm sm:text-base">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-600 transition-colors text-sm">
                     {product.productName}
                 </h3>
                 
                 {/* Marka */}
                 {product.productBrand && (
-                    <p className="text-xs sm:text-sm text-gray-500 mb-1 sm:mb-2 font-medium">
+                    <p className="text-sm text-gray-500 mb-2 font-medium">
                         {product.productBrand}
                     </p>
                 )}
                 
                 {/* Fiyat */}
-                <p className="text-lg sm:text-xl font-bold text-purple-600 mb-2 sm:mb-3">
+                <p className="text-base font-bold text-purple-600 mb-2">
                     {price}
                 </p>
                 
                 {/* Kategori */}
                 {product.categoryName && (
-                    <p className="text-xs text-gray-500 mb-2 sm:mb-3">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">
                         {product.categoryName}
                     </p>
                 )}
                 
                 {/* Varyant Bilgisi */}
                 {product.productType === 'VARIANT' && product.variants?.length > 0 && (
-                    <p className="text-xs text-gray-500 mb-2 sm:mb-3">
+                    <p className="text-xs text-gray-500 mb-2">
                         {product.variants.length} varyant mevcut
                     </p>
                 )}
@@ -151,7 +151,7 @@ const ProductCard = ({ product }) => {
                 <button
                     onClick={handleAddToBasket}
                     disabled={stock === 0}
-                    className="w-full bg-purple-600 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-semibold shadow-sm hover:shadow-md"
+                    className="w-full bg-purple-600 text-white py-2 px-3 rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-xs font-semibold shadow-sm hover:shadow-md mt-auto"
                 >
                     {stock > 0 ? 'Sepete Ekle' : 'Stokta Yok'}
                 </button>
