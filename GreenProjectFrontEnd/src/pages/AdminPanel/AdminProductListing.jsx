@@ -395,7 +395,7 @@ const AdminProductListing = () => {
             
             setFilteredProducts(sorted);
         } else {
-            setFilteredProducts(filtered);
+        setFilteredProducts(filtered);
         }
     };
 
@@ -447,11 +447,11 @@ const AdminProductListing = () => {
 
     return (
         <div className="w-full">
-            {/* Başlık */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Ürün Yönetimi</h1>
-                <p className="text-gray-600">Ürünlerinizi görüntüleyin ve yönetin</p>
-            </div>
+                {/* Başlık */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Ürün Yönetimi</h1>
+                    <p className="text-gray-600">Ürünlerinizi görüntüleyin ve yönetin</p>
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Sol Sidebar - Kategoriler */}
@@ -464,22 +464,22 @@ const AdminProductListing = () => {
                     </div>
 
                     {/* Ana İçerik */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         {/* Ürün Başlığı */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
                             <div className="p-4">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <h2 className="text-lg font-semibold text-gray-900">
                                         Ürünler ({filteredProducts.length})
                                     </h2>
                                     
                                     {/* Sıralama Seçenekleri */}
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                                         <span className="text-sm font-medium text-gray-700">Sırala:</span>
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-wrap gap-2">
                                             <span
                                                 onClick={() => handleSort('newest')}
-                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap ${
                                                     sortBy === 'newest'
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -489,7 +489,7 @@ const AdminProductListing = () => {
                                             </span>
                                             <span
                                                 onClick={() => handleSort('name')}
-                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap ${
                                                     sortBy === 'name'
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -499,7 +499,7 @@ const AdminProductListing = () => {
                                             </span>
                                             <span
                                                 onClick={() => handleSort('category')}
-                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap ${
                                                     sortBy === 'category'
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -509,7 +509,7 @@ const AdminProductListing = () => {
                                             </span>
                                             <span
                                                 onClick={() => handleSort('price_asc')}
-                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap ${
                                                     sortBy === 'price_asc'
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -519,7 +519,7 @@ const AdminProductListing = () => {
                                             </span>
                                             <span
                                                 onClick={() => handleSort('price_desc')}
-                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 whitespace-nowrap ${
                                                     sortBy === 'price_desc'
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -528,17 +528,15 @@ const AdminProductListing = () => {
                                                 Fiyat (Yüksek)
                                             </span>
                                         </div>
-                                        
-
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Arama Filtresi */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
-                            <div className="p-4">
-                                <div className="flex items-center justify-between mb-4">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                                <div className="p-4">
+                                    <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold text-gray-900">Arama</h3>
                                     {filters.searchQuery && (
                                         <button
@@ -561,21 +559,21 @@ const AdminProductListing = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
-                            </div>
-                        </div>
-
+                                    </div>
+                                    </div>
+                                    
                         {/* Ürün Tipi Filtreleri */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
                             <div className="p-4">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold text-gray-900">Ürün Tipi Filtreleri</h3>
-                                    <button
+                                                    <button
                                         onClick={clearFilters}
                                         className="text-sm text-purple-600 hover:text-purple-800 font-medium"
                                     >
                                         Filtreleri Sıfırla
-                                    </button>
-                                </div>
+                                                    </button>
+                                            </div>
                                 
                                 {/* Ürün Tipi Checkbox'ları */}
                                 <div className="space-y-3">
@@ -665,8 +663,8 @@ const AdminProductListing = () => {
                                 <div className="p-8 text-center">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
                                     <p className="text-gray-600">Ürünler yükleniyor...</p>
-                                </div>
-                            )}
+                            </div>
+                        )}
 
                             {error && (
                                 <div className="p-8 text-center">
@@ -676,8 +674,8 @@ const AdminProductListing = () => {
                                         </svg>
                                     </div>
                                     <p className="text-gray-600">{error}</p>
-                                </div>
-                            )}
+                            </div>
+                        )}
 
                             {!loading && !error && filteredProducts.length === 0 && (
                                 <div className="p-8 text-center">
@@ -687,12 +685,12 @@ const AdminProductListing = () => {
                                         </svg>
                                     </div>
                                     <p className="text-gray-600">Ürün bulunamadı</p>
-                                </div>
+                    </div>
                             )}
 
                             {!loading && !error && filteredProducts.length > 0 && (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                                    <table className="w-full min-w-full">
                                         <thead className="bg-gray-50 border-b border-gray-200">
                                             <tr>
                                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -747,13 +745,13 @@ const AdminProductListing = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-6 py-4">
                                                         <div className="text-sm text-gray-900">{product.categoryName}</div>
                                                         {product.subCategoryName && (
                                                             <div className="text-sm text-gray-500">{product.subCategoryName}</div>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-6 py-4">
                                                         <div className="text-sm font-medium text-gray-900">
                                                             {product.productType === 'SIMPLE' 
                                                                 ? `${product.productPrice} TL`
@@ -763,7 +761,7 @@ const AdminProductListing = () => {
                                                             }
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-6 py-4">
                                                         <div className={`text-sm font-medium ${
                                                             (product.productType === 'SIMPLE' ? product.productQuantity : 
                                                              product.variants?.reduce((total, variant) => total + (variant.stockQuantity || 0), 0) || 0) > 0
@@ -776,7 +774,7 @@ const AdminProductListing = () => {
                                                             } adet
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-6 py-4">
                                                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                                             product.productType === 'VARIANT'
                                                                 ? 'bg-purple-100 text-purple-800'
@@ -785,8 +783,8 @@ const AdminProductListing = () => {
                                                             {product.productType === 'VARIANT' ? 'Varyantlı' : 'Basit'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div className="flex space-x-2">
+                                                    <td className="px-6 py-4 text-sm font-medium">
+                                                        <div className="flex flex-col sm:flex-row gap-2">
                                                             <button 
                                                                 onClick={() => handleEditProduct(product.productId)}
                                                                 className="text-purple-600 hover:text-purple-900 transition-colors"
@@ -802,13 +800,13 @@ const AdminProductListing = () => {
                                             ))}
                                         </tbody>
                                     </table>
-                                </div>
-                            )}
                         </div>
+                    )}
+                </div>
                     </div>
 
 
-                </div>
+            </div>
         </div>
     );
 };

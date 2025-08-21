@@ -11,6 +11,7 @@ const AdminProductDetail = () => {
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
+    const [editingVariants, setEditingVariants] = useState([]);
 
     // URL'den filtreleri al
     const searchParams = new URLSearchParams(location.search);
@@ -35,6 +36,10 @@ const AdminProductDetail = () => {
             const response = await axios.get(`http://localhost:8072/ael/productservice/product/${productId}`);
             setProduct(response.data);
             setFormData(response.data);
+            // Varyantları da kopyala
+            if (response.data.variants) {
+                setEditingVariants([...response.data.variants]);
+            }
         } catch (error) {
             setError('Ürün yüklenirken hata oluştu');
             console.error('Ürün yükleme hatası:', error);
@@ -65,35 +70,54 @@ const AdminProductDetail = () => {
             console.log('🚀 Kaydedilecek ürün verisi:');
             console.log('📦 Form Data:', formData);
             console.log('🔄 Orijinal Ürün:', product);
-            console.log('📝 Değişiklikler:', {
-                productName: {
-                    from: product.productName,
-                    to: formData.productName
-                },
-                productBrand: {
-                    from: product.productBrand,
-                    to: formData.productBrand
-                },
-                productModel: {
-                    from: product.productModel,
-                    to: formData.productModel
-                },
-                productDescription: {
-                    from: product.productDescription,
-                    to: formData.productDescription
-                },
-                productPrice: {
-                    from: product.productPrice,
-                    to: formData.productPrice
-                },
-                productQuantity: {
-                    from: product.productQuantity,
-                    to: formData.productQuantity
-                }
-            });
+            console.log('📝 Güncellenmiş Ürün:', formData);
 
-            // Ürün güncelleme API çağrısı
-            const response = await axios.put(`http://localhost:8072/ael/productservice/product/${productId}`, formData);
+            let response;
+            
+            if (product.productType === 'SIMPLE') {
+                // Basit ürün güncelleme
+                const simpleProductRequest = {
+                    productName: formData.productName,
+                    productBrand: formData.productBrand,
+                    productDescription: formData.productDescription,
+                    productPrice: formData.productPrice,
+                    productType: 'SIMPLE',
+                    productQuantity: formData.productQuantity,
+                    categoryId: formData.categoryId,
+                    categoryName: formData.categoryName,
+                    parentCategoryName: null, // Eğer parent kategori varsa buraya eklenebilir
+                    images: [], // Şimdilik boş, fotoğraf güncelleme eklenebilir
+                    simpleProductProperties: [] // Şimdilik boş, özellik güncelleme eklenebilir
+                };
+                
+                console.log('📤 Basit Ürün Güncelleme İsteği:', simpleProductRequest);
+                response = await axios.put(`http://localhost:8072/ael/productservice/product/update/simpleProduct/${productId}`, simpleProductRequest);
+            } else {
+                // Varyantlı ürün güncelleme
+                const multipleProductRequest = {
+                    productName: formData.productName,
+                    productBrand: formData.productBrand,
+                    productDescription: formData.productDescription,
+                    categoryId: formData.categoryId,
+                    productVariants: editingVariants.map(variant => ({
+                        variantId: variant.variantId,
+                        sku: variant.sku,
+                        price: variant.price,
+                        stockQuantity: variant.stockQuantity,
+                        isActive: variant.isActive,
+                        variantImageUrls: variant.variantImageUrls || [],
+                        properties: variant.properties?.map(prop => ({
+                            id: prop.id,
+                            propertyId: prop.propertyId,
+                            propertyName: prop.propertyName,
+                            value: prop.value
+                        })) || []
+                    }))
+                };
+                
+                console.log('📤 Varyantlı Ürün Güncelleme İsteği:', multipleProductRequest);
+                response = await axios.put(`http://localhost:8072/ael/productservice/product/update/multipleProduct/${productId}`, multipleProductRequest);
+            }
             
             console.log('✅ API Yanıtı:', response.data);
             console.log('🎉 Ürün başarıyla güncellendi!');
@@ -114,6 +138,76 @@ const AdminProductDetail = () => {
     const handleCancel = () => {
         setFormData(product); // Orijinal veriyi geri yükle
         setIsEditing(false);
+        // Varyantları da geri yükle
+        if (product.variants) {
+            setEditingVariants([...product.variants]);
+        }
+    };
+
+    // Varyant düzenleme fonksiyonları
+    const updateVariant = (variantIndex, field, value) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex] = {
+            ...updatedVariants[variantIndex],
+            [field]: value
+        };
+        setEditingVariants(updatedVariants);
+    };
+
+    const addVariantImage = (variantIndex) => {
+        const updatedVariants = [...editingVariants];
+        if (!updatedVariants[variantIndex].variantImageUrls) {
+            updatedVariants[variantIndex].variantImageUrls = [];
+        }
+        updatedVariants[variantIndex].variantImageUrls.push(''); // Boş URL ekle
+        setEditingVariants(updatedVariants);
+    };
+
+    const updateVariantImageUrl = (variantIndex, imageIndex, value) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex].variantImageUrls[imageIndex] = value;
+        setEditingVariants(updatedVariants);
+    };
+
+    const removeVariantImage = (variantIndex, imageIndex) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex].variantImageUrls.splice(imageIndex, 1);
+        setEditingVariants(updatedVariants);
+    };
+
+    const updateVariantImage = (variantIndex, imageIndex, value) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex].variantImageUrls[imageIndex] = value;
+        setEditingVariants(updatedVariants);
+    };
+
+    const addVariantProperty = (variantIndex) => {
+        const updatedVariants = [...editingVariants];
+        if (!updatedVariants[variantIndex].properties) {
+            updatedVariants[variantIndex].properties = [];
+        }
+        updatedVariants[variantIndex].properties.push({
+            id: Date.now(), // Geçici ID
+            propertyId: 1,
+            propertyName: '',
+            value: ''
+        });
+        setEditingVariants(updatedVariants);
+    };
+
+    const removeVariantProperty = (variantIndex, propertyIndex) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex].properties.splice(propertyIndex, 1);
+        setEditingVariants(updatedVariants);
+    };
+
+    const updateVariantProperty = (variantIndex, propertyIndex, field, value) => {
+        const updatedVariants = [...editingVariants];
+        updatedVariants[variantIndex].properties[propertyIndex] = {
+            ...updatedVariants[variantIndex].properties[propertyIndex],
+            [field]: value
+        };
+        setEditingVariants(updatedVariants);
     };
 
     if (loading) {
@@ -157,47 +251,45 @@ const AdminProductDetail = () => {
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 {/* Header */}
                 <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                        {isEditing ? 'Ürün Düzenle' : 'Ürün Detayı'}
+                    </h1>
+                    
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={handleBack}
-                                className="flex items-center space-x-2 text-purple-600 hover:text-purple-800 transition-colors duration-200"
-                            >
-                                <span className="text-2xl">‹</span>
-                                <span className="font-medium">Geri Dön</span>
-                            </button>
-                        </div>
+                        <span
+                            onClick={handleBack}
+                            className="flex items-center space-x-2 text-purple-600 hover:text-purple-800 transition-colors duration-200 cursor-pointer"
+                        >
+                            <span className="text-2xl">‹</span>
+                            <span className="font-medium">Geri Dön</span>
+                        </span>
                         
                         <div className="flex items-center space-x-3">
                             {!isEditing ? (
-                                <button
+                                <span
                                     onClick={() => setIsEditing(true)}
-                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 cursor-pointer"
                                 >
                                     Düzenle
-                                </button>
+                                </span>
                             ) : (
                                 <div className="flex items-center space-x-2">
-                                    <button
+                                    <span
                                         onClick={handleSave}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer"
                                     >
                                         Kaydet
-                                    </button>
-                                    <button
+                                    </span>
+                                    <span
                                         onClick={handleCancel}
-                                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
                                     >
                                         İptal
-                                    </button>
+                                    </span>
                                 </div>
                             )}
                         </div>
                     </div>
-                    
-                    <h1 className="text-3xl font-bold text-gray-900 mt-4">
-                        {isEditing ? 'Ürün Düzenle' : 'Ürün Detayı'}
-                    </h1>
                 </div>
 
                 {/* Ürün Bilgileri */}
@@ -206,6 +298,16 @@ const AdminProductDetail = () => {
                         {/* Sol Taraf - Temel Bilgiler */}
                         <div className="space-y-6">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Temel Bilgiler</h2>
+                            
+                            {/* Ürün ID */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Ürün ID
+                                </label>
+                                <p className="text-gray-900 font-mono bg-gray-100 px-3 py-2 rounded-lg">
+                                    {product.productId}
+                                </p>
+                            </div>
                             
                             {/* Ürün Adı */}
                             <div>
@@ -281,90 +383,237 @@ const AdminProductDetail = () => {
                             </div>
                         </div>
 
-                        {/* Sağ Taraf - Fiyat ve Stok */}
+                        {/* Sağ Taraf - Fiyat, Stok ve Fotoğraflar */}
                         <div className="space-y-6">
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Fiyat ve Stok</h2>
-                            
                             {product.productType === 'SIMPLE' ? (
                                 <>
-                                    {/* Basit Ürün Fiyatı */}
+                                    {/* Basit Ürün - Fiyat ve Stok */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Fiyat (TL)
-                                        </label>
-                                        {isEditing ? (
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                value={formData.productPrice || ''}
-                                                onChange={(e) => setFormData({...formData, productPrice: parseFloat(e.target.value)})}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
-                                            />
-                                        ) : (
-                                            <p className="text-gray-900">{product.productPrice ? `${product.productPrice} TL` : 'Belirtilmemiş'}</p>
-                                        )}
+                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Fiyat ve Stok</h2>
+                                        <div className="space-y-4">
+                                            {/* Basit Ürün Fiyatı */}
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Fiyat (TL)
+                                                </label>
+                                                {isEditing ? (
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={formData.productPrice || ''}
+                                                        onChange={(e) => setFormData({...formData, productPrice: parseFloat(e.target.value)})}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                    />
+                                                ) : (
+                                                    <p className="text-gray-900">{product.productPrice ? `${product.productPrice} TL` : 'Belirtilmemiş'}</p>
+                                                )}
+                                            </div>
+
+                                            {/* Basit Ürün Stok */}
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Stok Miktarı
+                                                </label>
+                                                {isEditing ? (
+                                                    <input
+                                                        type="number"
+                                                        value={formData.productQuantity || ''}
+                                                        onChange={(e) => setFormData({...formData, productQuantity: parseInt(e.target.value)})}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                    />
+                                                ) : (
+                                                    <p className={`font-medium ${product.productQuantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {product.productQuantity || 0} adet
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* Basit Ürün Stok */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Stok Miktarı
-                                        </label>
-                                        {isEditing ? (
-                                            <input
-                                                type="number"
-                                                value={formData.productQuantity || ''}
-                                                onChange={(e) => setFormData({...formData, productQuantity: parseInt(e.target.value)})}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
-                                            />
-                                        ) : (
-                                            <p className={`font-medium ${product.productQuantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {product.productQuantity || 0} adet
-                                            </p>
-                                        )}
-                                    </div>
+                                    {/* Basit Ürün - Fotoğraflar */}
+                                    {product.imageFiles && product.imageFiles.length > 0 && (
+                                        <div>
+                                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Ürün Fotoğrafları</h2>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {product.imageFiles.map((image, index) => (
+                                                    <div key={index} className="relative">
+                                                        <img 
+                                                            src={image.imageUrl} 
+                                                            alt={`Ürün fotoğrafı ${index + 1}`}
+                                                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                                                        />
+                                                        {isEditing && (
+                                                            <button className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                                                ×
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {isEditing && (
+                                                <button className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                                                    Fotoğraf Ekle
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <>
-                                    {/* Varyantlı Ürün Varyantları */}
+                                    {/* Varyantlı Ürün - Varyantlar */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Varyantlar ({product.variants?.length || 0})
-                                        </label>
-                                        <div className="space-y-3">
-                                            {product.variants?.map((variant, index) => (
-                                                <div key={variant.variantId} className="border border-gray-200 rounded-lg p-3">
-                                                    <div className="flex items-center justify-between mb-2">
+                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Varyantlar ({product.variants?.length || 0})</h2>
+                                        <div className="space-y-4">
+                                            {(isEditing ? editingVariants : product.variants)?.map((variant, index) => (
+                                                <div key={variant.variantId} className="border border-gray-200 rounded-lg p-4">
+                                                    <div className="flex items-center justify-between mb-3">
                                                         <span className="font-medium text-sm">Varyant {index + 1}</span>
-                                                        <span className={`text-xs px-2 py-1 rounded-full ${
-                                                            variant.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                        }`}>
-                                                            {variant.isActive ? 'Aktif' : 'Pasif'}
-                                                        </span>
+                                                        {isEditing ? (
+                                                            <label className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={variant.isActive}
+                                                                    onChange={(e) => updateVariant(index, 'isActive', e.target.checked)}
+                                                                    className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                                                                />
+                                                                <span className="text-xs text-gray-600">Aktif</span>
+                                                            </label>
+                                                        ) : (
+                                                            <span className={`text-xs px-2 py-1 rounded-full ${
+                                                                variant.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                            }`}>
+                                                                {variant.isActive ? 'Aktif' : 'Pasif'}
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    
+                                                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                                                         <div>
-                                                            <span className="text-gray-600">SKU:</span> {variant.sku}
+                                                            <span className="text-gray-600">SKU:</span>
+                                                            {isEditing ? (
+                                                                <input
+                                                                    type="text"
+                                                                    value={variant.sku || ''}
+                                                                    onChange={(e) => updateVariant(index, 'sku', e.target.value)}
+                                                                    className="ml-2 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                                />
+                                                            ) : (
+                                                                <span> {variant.sku}</span>
+                                                            )}
                                                         </div>
                                                         <div>
-                                                            <span className="text-gray-600">Fiyat:</span> {variant.price} TL
+                                                            <span className="text-gray-600">Fiyat:</span>
+                                                            {isEditing ? (
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={variant.price || ''}
+                                                                    onChange={(e) => updateVariant(index, 'price', parseFloat(e.target.value))}
+                                                                    className="ml-2 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                                />
+                                                            ) : (
+                                                                <span> {variant.price} TL</span>
+                                                            )}
                                                         </div>
                                                         <div>
-                                                            <span className="text-gray-600">Stok:</span> {variant.stockQuantity} adet
+                                                            <span className="text-gray-600">Stok:</span>
+                                                            {isEditing ? (
+                                                                <input
+                                                                    type="number"
+                                                                    value={variant.stockQuantity || ''}
+                                                                    onChange={(e) => updateVariant(index, 'stockQuantity', parseInt(e.target.value))}
+                                                                    className="ml-2 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                                />
+                                                            ) : (
+                                                                <span> {variant.stockQuantity} adet</span>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    {variant.properties && variant.properties.length > 0 && (
-                                                        <div className="mt-2">
-                                                            <span className="text-gray-600 text-sm">Özellikler:</span>
+                                                    
+                                                    {/* Varyant Özellikleri */}
+                                                    <div className="mb-3">
+                                                        <span className="text-gray-600 text-sm">Özellikler:</span>
+                                                        {isEditing ? (
+                                                            <div className="space-y-2 mt-2">
+                                                                {(variant.properties || []).map((prop, propIndex) => (
+                                                                    <div key={prop.id} className="flex items-center space-x-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            placeholder="Özellik adı"
+                                                                            value={prop.propertyName || ''}
+                                                                            onChange={(e) => updateVariantProperty(index, propIndex, 'propertyName', e.target.value)}
+                                                                            className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                                        />
+                                                                        <input
+                                                                            type="text"
+                                                                            placeholder="Değer"
+                                                                            value={prop.value || ''}
+                                                                            onChange={(e) => updateVariantProperty(index, propIndex, 'value', e.target.value)}
+                                                                            className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-purple-200 focus:border-purple-200"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => removeVariantProperty(index, propIndex)}
+                                                                            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                                <button
+                                                                    onClick={() => addVariantProperty(index)}
+                                                                    className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                                                                >
+                                                                    + Özellik Ekle
+                                                                </button>
+                                                            </div>
+                                                        ) : (
                                                             <div className="flex flex-wrap gap-1 mt-1">
-                                                                {variant.properties.map((prop) => (
+                                                                {(variant.properties || []).map((prop) => (
                                                                     <span key={prop.id} className="text-xs bg-gray-100 px-2 py-1 rounded">
                                                                         {prop.propertyName}: {prop.value}
                                                                     </span>
                                                                 ))}
                                                             </div>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    {/* Varyant Fotoğrafları */}
+                                                    <div>
+                                                        <span className="text-gray-600 text-sm">Fotoğraflar:</span>
+                                                        <div className="grid grid-cols-3 gap-2 mt-2">
+                                                            {(variant.variantImageUrls || []).map((imageUrl, imgIndex) => (
+                                                                <div key={imgIndex} className="relative">
+                                                                    {imageUrl ? (
+                                                                        <img 
+                                                                            src={imageUrl} 
+                                                                            alt={`Varyant fotoğrafı ${imgIndex + 1}`}
+                                                                            className="w-full h-20 object-cover rounded border border-gray-200"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-full h-20 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                                                                            <span className="text-xs text-gray-500">Fotoğraf yok</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {isEditing && (
+                                                                        <button 
+                                                                            onClick={() => removeVariantImage(index, imgIndex)}
+                                                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            ))}
                                                         </div>
-                                                    )}
+                                                        {isEditing && (
+                                                            <button
+                                                                onClick={() => addVariantImage(index)}
+                                                                className="mt-2 px-3 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 transition-colors duration-200"
+                                                            >
+                                                                + Fotoğraf Ekle
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

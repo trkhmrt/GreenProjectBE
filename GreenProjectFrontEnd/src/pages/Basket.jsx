@@ -51,7 +51,38 @@ const Basket = () => {
             {isLoading ? (
               <div className="text-gray-400 text-center py-8">Yükleniyor...</div>
             ) : basket.length === 0 ? (
-              <div className="text-gray-400 text-center py-8">Sepetiniz boş.</div>
+              <div className="text-center py-16">
+                {/* Minimal basket icon */}
+                <div className="mb-8">
+                  <svg 
+                    className="w-20 h-20 mx-auto text-gray-300" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth="1.5" 
+                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                    />
+                  </svg>
+                </div>
+                
+                {/* Clean typography */}
+                <h3 className="text-2xl font-light text-gray-800 mb-3">Sepetiniz Boş</h3>
+                <p className="text-gray-500 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+                  Alışverişe başlamak için ürünlerimizi keşfedin
+                </p>
+                
+                {/* Minimal button */}
+                <span
+                  onClick={() => navigate("/")}
+                  className="inline-flex items-center px-8 py-3 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all duration-200 cursor-pointer shadow-sm"
+                >
+                  Alışveriş Yapın
+                </span>
+              </div>
             ) : basket.map((p, i) => (
               <div key={p.basketProductUnitId} className="flex items-center gap-3 bg-white rounded-xl shadow-sm mb-2 p-2 border border-gray-100">
                 <img src={p.productImageUrl} alt={p.productName} className="w-16 h-16 object-cover rounded-lg border bg-gray-100" />

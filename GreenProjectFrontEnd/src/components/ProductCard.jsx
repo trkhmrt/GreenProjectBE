@@ -151,7 +151,7 @@ const ProductCard = ({ product }) => {
                 <button
                     onClick={handleAddToBasket}
                     disabled={stock === 0}
-                    className="w-full bg-purple-600 text-white py-2 px-3 rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-xs font-semibold shadow-sm hover:shadow-md mt-auto"
+                    className="w-full bg-purple-600 text-white py-2 px-3 rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 text-xs font-semibold shadow-sm hover:shadow-md"
                 >
                     {stock > 0 ? 'Sepete Ekle' : 'Stokta Yok'}
                 </button>

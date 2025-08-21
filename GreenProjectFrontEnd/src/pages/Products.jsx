@@ -24,8 +24,8 @@ const Products = () => {
 
     const sortOptions = [
         { value: 'name', label: 'İsme Göre' },
-        { value: 'price_asc', label: 'Fiyat (Düşükten Yükseğe)' },
-        { value: 'price_desc', label: 'Fiyat (Yüksekten Düşüğe)' },
+        { value: 'price_asc', label: 'Fiyat (Düşük)' },
+        { value: 'price_desc', label: 'Fiyat (Yüksek)' },
         { value: 'newest', label: 'En Yeniler' },
         { value: 'popular', label: 'Popüler' }
     ];
@@ -271,9 +271,9 @@ const Products = () => {
             {/* Desktop Layout */}
             <div className="hidden md:block">
                 <div className="container mx-auto px-4 py-8 max-w-7xl">
-                    <div className="flex gap-8">
+                    <div className="flex gap-4 lg:gap-6 xl:gap-8">
                         {/* Sol Taraf - Filtreler */}
-                        <div className="w-[230px] space-y-4 desktop-filters flex-shrink-0">
+                        <div className="w-[180px] lg:w-[200px] xl:w-[230px] space-y-4 desktop-filters flex-shrink-0">
                             {/* Kategori Filtresi */}
                             <CategoryFilter 
                                 hierarchicalCategories={hierarchicalCategories}
@@ -361,27 +361,27 @@ const Products = () => {
                         </div>
 
                         {/* Sağ Taraf - Ürünler */}
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             {/* Başlık */}
-                            <div className="mb-6">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-purple-800 mb-2">
+                            <div className="mb-4 lg:mb-6">
+                                <h1 className="text-xl lg:text-2xl xl:text-3xl font-bold text-purple-800 mb-1 lg:mb-2">
                                     {getSelectedCategory()?.categoryName || 'Tüm Ürünler'}
                                 </h1>
-                                <p className="text-purple-600">
+                                <p className="text-sm lg:text-base text-purple-600">
                                     {filteredProducts.length} ürün bulundu
                                 </p>
                             </div>
 
                             {/* Sıralama Alanı */}
-                            <div className="mb-6 bg-white/50 backdrop-blur-sm rounded-xl border border-purple-200/30 p-4 shadow-sm sort-div">
-                                <div className="flex items-center space-x-4">
-                                    <span className="text-sm font-medium text-purple-700 whitespace-nowrap">Sıralama:</span>
-                                    <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
+                            <div className="mb-6 bg-white/50 backdrop-blur-sm rounded-xl border border-purple-200/30 p-3 lg:p-4 shadow-sm sort-div">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:gap-3">
+                                    <span className="text-sm font-medium text-purple-700 whitespace-nowrap flex-shrink-0">Sıralama:</span>
+                                    <div className="flex space-x-1 lg:space-x-2 overflow-x-auto scrollbar-hide pb-2 -mb-2 min-w-0">
                                         {sortOptions.map((option) => (
                                             <span
                                                 key={option.value}
                                                 onClick={() => handleSort(option.value)}
-                                                className={`whitespace-nowrap px-4 py-2 text-sm rounded-lg transition-all duration-200 cursor-pointer ${
+                                                className={`whitespace-nowrap px-2 lg:px-3 py-1.5 lg:py-2 text-xs lg:text-sm rounded-lg transition-all duration-200 cursor-pointer flex-shrink-0 ${
                                                     sortBy === option.value
                                                         ? 'text-purple-600 font-medium'
                                                         : 'text-gray-600 hover:text-purple-600'
@@ -391,12 +391,12 @@ const Products = () => {
                                             </span>
                                         ))}
                                     </div>
-                                                    </div>
-                                            </div>
+                                </div>
+                            </div>
 
                             {/* Ürün Grid */}
                             {loading ? (
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 xl:gap-8 justify-items-center max-w-full">
                                     {[...Array(12)].map((_, index) => (
                                         <div key={index} className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 animate-pulse">
                                             <div className="bg-gray-200 rounded-xl h-48 mb-4"></div>
@@ -419,7 +419,7 @@ const Products = () => {
                                     <p className="text-gray-500">Seçtiğiniz kriterlere uygun ürün bulunamadı.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 xl:gap-8 justify-items-center max-w-full">
                                     {filteredProducts.map(product => (
                                         <ProductCard key={product.productId} product={product} />
                                     ))}
@@ -432,7 +432,7 @@ const Products = () => {
 
             {/* Mobil Layout */}
             <div className="md:hidden">
-                <div className="container mx-auto px-4 py-6">
+                <div className="container mx-auto px-4 py-6 overflow-hidden">
                     {/* Başlık */}
                     <div className="mb-6">
                         <h1 className="text-2xl font-bold text-purple-800 mb-2">
@@ -447,12 +447,12 @@ const Products = () => {
                     <div className="mb-6 bg-white/50 backdrop-blur-sm rounded-xl border border-purple-200/30 p-4 shadow-sm sort-div">
                         <div className="flex flex-col space-y-3">
                             <span className="text-sm font-medium text-purple-700">Sıralama:</span>
-                            <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
+                            <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2 -mb-2">
                                 {sortOptions.map((option) => (
                                     <span
                                         key={option.value}
                                         onClick={() => handleSort(option.value)}
-                                        className={`whitespace-nowrap px-4 py-2 text-sm rounded-lg transition-all duration-200 cursor-pointer ${
+                                        className={`whitespace-nowrap px-3 py-2 text-xs md:text-sm rounded-lg transition-all duration-200 cursor-pointer flex-shrink-0 ${
                                             sortBy === option.value
                                                 ? 'text-purple-600 font-medium'
                                                 : 'text-gray-600 hover:text-purple-600'
@@ -490,7 +490,7 @@ const Products = () => {
                             <p className="text-gray-500">Seçtiğiniz kriterlere uygun ürün bulunamadı.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4 overflow-hidden">
                             {filteredProducts.map(product => (
                                 <ProductCard key={product.productId} product={product} />
                             ))}
