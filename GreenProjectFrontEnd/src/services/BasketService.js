@@ -6,7 +6,8 @@ const gatewayServiceUrl = "http://localhost:8072/ael/basketservice/basket"
 
 
 export const getBasketCustomerById = async() => {
-    const response = await axios.get(`/basketservice/basket/getCustomerbasket`,{
+    const response = await axios.get(
+        {
         withCredentials: true,
     });
     console.log(response);

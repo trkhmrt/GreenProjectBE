@@ -391,8 +391,8 @@ const Products = () => {
                                             </span>
                                         ))}
                                     </div>
-                                </div>
-                            </div>
+                                                    </div>
+                                            </div>
 
                             {/* Ürün Grid */}
                             {loading ? (

@@ -19,6 +19,7 @@ import AdminProductPage from "./pages/AdminPanel/AdminProductPage.jsx";
 import AdminProductListing from "./pages/AdminPanel/AdminProductListing.jsx";
 import AdminProductDetail from "./pages/AdminPanel/AdminProductDetail.jsx";
 import AdminCategoryPage from "./pages/AdminPanel/AdminCategoryPage.jsx";
+import Profile from "./pages/Profile.jsx";
 import { ToastProvider } from './context/ToastContext';
 import Toaster from './components/Toaster';
 
@@ -45,6 +46,7 @@ function App() {
                                 <Route path={routes.HomePage} element={<HomePage/>}></Route>
                                 <Route path="/Basket" element={<Basket/>}></Route>
                                 <Route path="/product/:productId" element={<ProductDetail/>}></Route>
+                                <Route path="/profile" element={<Profile/>}></Route>
 
                                 <Route path={routes.Payment} element={<Payment/>}></Route>
                                 <Route path={routes.Orders} element={<Orders/>}></Route>
