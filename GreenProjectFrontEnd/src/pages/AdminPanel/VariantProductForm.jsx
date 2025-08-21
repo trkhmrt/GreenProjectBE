@@ -51,7 +51,7 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                 // Panel kapatma işlemi artık togglePanel ile yapılıyor
             }
         }
-        document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
@@ -145,9 +145,9 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                 const propertiesResponse = await getAllCategoryProperty(categoryId);
                 console.log('📋 Kategori özellikleri:', propertiesResponse.data);
                 setCategoryProperties(propertiesResponse.data || []);
-            } catch (error) {
+        } catch (error) {
                 console.error('❌ Kategori özellikleri alınamadı:', error);
-                setCategoryProperties([]);
+            setCategoryProperties([]);
             }
         }
     };
@@ -212,31 +212,31 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
         }
 
         const newVariant = {
-            ...currentVariant,
+                ...currentVariant,
             images: currentVariantImages,
             id: editingVariantIndex !== null ? productVariants[editingVariantIndex].id : Date.now()
-        };
+            };
 
-        if (editingVariantIndex !== null) {
+            if (editingVariantIndex !== null) {
             // Varyantı güncelle
             const newVariants = [...productVariants];
             newVariants[editingVariantIndex] = newVariant;
             setProductVariants(newVariants);
-            setEditingVariantIndex(null);
-        } else {
+                setEditingVariantIndex(null);
+            } else {
             // Yeni varyant ekle
             setProductVariants(prev => [...prev, newVariant]);
-        }
+            }
 
         // Form'u temizle
-        setCurrentVariant({
-            sku: '',
-            price: '',
-            stockQuantity: '',
-            categoryProperties: {}
-        });
-        setCurrentVariantImages([]);
-        setShowVariantForm(false);
+            setCurrentVariant({
+                sku: '',
+                price: '',
+                stockQuantity: '',
+                categoryProperties: {}
+            });
+            setCurrentVariantImages([]);
+            setShowVariantForm(false);
     };
 
     // Varyant düzenleme
@@ -272,9 +272,9 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
         }
         
         try {
-            setIsSubmitting(true);
-            setUploadProgress(0);
-            
+        setIsSubmitting(true);
+        setUploadProgress(0);
+        
             // Form verilerini hazırla
             const formData = new FormData();
             
@@ -398,7 +398,7 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                 {/* Kategori Seviyeleri */}
                                 {(categoryLevels || []).map((levelCategories, levelIndex) => (
                                     <div key={levelIndex} className="relative">
-                                        <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-2 mb-2">
                                             <span className="text-sm font-medium text-gray-600">
                                                 Seviye {levelIndex + 1}:
                                             </span>
@@ -419,34 +419,34 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                                     viewBox="0 0 24 24"
                                                 >
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
+                                    </svg>
                                             </button>
-                                        </div>
-                                        
+                            </div>
+                            
                                         {/* Kategori Panel */}
                                         {(openPanels || [])[levelIndex] && (
                                             <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                                 <div className="p-2">
                                                     {(levelCategories || []).map((category) => (
                                                         <button
-                                                            key={category.categoryId}
+                                                    key={category.categoryId}
                                                             type="button"
                                                             onClick={() => handleCategoryLevelSelect(levelIndex, category.categoryId, category.categoryName, setFieldValue)}
                                                             className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-100 transition-colors"
-                                                        >
-                                                            {category.categoryName}
+                                                >
+                                                    {category.categoryName}
                                                         </button>
-                                                    ))}
+                                            ))}
+                                        </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                            )}
+                                        </div>
                                 ))}
                                 <ErrorMessage name="categoryId" component="div" className="text-red-500 text-xs mt-1" />
                             </div>
                             
                             {/* Fotoğraf Yükleme */}
-                            <div>
+                                        <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Ürün Fotoğrafları</label>
                                 <div className="space-y-4">
                                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -461,17 +461,17 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                                 PNG, JPG, GIF up to 10MB
                                             </p>
                                         </div>
-                                        <input 
-                                            type="file" 
-                                            multiple 
-                                            accept="image/*" 
-                                            className="hidden" 
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                className="hidden"
                                             onChange={(e) => handleImageUpload(e, setFieldValue)}
-                                            disabled={isSubmitting}
-                                        />
-                                    </label>
-                                </div>
-                                
+                                                disabled={isSubmitting}
+                                            />
+                                            </label>
+                                        </div>
+                                        
                                 {/* Fotoğraf Önizleme */}
                                 {(selectedImages || []).length > 0 && (
                                     <div className="mt-4 flex flex-col items-center">
@@ -485,22 +485,22 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                             {/* Ana fotoğraf etiketi */}
                                             <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
                                                 Ana Fotoğraf
+                                                    </div>
                                             </div>
-                                        </div>
                                         {/* Küçük Fotoğraf Kutuları */}
                                         <div className="flex gap-2 flex-wrap justify-center">
                                             {(selectedImages || []).map((img, idx) => (
                                                 <div key={idx} className="relative">
-                                                    <button
-                                                        type="button"
+                                        <button
+                                            type="button"
                                                         className={`w-16 h-16 rounded-lg border-2 ${(mainImageIdx || 0) === idx ? 'border-purple-500' : 'border-gray-200'} overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-300 transition`}
                                                         onClick={() => setMainImageIdx(idx)}
-                                                    >
+                                        >
                                                         <img src={img?.url} alt={`Fotoğraf ${idx + 1}`} className="object-cover w-full h-full" />
-                                                    </button>
+                                        </button>
                                                     {/* Silme butonu */}
-                                                    <button
-                                                        type="button"
+                                        <button
+                                            type="button"
                                                         onClick={() => removeImage(idx, setFieldValue)}
                                                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
                                                         title="Fotoğrafı sil"
@@ -508,11 +508,11 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                                         </svg>
-                                                    </button>
+                                        </button>
                                                     {/* Fotoğraf numarası */}
                                                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs text-center py-0.5">
                                                         {idx + 1}
-                                                    </div>
+                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -520,8 +520,8 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                         <p className="text-xs text-gray-500 mt-2">
                                             Ana fotoğrafı seçmek için küçük fotoğraflara tıklayın
                                         </p>
-                                    </div>
-                                )}
+                                </div>
+                            )}
                             </div>
                         </div>
                     </div>
@@ -529,19 +529,19 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                     {/* Varyant Yönetimi */}
                     <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
                         <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
+                                        </svg>
                             Varyant Yönetimi
                             <span className="text-sm font-normal text-orange-700 bg-orange-100 px-2 py-1 rounded-full">
                                 {productVariants.length} varyant
                             </span>
-                        </h3>
-
+                                    </h3>
+                                    
                         {/* Mevcut Varyantlar */}
                         {productVariants.length > 0 && (
                             <div className="space-y-3 mb-4">
-                                {productVariants.map((variant, index) => (
+                                        {productVariants.map((variant, index) => (
                                     <div key={variant.id} className="bg-white rounded-lg border border-orange-200 p-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
@@ -549,32 +549,32 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                                     <span className="font-medium text-orange-900">SKU: {variant.sku}</span>
                                                     <span className="text-sm text-orange-700">Fiyat: {variant.price} TL</span>
                                                     <span className="text-sm text-orange-700">Stok: {variant.stockQuantity}</span>
-                                                </div>
-                                            </div>
+                                                            </div>
+                                                                    </div>
                                             <div className="flex items-center gap-2">
-                                                <button
-                                                    type="button"
+                                                            <button
+                                                                type="button"
                                                     onClick={() => editVariant(index)}
                                                     className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
                                                     title="Düzenle"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeVariant(index)}
+                                                                </svg>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeVariant(index)}
                                                     className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                                                     title="Sil"
-                                                >
+                                                            >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                 ))}
                             </div>
                         )}
@@ -585,49 +585,49 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                 <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
+                                                            </svg>
                                     {editingVariantIndex !== null ? 'Varyant Düzenle' : 'Varyant Ekle'}
                                 </h3>
-                                
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-orange-800 mb-1">SKU</label>
-                                        <input
-                                            type="text"
-                                            value={currentVariant.sku}
-                                            onChange={(e) => setCurrentVariant(prev => ({ ...prev, sku: e.target.value }))}
-                                            className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
-                                            placeholder="SKU girin"
-                                            disabled={isSubmitting}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-orange-800 mb-1">Fiyat</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={currentVariant.price}
-                                            onChange={(e) => setCurrentVariant(prev => ({ ...prev, price: e.target.value }))}
-                                            className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
-                                            placeholder="0.00"
-                                            disabled={isSubmitting}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-orange-800 mb-1">Stok Miktarı</label>
-                                        <input
-                                            type="number"
-                                            value={currentVariant.stockQuantity}
-                                            onChange={(e) => setCurrentVariant(prev => ({ ...prev, stockQuantity: e.target.value }))}
-                                            className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
-                                            placeholder="0"
-                                            disabled={isSubmitting}
-                                        />
-                                    </div>
-                                </div>
-                                
+                                                        
+                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-orange-800 mb-1">SKU</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={currentVariant.sku}
+                                                                    onChange={(e) => setCurrentVariant(prev => ({ ...prev, sku: e.target.value }))}
+                                                                    className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
+                                                                    placeholder="SKU girin"
+                                                                    disabled={isSubmitting}
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-orange-800 mb-1">Fiyat</label>
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={currentVariant.price}
+                                                                    onChange={(e) => setCurrentVariant(prev => ({ ...prev, price: e.target.value }))}
+                                                                    className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
+                                                                    placeholder="0.00"
+                                                                    disabled={isSubmitting}
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-orange-800 mb-1">Stok Miktarı</label>
+                                                                <input
+                                                                    type="number"
+                                                                    value={currentVariant.stockQuantity}
+                                                                    onChange={(e) => setCurrentVariant(prev => ({ ...prev, stockQuantity: e.target.value }))}
+                                                                    className="border border-orange-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition text-sm"
+                                                                    placeholder="0"
+                                                                    disabled={isSubmitting}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        
                                 {/* Varyant Fotoğrafları */}
-                                <div className="mb-4">
+                                                            <div className="mb-4">
                                     <label className="block text-sm font-medium text-orange-800 mb-2">Varyant Fotoğrafları</label>
                                     <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-orange-300 rounded-lg cursor-pointer bg-orange-50 hover:bg-orange-100 transition-colors">
                                         <div className="flex flex-col items-center justify-center">
@@ -636,23 +636,23 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                             </svg>
                                             <p className="text-xs text-orange-600">Varyant fotoğrafı ekle</p>
                                         </div>
-                                        <input 
+                                                                            <input
                                             type="file" 
                                             multiple 
                                             accept="image/*" 
                                             className="hidden" 
                                             onChange={handleVariantImageUpload}
-                                            disabled={isSubmitting}
-                                        />
+                                                                                disabled={isSubmitting}
+                                                                            />
                                     </label>
                                     
                                     {/* Varyant Fotoğraf Önizleme */}
-                                    {currentVariantImages.length > 0 && (
+                                                            {currentVariantImages.length > 0 && (
                                         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                             {currentVariantImages.map((image, index) => (
                                                 <div key={index} className="relative group">
-                                                    <img
-                                                        src={image.url || URL.createObjectURL(image)}
+                                                                                <img
+                                                                                    src={image.url || URL.createObjectURL(image)}
                                                         alt={`Varyant fotoğrafı ${index + 1}`}
                                                         className="w-full h-24 object-cover rounded-lg border border-orange-200"
                                                     />
@@ -665,81 +665,81 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
                                                     <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
                                                         {index + 1}
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {/* Butonlar */}
-                                <div className="flex gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={addVariant}
-                                        disabled={!currentVariant.sku || !currentVariant.price || !currentVariant.stockQuantity || isSubmitting}
-                                        className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
+                                                                            </div>
+                                                                        ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        {/* Butonlar */}
+                                                        <div className="flex gap-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={addVariant}
+                                                                disabled={!currentVariant.sku || !currentVariant.price || !currentVariant.stockQuantity || isSubmitting}
+                                                                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
                                         {editingVariantIndex !== null ? 'Varyantı Güncelle' : 'Varyantı Ekle'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
                                             setShowVariantForm(false);
-                                            setCurrentVariant({
-                                                sku: '',
-                                                price: '',
-                                                stockQuantity: '',
-                                                categoryProperties: {}
-                                            });
-                                            setCurrentVariantImages([]);
+                                                                    setCurrentVariant({
+                                                                        sku: '',
+                                                                        price: '',
+                                                                        stockQuantity: '',
+                                                                        categoryProperties: {}
+                                                                    });
+                                                                    setCurrentVariantImages([]);
                                             setEditingVariantIndex(null);
-                                        }}
-                                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition text-sm font-medium"
-                                    >
-                                        İptal
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {/* Yeni Varyant Ekle Butonu */}
+                                                                }}
+                                                                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition text-sm font-medium"
+                                                            >
+                                                                İptal
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                    
+                                    {/* Yeni Varyant Ekle Butonu */}
                         <div className="mt-4 pt-4 border-t border-orange-200">
-                            <button
-                                type="button"
-                                onClick={() => setShowVariantForm(true)}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowVariantForm(true)}
                                 className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition text-sm font-medium flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-                            >
+                                        >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Yeni Varyant Ekle
-                            </button>
-                        </div>
-                    </div>
-                    
-                    {/* Kaydet Butonu */}
-                    <div className="flex">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting || productVariants.length === 0}
-                            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 font-semibold text-base flex items-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    Kaydediliyor...
-                                </>
-                            ) : (
-                                <>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    Ürünü Kaydet
-                                </>
-                            )}
-                        </button>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Yeni Varyant Ekle
+                                        </button>
+                                    </div>
+                                </div>
+                            
+                            {/* Kaydet Butonu */}
+                            <div className="flex">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || productVariants.length === 0}
+                                    className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 font-semibold text-base flex items-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Kaydediliyor...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                            Ürünü Kaydet
+                                        </>
+                                    )}
+                                </button>
                     </div>
                 </Form>
             )}
@@ -747,5 +747,5 @@ const VariantProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, 
     );
 };
 
-export default VariantProductForm;
+export default VariantProductForm; 
 

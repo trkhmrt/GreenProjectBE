@@ -16,6 +16,8 @@ import ProductDetail from "./pages/ProductDetail.jsx";
 import AdminOffice from "./pages/AdminPanel/AdminOffice.jsx";
 import AdminLayout from "./layout/AdminLayout.jsx";
 import AdminProductPage from "./pages/AdminPanel/AdminProductPage.jsx";
+import AdminProductListing from "./pages/AdminPanel/AdminProductListing.jsx";
+import AdminProductDetail from "./pages/AdminPanel/AdminProductDetail.jsx";
 import AdminCategoryPage from "./pages/AdminPanel/AdminCategoryPage.jsx";
 import { ToastProvider } from './context/ToastContext';
 import Toaster from './components/Toaster';
@@ -51,6 +53,8 @@ function App() {
                             <Route element={<AdminLayout/>}>
                                 <Route path={routes.AdminOffice} element={<AdminOffice/>}/>
                                 <Route path={routes.AdminProduct} element={<AdminProductPage/>}/>
+                                <Route path="/admin/products" element={<AdminProductListing/>}/>
+                                <Route path="/admin/products/:productId" element={<AdminProductDetail/>}/>
                                 <Route path={routes.AdminCategory} element={<AdminCategoryPage/>}/>
 
 

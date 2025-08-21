@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SimpleProductForm from './SimpleProductForm';
 import VariantProductForm from './VariantProductForm';
-import AdminProductListing from './AdminProductListing';
 
 const AdminProductPage = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('add');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -13,37 +14,36 @@ const AdminProductPage = () => {
 
     return (
         <div className="w-full">
+            {/* Tab Menu - Her iki tab için de görünür */}
+            <div className="max-w-7xl mx-auto p-4 lg:p-6">
+                <div className="flex mb-8 border-b border-gray-200 overflow-x-auto">
+                    <span
+                        onClick={() => setActiveTab('add')}
+                        className={`px-4 sm:px-6 py-3 text-[14px] sm:text-[16px] font-semibold cursor-pointer transition-colors border-b-2 whitespace-nowrap hover-effect ${
+                            activeTab === 'add' 
+                                ? 'border-purple-600 text-purple-700 bg-gray-50' 
+                                : 'border-transparent text-gray-500 hover:text-purple-600'
+                        }`}
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                            Ürün Ekle
+                        </span>
+                    </span>
+                    <span
+                        onClick={() => navigate('/admin/products')}
+                        className="px-4 sm:px-6 py-3 text-[14px] sm:text-[16px] font-semibold cursor-pointer transition-colors border-b-2 whitespace-nowrap hover-effect border-transparent text-gray-500 hover:text-purple-600"
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                            Ürünleri Listele
+                        </span>
+                    </span>
+                </div>
+            </div>
+
             {activeTab === 'add' && (
                 <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6">
-                    {/* Tab Menu */}
-                    <div className="flex mb-8 border-b border-gray-200 overflow-x-auto">
-                        <span
-                            onClick={() => setActiveTab('add')}
-                            className={`px-4 sm:px-6 py-3 text-[14px] sm:text-[16px] font-semibold cursor-pointer transition-colors border-b-2 whitespace-nowrap hover-effect ${
-                                activeTab === 'add' 
-                                    ? 'border-purple-600 text-purple-700 bg-gray-50' 
-                                    : 'border-transparent text-gray-500 hover:text-purple-600'
-                            }`}
-                        >
-                            <span className="inline-flex items-center gap-2">
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                                Ürün Ekle
-                            </span>
-                        </span>
-                        <span
-                            onClick={() => setActiveTab('list')}
-                            className={`px-4 sm:px-6 py-3 text-[14px] sm:text-[16px] font-semibold cursor-pointer transition-colors border-b-2 whitespace-nowrap hover-effect ${
-                                activeTab === 'list' 
-                                    ? 'border-purple-600 text-purple-700 bg-gray-50' 
-                                    : 'border-transparent text-gray-500 hover:text-purple-600'
-                            }`}
-                        >
-                            <span className="inline-flex items-center gap-2">
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                                Ürünleri Listele
-                            </span>
-                        </span>
-                    </div>
                     
                     {/* Yükleme Progress Bar */}
                     {isSubmitting && (
@@ -143,9 +143,7 @@ const AdminProductPage = () => {
                 </div>
             )}
             
-            {activeTab === 'list' && (
-                <AdminProductListing />
-            )}
+
         </div>
     );
 };

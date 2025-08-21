@@ -1,4 +1,4 @@
-package com.ael.orderservice.service;
+package com.ael.orderservice;
 
 import com.ael.orderservice.config.rabbitmq.model.BasketItem;
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
@@ -8,6 +8,7 @@ import com.ael.orderservice.model.OrderStatus;
 import com.ael.orderservice.repository.IOrderDetailRepository;
 import com.ael.orderservice.repository.IOrderRepository;
 import com.ael.orderservice.repository.IOrderStatusRepository;
+import com.ael.orderservice.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,11 +46,11 @@ class OrderServiceTest {
 	@BeforeEach
 	void setUp() {
 		basketItem = BasketItem.builder()
-				.productId(1)
+				.productId("1")
 				.productName("Test Product")
 				.productDescription("Test Description")
-				.productPrice(19.99)
-				.productQuantity(2)
+				.productPrice("19.99")
+				.productQuantity("2")
 				.subCategoryName("Test Category")
 				.build();
 
@@ -78,9 +79,9 @@ class OrderServiceTest {
 
 		// Assert
 		verify(orderDetailRepository).save(argThat(orderDetail -> {
-			assertEquals(basketItem.getProductId(), orderDetail.getProductId());
-			assertEquals(basketItem.getProductQuantity(), orderDetail.getQuantity());
-			assertEquals(basketItem.getProductPrice(), orderDetail.getUnitPrice());
+			assertEquals(Integer.valueOf(basketItem.getProductId()), orderDetail.getProductId());
+			assertEquals(Integer.valueOf(basketItem.getProductQuantity()), orderDetail.getQuantity());
+			assertEquals(Double.valueOf(basketItem.getProductPrice()), orderDetail.getUnitPrice());
 			assertNotNull(orderDetail.getOrder());
 			return true;
 		}));
@@ -90,10 +91,10 @@ class OrderServiceTest {
 	void createOrder_ShouldHandleMultipleBasketItems() {
 		// Arrange
 		BasketItem secondItem = BasketItem.builder()
-				.productId(2)
+				.productId("2")
 				.productName("Second Product")
-				.productPrice(29.99)
-				.productQuantity(1)
+				.productPrice("29.99")
+				.productQuantity("1")
 				.build();
 
 		orderDetailRequest.setBasketItems(List.of(basketItem, secondItem));

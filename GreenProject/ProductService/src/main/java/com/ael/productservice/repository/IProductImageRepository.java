@@ -12,4 +12,8 @@ import java.util.List;
 public interface IProductImageRepository extends JpaRepository<ProductImage, Integer> {
     @Query("SELECT pi FROM ProductImage pi WHERE pi.product.productId = :productId")
     List<ProductImage> findByProductId(@Param("productId") Integer productId);
+    
+    // Aktif ve silinmemiş görselleri getir
+    @Query("SELECT pi FROM ProductImage pi WHERE pi.product.productId = :productId AND (pi.isDeleted IS NULL OR pi.isDeleted = false) AND (pi.isActive IS NULL OR pi.isActive = true)")
+    List<ProductImage> findActiveImagesByProductId(@Param("productId") Integer productId);
 }

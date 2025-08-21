@@ -5,7 +5,7 @@ import com.ael.paymentservice.config.rabbitmq.model.OrderDetail;
 import com.ael.paymentservice.config.rabbitmq.producer.PaymentEventPublisher;
 import com.ael.paymentservice.model.PaymentInternal;
 import com.ael.paymentservice.repository.IPaymentRepository;
-
+import com.ael.paymentservice.clients.BasketClient;
 import com.ael.paymentservice.request.BasketItem;
 import com.ael.paymentservice.response.PaymentInitializeResponse;
 import com.iyzipay.Options;
@@ -23,6 +23,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import com.ael.paymentservice.response.BasketProductUnitResponse;
+import com.ael.paymentservice.response.ProductUnitResponse;
 
 
 @Service
@@ -32,8 +35,9 @@ public class PaymentService {
 
     private final PaymentEventPublisher publisher;
     private final Options iyzicoOptions;
-    IPaymentRepository paymentRepository;
-    PaymentEventPublisher paymentEventPublisher;
+    private final IPaymentRepository paymentRepository;
+    private final PaymentEventPublisher paymentEventPublisher;
+    private final BasketClient basketClient;
 
 
     public void updateInternalPaymentSatatus(String conversationId) {
@@ -85,6 +89,12 @@ public class PaymentService {
         ThreedsPayment threedsPayment = ThreedsPayment.create(paymentRequest, iyzicoOptions);
 
         if (threedsPayment.getStatus().equals("success")) {
+            System.out.println("=== PAYMENT SUCCESS DEBUG ===");
+            System.out.println("BasketId: " + threedsPayment.getBasketId());
+            System.out.println("CustomerId: " + customerId);
+            System.out.println("PaymentId: " + threedsPayment.getPaymentId());
+            System.out.println("=============================");
+            
             paymentEventPublisher.sendBasketStatusUpdate(
                     BasketStatusUpdateEvent.builder()
                             .basketId(Integer.valueOf(threedsPayment.getBasketId()))
@@ -94,58 +104,86 @@ public class PaymentService {
                             .build()
             );
 
-            paymentEventPublisher.sendOrderDetails(
-                    OrderDetail.builder()
-                            .basketId(Integer.valueOf(threedsPayment.getBasketId()))
-                            .orderAddress("ADRES YOK")
-                            .customerId(Integer.valueOf(customerId))
-                            .paymentId(threedsPayment.getPaymentId())
-                            .basketItems(threedsPayment.getPaymentItems().stream().map(
-                                    paymentItem -> BasketItem.builder().productId(paymentItem.getItemId()).build()).collect(Collectors.toList()
-                            )).build());
+            // BasketService'den sepet bilgilerini çek
+            try {
+                System.out.println("=== FETCHING BASKET DETAILS ===");
+                System.out.println("BasketId: " + threedsPayment.getBasketId());
+                System.out.println("CustomerId: " + customerId);
+                
+                BasketProductUnitResponse basketResponse = basketClient.getCustomerBasket(
+                        Integer.valueOf(threedsPayment.getBasketId()),
+                        Integer.valueOf(customerId),
+                        1 // Aktif sepet
+                ).getBody();
 
+                List<BasketItem> basketItems = new ArrayList<>();
+                
+                if (basketResponse != null && basketResponse.getBasketProducts() != null) {
+                    System.out.println("Basket products found: " + basketResponse.getBasketProducts().size());
+                    for (ProductUnitResponse product : basketResponse.getBasketProducts()) {
+                        System.out.println("Product: " + product.getProductId() + ", Quantity: " + product.getProductQuantity());
+                        BasketItem basketItem = BasketItem.builder()
+                                .productId(product.getProductId().toString())
+                                .productName(product.getProductName() != null ? product.getProductName() : "Ürün")
+                                .productDescription(product.getProductDescription() != null ? product.getProductDescription() : "Ürün açıklaması")
+                                .productPrice(product.getProductPrice() != null ? product.getProductPrice().toString() : "0.0")
+                                .productQuantity(product.getProductQuantity() != null ? product.getProductQuantity().toString() : "1")
+                                .build();
+                        basketItems.add(basketItem);
+                        System.out.println("Created BasketItem - ProductId: " + basketItem.getProductId() + ", Quantity: " + basketItem.getProductQuantity());
+                    }
+                } else {
+                    System.out.println("No basket products found or basket response is null");
+                    // BasketService'den veri gelmezse fallback kullan
+                    throw new RuntimeException("Basket response is null or empty");
+                }
+
+                System.out.println("=== SENDING ORDER DETAILS ===");
+                System.out.println("Total basket items to send: " + basketItems.size());
+                for (BasketItem item : basketItems) {
+                    System.out.println("Sending item - ProductId: " + item.getProductId() + ", Quantity: " + item.getProductQuantity());
+                }
+                
+                paymentEventPublisher.sendOrderDetails(
+                        OrderDetail.builder()
+                                .basketId(Integer.valueOf(threedsPayment.getBasketId()))
+                                .orderAddress("ADRES YOK")
+                                .customerId(Integer.valueOf(customerId))
+                                .paymentId(threedsPayment.getPaymentId())
+                                .basketItems(basketItems)
+                                .build());
+                System.out.println("Order details sent successfully");
+
+            } catch (Exception e) {
+                System.err.println("Error fetching basket details: " + e.getMessage());
+                e.printStackTrace();
+                // Fallback: Sadece productId ile basit basket item oluştur
+                List<BasketItem> fallbackItems = new ArrayList<>();
+                for (com.iyzipay.model.PaymentItem paymentItem : threedsPayment.getPaymentItems()) {
+                    BasketItem fallbackItem = BasketItem.builder()
+                            .productId(paymentItem.getItemId())
+                            .productName("Ürün")
+                            .productDescription("Ürün açıklaması")
+                            .productPrice("0.0")
+                            .productQuantity("1") // Varsayılan quantity
+                            .build();
+                    fallbackItems.add(fallbackItem);
+                    System.out.println("Fallback item created - ProductId: " + fallbackItem.getProductId() + ", Quantity: " + fallbackItem.getProductQuantity());
+                }
+                
+                paymentEventPublisher.sendOrderDetails(
+                        OrderDetail.builder()
+                                .basketId(Integer.valueOf(threedsPayment.getBasketId()))
+                                .orderAddress("ADRES YOK")
+                                .customerId(Integer.valueOf(customerId))
+                                .paymentId(threedsPayment.getPaymentId())
+                                .basketItems(fallbackItems)
+                                .build());
+                System.out.println("Fallback order details sent successfully");
+            }
         }
 
         return threedsPayment;
-
-
-//
-//
-//
-//
-//
-//
-//
-//        /*DONATION EKLEME */
-//
-//        OrderDetail orderDetail = OrderDetail.builder()
-//                .orderAddress(paymentRequest.getAddress())
-//                .basketItems(paymentRequest.getBasketItems())
-//                .basketId(paymentRequest.getBasketId())
-//                .customerId(paymentRequest.getCustomerId())
-//                .build();
-//
-//
-//        publisher.sendOrderDetails(orderDetail);
-//
-//
-//        BasketStatusUpdateEvent basketStatusUpdateEvent = BasketStatusUpdateEvent.builder()
-//                .basketId(paymentRequest.getBasketId())
-//                .customerId(paymentRequest.getCustomerId())
-//                .newStatus(4) // Ödendi
-//                .paymentId(newPayment.getPaymentId().toString())
-//                .message("PaymentInternal completed successfully")
-//                .build();
-//
-//        publisher.sendBasketStatusUpdate(basketStatusUpdateEvent);
-//
-//        return PaymentResponse.builder()
-//                .responseCode("00")
-//                .responseMessage("Success")
-//                .couponCode(paymentRequest.getCouponCode())
-//                .build();
-//    }
-
     }
 
     public InstallmentInfo installment(RetrieveInstallmentInfoRequest retrieveInstallmentInfoRequest) {

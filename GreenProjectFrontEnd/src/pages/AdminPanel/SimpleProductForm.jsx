@@ -40,7 +40,7 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
                 // Panel kapatma işlemi artık togglePanel ile yapılıyor
             }
         }
-        document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
@@ -296,9 +296,9 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
                                                     ×
                                                 </button>
                                             </span>
-                                        ))}
-                                    </div>
-                                )}
+                                            ))}
+                                        </div>
+                                    )}
                                 
                                 {/* Kategori Seviyeleri */}
                                 {console.log('🔍 Kategori seviyeleri render ediliyor:', categoryLevels)}
@@ -348,9 +348,9 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
                                                         </button>
                                                     ))}
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
+                                </div>
                                 ))}
                             </div>
                             
@@ -359,26 +359,26 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Ürün Fotoğrafları</label>
                                 <div className="space-y-4">
                                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                             <svg className="w-8 h-8 mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
                                             <p className="mb-2 text-sm text-gray-500">
-                                                <span className="font-semibold">Fotoğraf yüklemek için tıklayın</span>
-                                            </p>
+                                                    <span className="font-semibold">Fotoğraf yüklemek için tıklayın</span>
+                                                </p>
                                             <p className="text-xs text-gray-500">
                                                 PNG, JPG, GIF up to 10MB
                                             </p>
-                                        </div>
-                                        <input 
-                                            type="file" 
-                                            multiple 
-                                            accept="image/*" 
-                                            className="hidden" 
+                                            </div>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                className="hidden"
                                             onChange={(e) => handleImageUpload(e, setFieldValue)}
                                             disabled={isSubmitting}
-                                        />
-                                    </label>
+                                            />
+                                        </label>
                                 </div>
                                 
                                 {/* Fotoğraf Önizleme */}
@@ -473,5 +473,5 @@ const SimpleProductForm = ({ isSubmitting, setIsSubmitting, setUploadProgress, s
     );
 };
 
-export default SimpleProductForm;
+export default SimpleProductForm; 
 

@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface IProductVariantImagesRepository extends JpaRepository<ProductVariantImages,Integer> {
     List<ProductVariantImages> findByProductIdAndVariantId(Integer productId, Integer variantId);
+    
+    // Aktif ve silinmemiş variant görselleri getir
+    List<ProductVariantImages> findByProductIdAndVariantIdAndIsDeletedFalseAndIsActiveTrue(Integer productId, Integer variantId);
 }

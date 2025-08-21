@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class BasketItem {
-    private Integer productId;
+    private String productId;
     private String productName;
     private String productDescription;
-    private Double productPrice;
-    private Integer productQuantity;
+    private String productPrice;
+    private String productQuantity;
     private String subCategoryName;
 }

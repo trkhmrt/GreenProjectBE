@@ -10,6 +10,7 @@ import com.ael.productservice.request.SimpleProductRequest;
 import com.ael.productservice.request.VariantProductRequest;
 import com.ael.productservice.response.*;
 import com.ael.productservice.dto.ImageUploadMessage;
+import com.ael.productservice.dto.StockUpdateMessage;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import com.ael.productservice.request.VariantProductRequest;
+import com.ael.productservice.request.VariantPropertiesRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -331,8 +335,8 @@ public class ProductService {
     }
 
     private ProductResponse buildSimpleProductResponse(Product product) {
-        // Simple ürün için sadece ürün bilgileri ve görselleri
-        List<ProductImage> productImages = productImageFileRepository.findByProductId(product.getProductId());
+        // Simple ürün için sadece ürün bilgileri ve görselleri (aktif ve silinmemiş olanlar)
+        List<ProductImage> productImages = productImageFileRepository.findActiveImagesByProductId(product.getProductId());
         List<ProductProperty> productProperties = productPropertyRepository.findByProductId(product.getProductId());
 
         return ProductResponse.builder()
@@ -379,8 +383,8 @@ public class ProductService {
     }
 
     private ProductResponse buildCompleteProductResponse(Product product) {
-        // Ürüne ait görselleri getir
-        List<ProductImage> productImages = productImageFileRepository.findByProductId(product.getProductId());
+        // Ürüne ait görselleri getir (aktif ve silinmemiş olanlar)
+        List<ProductImage> productImages = productImageFileRepository.findActiveImagesByProductId(product.getProductId());
 
         // Ürüne ait property'leri getir
         List<ProductProperty> productProperties = productPropertyRepository.findByProductId(product.getProductId());
@@ -411,10 +415,23 @@ public class ProductService {
         if (images == null || images.isEmpty()) return new ArrayList<>();
 
         return images.stream()
-                .map(img -> ImageFileResponse.builder()
-                        .fileId(img.getId())
-                        .imageUrl(img.getImagePath()) // imagePath zaten tam URL içeriyor
-                        .build())
+                .filter(img -> (img.getIsDeleted() == null || !img.getIsDeleted()) && 
+                              (img.getIsActive() != null && img.getIsActive())) // Silinmiş ve pasif görselleri filtrele
+                .map(img -> {
+                    // Eğer imagePath zaten tam URL içeriyorsa direkt kullan, değilse CloudFront URL'si ile birleştir
+                    String imagePath = img.getImagePath();
+                    String fullImageUrl;
+                    if (imagePath != null && imagePath.startsWith("http")) {
+                        fullImageUrl = imagePath; // Zaten tam URL
+                    } else {
+                        fullImageUrl = cloudfrontUrl + "/products/" + imagePath; // CloudFront URL'si ile birleştir
+                    }
+                    
+                    return ImageFileResponse.builder()
+                            .fileId(img.getId())
+                            .imageUrl(fullImageUrl)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -422,10 +439,23 @@ public class ProductService {
         if (images == null || images.isEmpty()) return new ArrayList<>();
 
         return images.stream()
-                .map(img -> ImageFileResponse.builder()
-                        .fileId(img.getId())
-                        .imageUrl(img.getImagePath()) // imagePath zaten tam URL içeriyor
-                        .build())
+                .filter(img -> (img.getIsDeleted() == null || !img.getIsDeleted()) && 
+                              (img.getIsActive() != null && img.getIsActive())) // Silinmiş ve pasif görselleri filtrele
+                .map(img -> {
+                    // Eğer imagePath zaten tam URL içeriyorsa direkt kullan, değilse CloudFront URL'si ile birleştir
+                    String imagePath = img.getImagePath();
+                    String fullImageUrl;
+                    if (imagePath != null && imagePath.startsWith("http")) {
+                        fullImageUrl = imagePath; // Zaten tam URL
+                    } else {
+                        fullImageUrl = cloudfrontUrl + "/products/" + imagePath; // CloudFront URL'si ile birleştir
+                    }
+                    
+                    return ImageFileResponse.builder()
+                            .fileId(img.getId())
+                            .imageUrl(fullImageUrl)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -475,15 +505,27 @@ public class ProductService {
 
         return variants.stream()
                 .map(variant -> {
-                    // Her variant için görselleri getir
-                    List<ProductVariantImages> variantImages = productVariantImagesRepository.findByProductIdAndVariantId(
+                    // Her variant için görselleri getir (aktif ve silinmemiş olanlar)
+                    List<ProductVariantImages> variantImages = productVariantImagesRepository.findByProductIdAndVariantIdAndIsDeletedFalseAndIsActiveTrue(
                             variant.getProductId(), variant.getVariantId());
                     
                     // Her variant için property'leri getir (Property entity'si ile birlikte)
                     List<VariantProperty> variantProperties = varaintPropertyRepository.findByVariantIdWithProperty(variant.getVariantId());
                     
                     List<String> imageUrls = variantImages.stream()
-                            .map(ProductVariantImages::getImagePath) // imagePath zaten tam URL içeriyor
+                            .filter(img -> (img.getIsDeleted() == null || !img.getIsDeleted()) && 
+                                          (img.getIsActive() != null && img.getIsActive())) // Silinmiş ve pasif görselleri filtrele
+                            .map(img -> {
+                                // Eğer imagePath zaten tam URL içeriyorsa direkt kullan, değilse CloudFront URL'si ile birleştir
+                                String imagePath = img.getImagePath();
+                                if (imagePath != null && imagePath.startsWith("http")) {
+                                    return imagePath; // Zaten tam URL
+                                } else {
+                                    // Variant'lar için path zaten "productId/variantId/filename" formatında
+                                    // CloudFront URL'si ile birleştirirken "/products/" eklemememiz gerekiyor
+                                    return cloudfrontUrl + "/products/" + imagePath; // CloudFront URL'si ile birleştir
+                                }
+                            })
                             .collect(Collectors.toList());
 
                     return ProductVariantResponse.builder()
@@ -550,6 +592,111 @@ public class ProductService {
         } catch (Exception e) {
             log.error("Error getting products by category and level: {}", e.getMessage());
             throw new RuntimeException("Failed to get products by category and level", e);
+        }
+    }
+
+    // ========== UPDATE METHODS ==========
+    // Update metodları şimdilik kaldırıldı - mevcut yapıyla uyumlu değil
+
+    // ========== IMAGE MANAGEMENT METHODS ==========
+
+    // Simple ürün görselini sil (soft delete)
+    @Transactional
+    public void deleteSimpleProductImage(Integer imageId) {
+        try {
+            ProductImage image = productImageFileRepository.findById(imageId)
+                    .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
+            
+            image.setIsDeleted(true);
+            productImageFileRepository.save(image);
+            
+            log.info("Simple product image deleted successfully: {}", imageId);
+        } catch (Exception e) {
+            log.error("Error deleting simple product image: {}", e.getMessage());
+            throw new RuntimeException("Failed to delete simple product image", e);
+        }
+    }
+
+    // Variant ürün görselini sil (soft delete)
+    @Transactional
+    public void deleteVariantProductImage(Integer imageId) {
+        try {
+            ProductVariantImages image = productVariantImagesRepository.findById(imageId)
+                    .orElseThrow(() -> new RuntimeException("Variant image not found with id: " + imageId));
+            
+            image.setIsDeleted(true);
+            productVariantImagesRepository.save(image);
+            
+            log.info("Variant product image deleted successfully: {}", imageId);
+        } catch (Exception e) {
+            log.error("Error deleting variant product image: {}", e.getMessage());
+            throw new RuntimeException("Failed to delete variant product image", e);
+        }
+    }
+
+    // Simple ürün görselini aktif/pasif yap
+    @Transactional
+    public void toggleSimpleProductImageActive(Integer imageId) {
+        try {
+            ProductImage image = productImageFileRepository.findById(imageId)
+                    .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
+            
+            image.setIsActive(!image.getIsActive());
+            productImageFileRepository.save(image);
+            
+            log.info("Simple product image active status toggled successfully: {}, new status: {}", 
+                    imageId, image.getIsActive());
+        } catch (Exception e) {
+            log.error("Error toggling simple product image active status: {}", e.getMessage());
+            throw new RuntimeException("Failed to toggle simple product image active status", e);
+        }
+    }
+
+    // Variant ürün görselini aktif/pasif yap
+    @Transactional
+    public void toggleVariantProductImageActive(Integer imageId) {
+        try {
+            ProductVariantImages image = productVariantImagesRepository.findById(imageId)
+                    .orElseThrow(() -> new RuntimeException("Variant image not found with id: " + imageId));
+            
+            image.setIsActive(!image.getIsActive());
+            productVariantImagesRepository.save(image);
+            
+            log.info("Variant product image active status toggled successfully: {}, new status: {}", 
+                    imageId, image.getIsActive());
+        } catch (Exception e) {
+            log.error("Error toggling variant product image active status: {}", e.getMessage());
+            throw new RuntimeException("Failed to toggle variant product image active status", e);
+        }
+    }
+    
+    // ========== STOCK MANAGEMENT METHODS ==========
+    
+    /**
+     * Basit stok düşürme
+     */
+    public void decreaseStock(Integer productId, Integer quantity) {
+        try {
+            rabbitMQProducerService.sendStockDecreaseMessage(productId, quantity);
+            log.info("Stock decrease message sent - ProductId: {}, Quantity: {}", 
+                    productId, quantity);
+        } catch (Exception e) {
+            log.error("Error sending stock decrease message: {}", e.getMessage());
+            throw new RuntimeException("Failed to decrease stock", e);
+        }
+    }
+    
+    /**
+     * Basit stok artırma
+     */
+    public void increaseStock(Integer productId, Integer quantity) {
+        try {
+            rabbitMQProducerService.sendStockIncreaseMessage(productId, quantity);
+            log.info("Stock increase message sent - ProductId: {}, Quantity: {}", 
+                    productId, quantity);
+        } catch (Exception e) {
+            log.error("Error sending stock increase message: {}", e.getMessage());
+            throw new RuntimeException("Failed to increase stock", e);
         }
     }
 }
