@@ -8,6 +8,8 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isEmailEditing, setIsEmailEditing] = useState(false);
+    const [isPhoneEditing, setIsPhoneEditing] = useState(false);
     const [isPasswordEditing, setIsPasswordEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [passwordData, setPasswordData] = useState({
@@ -21,10 +23,8 @@ const Profile = () => {
     const [newAddressTitle, setNewAddressTitle] = useState('');
     const [editingAddress, setEditingAddress] = useState('');
     const [editingAddressTitle, setEditingAddressTitle] = useState('');
-    const [activeSection, setActiveSection] = useState('personal'); // 'personal', 'addresses', 'password'
+    const [activeSection, setActiveSection] = useState('personal');
 
-    // Geçici olarak customerId'yi 35 olarak ayarlıyorum
-    // Gerçek uygulamada bu değer AuthContext'ten alınmalı
     const customerId = 35;
 
     useEffect(() => {
@@ -63,12 +63,28 @@ const Profile = () => {
 
     const handleSave = async () => {
         try {
-            // Burada updateCustomerProfile API'sini çağırabilirsiniz
             console.log('Güncellenecek veri:', formData);
             setIsEditing(false);
-            // fetchProfile(); // Güncellenmiş veriyi yeniden yükle
         } catch (err) {
             console.error('Profile update error:', err);
+        }
+    };
+
+    const handleEmailSave = async () => {
+        try {
+            console.log('E-posta güncellenecek:', formData.email);
+            setIsEmailEditing(false);
+        } catch (err) {
+            console.error('Email update error:', err);
+        }
+    };
+
+    const handlePhoneSave = async () => {
+        try {
+            console.log('Telefon güncellenecek:', formData.phoneNumber);
+            setIsPhoneEditing(false);
+        } catch (err) {
+            console.error('Phone update error:', err);
         }
     };
 
@@ -122,12 +138,10 @@ const Profile = () => {
                 title: newAddressTitle,
                 addressContent: newAddress
             });
-            // Burada API çağrısı yapılacak
             
             setNewAddress('');
             setNewAddressTitle('');
             setIsAddressEditing(false);
-            // fetchProfile(); // Adresleri yeniden yükle
         } catch (err) {
             console.error('Address add error:', err);
         }
@@ -155,12 +169,10 @@ const Profile = () => {
                 title: editingAddressTitle,
                 addressContent: editingAddress
             });
-            // Burada API çağrısı yapılacak
             
             setEditingAddressId(null);
             setEditingAddress('');
             setEditingAddressTitle('');
-            // fetchProfile(); // Adresleri yeniden yükle
         } catch (err) {
             console.error('Address update error:', err);
         }
@@ -170,8 +182,6 @@ const Profile = () => {
         try {
             if (window.confirm('Bu adresi silmek istediğinizden emin misiniz?')) {
                 console.log('Adres siliniyor:', addressId);
-                // Burada API çağrısı yapılacak
-                // fetchProfile(); // Adresleri yeniden yükle
             }
         } catch (err) {
             console.error('Address delete error:', err);
@@ -288,7 +298,6 @@ const Profile = () => {
                     {/* Sol Taraf - Menü (Desktop) */}
                     <div className="hidden lg:block lg:col-span-1">
                         <div className="bg-white rounded-2xl shadow-sm border border-purple-200/30 p-6">
-                            {/* Menü Sistemi */}
                             <div className="space-y-2">
                                 <span
                                     onClick={() => setActiveSection('personal')}
@@ -370,7 +379,7 @@ const Profile = () => {
                                     </div>
                                 </div>
 
-                                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                                     <h3 className="text-lg lg:text-xl font-semibold text-gray-900">Kişisel Bilgiler</h3>
                                     <span
                                         onClick={() => setIsEditing(!isEditing)}
@@ -383,166 +392,247 @@ const Profile = () => {
                                     </span>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                                {/* Ad */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Ad</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="firstName"
-                                            value={formData.firstName}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.firstName}</p>
-                                    )}
+                                <div className="space-y-3 lg:space-y-4">
+                                    {/* İlk Satır - Ad ve Soyad */}
+                                    <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                                        {/* Ad */}
+                                        <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ad</label>
+                                            </div>
+                                            {isEditing ? (
+                                                <input
+                                                    type="text"
+                                                    name="firstName"
+                                                    value={formData.firstName}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                                />
+                                            ) : (
+                                                <p className="text-gray-900 text-sm font-medium">{profile?.firstName}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Soyad */}
+                                        <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Soyad</label>
+                                            </div>
+                                            {isEditing ? (
+                                                <input
+                                                    type="text"
+                                                    name="lastName"
+                                                    value={formData.lastName}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                                />
+                                            ) : (
+                                                <p className="text-gray-900 text-sm font-medium">{profile?.lastName}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* İkinci Satır - E-posta (Tek Satır) */}
+                                    <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">E-posta</label>
+                                            </div>
+                                            {!isEmailEditing && (
+                                                <span
+                                                    onClick={() => setIsEmailEditing(true)}
+                                                    className="text-purple-600 hover:text-purple-700 cursor-pointer transition-colors duration-200 text-xs font-medium uppercase tracking-wide px-2 py-1 rounded-md bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300"
+                                                >
+                                                    Düzenle
+                                                </span>
+                                            )}
+                                        </div>
+                                        {isEmailEditing ? (
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={formData.email}
+                                                    onChange={handleInputChange}
+                                                    className="w-full sm:flex-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                                />
+                                                <div className="flex gap-2 w-full sm:w-auto">
+                                                    <span
+                                                        onClick={handleEmailSave}
+                                                        className="flex-1 sm:flex-none text-center text-green-500 hover:text-green-600 cursor-pointer transition-colors duration-200 text-sm font-medium px-2 py-1 rounded bg-green-50 hover:bg-green-100"
+                                                    >
+                                                        Kaydet
+                                                    </span>
+                                                    <span
+                                                        onClick={() => setIsEmailEditing(false)}
+                                                        className="flex-1 sm:flex-none text-center text-red-500 hover:text-red-600 cursor-pointer transition-colors duration-200 text-sm font-medium px-2 py-1 rounded bg-red-50 hover:bg-red-100"
+                                                    >
+                                                        İptal
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-900 text-sm font-medium">{profile?.email}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Üçüncü Satır - Kullanıcı Adı (Tek Satır) */}
+                                    <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Kullanıcı Adı</label>
+                                        </div>
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="username"
+                                                value={formData.username}
+                                                onChange={handleInputChange}
+                                                className="w-full px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                            />
+                                        ) : (
+                                            <p className="text-gray-900 text-sm font-medium">{profile?.username}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Dördüncü Satır - Telefon ve Şehir */}
+                                    <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                                        {/* Telefon */}
+                                        <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                    </svg>
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Telefon</label>
+                                                </div>
+                                                {!isPhoneEditing && (
+                                                    <span
+                                                        onClick={() => setIsPhoneEditing(true)}
+                                                        className="text-purple-600 hover:text-purple-700 cursor-pointer transition-colors duration-200 text-xs font-medium uppercase tracking-wide px-2 py-1 rounded-md bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300"
+                                                    >
+                                                        Düzenle
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {isPhoneEditing ? (
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                                    <input
+                                                        type="tel"
+                                                        name="phoneNumber"
+                                                        value={formData.phoneNumber}
+                                                        onChange={handleInputChange}
+                                                        className="w-full sm:flex-1 px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                                    />
+                                                    <div className="flex gap-2 w-full sm:w-auto">
+                                                        <span
+                                                            onClick={handlePhoneSave}
+                                                            className="flex-1 sm:flex-none text-center text-green-500 hover:text-green-600 cursor-pointer transition-colors duration-200 text-sm font-medium px-2 py-1 rounded bg-green-50 hover:bg-green-100"
+                                                        >
+                                                            Kaydet
+                                                        </span>
+                                                        <span
+                                                            onClick={() => setIsPhoneEditing(false)}
+                                                            className="flex-1 sm:flex-none text-center text-red-500 hover:text-red-600 cursor-pointer transition-colors duration-200 text-sm font-medium px-2 py-1 rounded bg-red-50 hover:bg-red-100"
+                                                        >
+                                                            İptal
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-900 text-sm font-medium">{profile?.phoneNumber}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Şehir */}
+                                        <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Şehir</label>
+                                            </div>
+                                            {isEditing ? (
+                                                <input
+                                                    type="text"
+                                                    name="city"
+                                                    value={formData.city}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                                />
+                                            ) : (
+                                                <p className="text-gray-900 text-sm font-medium">{profile?.city}</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Soyad */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Soyad</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            value={formData.lastName}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.lastName}</p>
-                                    )}
+                                {/* Adres */}
+                                <div className="mt-4">
+                                    <div className="bg-gray-50/50 rounded-lg p-3 lg:p-4 border border-gray-100">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Adres</label>
+                                        </div>
+                                        {isEditing ? (
+                                            <textarea
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                rows="2"
+                                                className="w-full px-2 py-1.5 lg:px-3 lg:py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 text-sm"
+                                            />
+                                        ) : (
+                                            <p className="text-gray-900 text-sm font-medium">{profile?.address}</p>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.email}</p>
-                                    )}
-                                </div>
-
-                                {/* Kullanıcı Adı */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Kullanıcı Adı</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="username"
-                                            value={formData.username}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.username}</p>
-                                    )}
-                                </div>
-
-                                {/* Telefon */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={formData.phoneNumber}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.phoneNumber}</p>
-                                    )}
-                                </div>
-
-                                {/* Şehir */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Şehir</label>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="city"
-                                            value={formData.city}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-900 text-sm lg:text-base">{profile?.city}</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Adres */}
-                            <div className="mt-4 lg:mt-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Adres</label>
-                                {isEditing ? (
-                                    <textarea
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        rows="3"
-                                        className="w-full px-3 py-2.5 lg:px-4 lg:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors text-sm lg:text-base"
-                                    />
-                                ) : (
-                                    <p className="text-gray-900 text-sm lg:text-base">{profile?.address}</p>
+                                {/* Kaydet Butonu */}
+                                {isEditing && (
+                                    <div className="mt-6 flex gap-3">
+                                        <span
+                                            onClick={handleSave}
+                                            className="text-green-500 hover:text-green-600 cursor-pointer transition-colors duration-200 text-sm font-medium"
+                                        >
+                                            Kaydet
+                                        </span>
+                                        <span
+                                            onClick={() => setIsEditing(false)}
+                                            className="text-red-500 hover:text-red-600 cursor-pointer transition-colors duration-200 text-sm font-medium"
+                                        >
+                                            İptal
+                                        </span>
+                                    </div>
                                 )}
                             </div>
-
-                            {/* Kaydet Butonu */}
-                            {isEditing && (
-                                <div className="mt-6 flex flex-col sm:flex-row gap-3 lg:gap-4">
-                                    <span
-                                        onClick={handleSave}
-                                        className="px-4 py-2.5 lg:px-6 lg:py-3 bg-green-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-green-700/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center justify-center gap-2 border border-green-200/30 text-sm lg:text-base"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Kaydet
-                                    </span>
-                                    <span
-                                        onClick={() => setIsEditing(false)}
-                                        className="px-4 py-2.5 lg:px-6 lg:py-3 bg-gray-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-600/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center justify-center gap-2 border border-gray-200/30 text-sm lg:text-base"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        İptal
-                                    </span>
-                                </div>
-                            )}
-                        </div>
                         )}
 
                         {/* Adresler Bölümü */}
                         {activeSection === 'addresses' && (
                             <div className="bg-white rounded-2xl shadow-sm border border-purple-200/30 p-4 lg:p-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 lg:gap-4 mb-4 lg:mb-6">
+                                <div className="flex items-center justify-between gap-3 lg:gap-4 mb-4 lg:mb-6">
                                     <h3 className="text-lg lg:text-xl font-semibold text-gray-900">Kayıtlı Adresler</h3>
                                     <span
-                                        onClick={() => {
-                                            console.log('🔘 Yeni Adres Ekle butonuna tıklandı!');
-                                            console.log('📱 Mevcut isAddressEditing:', isAddressEditing);
-                                            setIsAddressEditing(!isAddressEditing);
-                                            console.log('🔄 isAddressEditing değişecek:', !isAddressEditing);
-                                        }}
-                                        className="text-purple-600 hover:text-purple-700 active:text-purple-800 transition-all duration-200 cursor-pointer px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg bg-purple-50/30 hover:bg-purple-100/50 active:bg-purple-200/50 backdrop-blur-sm border border-purple-200/30 font-medium flex items-center gap-2 sm:gap-2.5 text-sm sm:text-base touch-manipulation select-none min-h-[44px] sm:min-h-[48px] relative z-10 pointer-events-auto"
-                                        style={{ WebkitTapHighlightColor: 'transparent' }}
+                                        onClick={() => setIsAddressEditing(!isAddressEditing)}
+                                        className="text-purple-600 hover:text-purple-700 cursor-pointer transition-colors duration-200 text-xs font-medium uppercase tracking-wide px-3 py-1.5 rounded-md bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300 whitespace-nowrap"
                                     >
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        <span className="hidden sm:inline">{isAddressEditing ? 'İptal' : 'Yeni Adres Ekle'}</span>
-                                        <span className="sm:hidden">{isAddressEditing ? 'İptal' : 'Ekle'}</span>
+                                        {isAddressEditing ? 'İptal' : 'Ekle'}
                                     </span>
                                 </div>
 
@@ -574,7 +664,7 @@ const Profile = () => {
                                         <div className="flex gap-2 sm:gap-4 mt-4">
                                             <span
                                                 onClick={handleAddAddress}
-                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-green-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-green-700/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-1.5 sm:gap-2 border border-green-200/30 text-sm sm:text-base"
+                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-green-500/20 backdrop-blur-sm text-green-700 rounded-lg hover:bg-green-500/30 transition-all duration-200 font-medium cursor-pointer border border-green-300/50 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base hover:shadow-sm"
                                             >
                                                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -587,7 +677,7 @@ const Profile = () => {
                                                     setNewAddress('');
                                                     setNewAddressTitle('');
                                                 }}
-                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-600/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-1.5 sm:gap-2 border border-gray-200/30 text-sm sm:text-base"
+                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-500/20 backdrop-blur-sm text-gray-700 rounded-lg hover:bg-gray-500/30 transition-all duration-200 font-medium cursor-pointer border border-gray-300/50 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base hover:shadow-sm"
                                             >
                                                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -630,20 +720,20 @@ const Profile = () => {
                                                         <div className="flex gap-2 sm:gap-4">
                                                             <span
                                                                 onClick={handleSaveAddress}
-                                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-green-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-green-700/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-1.5 sm:gap-2 border border-green-200/30 text-sm sm:text-base"
+                                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-green-500/20 backdrop-blur-sm text-green-700 rounded-lg hover:bg-green-500/30 transition-all duration-200 font-medium cursor-pointer border border-green-300/50 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base hover:shadow-sm"
                                                             >
                                                                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                                 Kaydet
                                                             </span>
-                                                                                                                    <span
-                                                            onClick={() => {
-                                                                setEditingAddressId(null);
-                                                                setEditingAddress('');
-                                                                setEditingAddressTitle('');
-                                                            }}
-                                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-600/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-1.5 sm:gap-2 border border-gray-200/30 text-sm sm:text-base"
+                                                            <span
+                                                                onClick={() => {
+                                                                    setEditingAddressId(null);
+                                                                    setEditingAddress('');
+                                                                    setEditingAddressTitle('');
+                                                                }}
+                                                                className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-500/20 backdrop-blur-sm text-gray-700 rounded-lg hover:bg-gray-500/30 transition-all duration-200 font-medium cursor-pointer border border-gray-300/50 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base hover:shadow-sm"
                                                             >
                                                                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -687,7 +777,7 @@ const Profile = () => {
                                             </svg>
                                         </div>
                                         <p className="text-gray-500">Henüz kayıtlı adresiniz bulunmuyor.</p>
-                                        <p className="text-gray-400 text-sm mt-1">"Yeni Adres Ekle" butonuna tıklayarak adres ekleyebilirsiniz.</p>
+                                        <p className="text-gray-400 text-sm mt-1">"Ekle" butonuna tıklayarak adres ekleyebilirsiniz.</p>
                                     </div>
                                 )}
                             </div>
@@ -696,89 +786,80 @@ const Profile = () => {
                         {/* Şifre Değişikliği Bölümü */}
                         {activeSection === 'password' && (
                             <div className="bg-white rounded-2xl shadow-sm border border-purple-200/30 p-4 lg:p-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 lg:mb-6">
+                                <div className="flex items-center justify-between gap-3 mb-4 lg:mb-6">
                                     <h3 className="text-lg lg:text-xl font-semibold text-gray-900">Şifre Değişikliği</h3>
                                     <span
                                         onClick={() => setIsPasswordEditing(!isPasswordEditing)}
-                                        className="text-purple-600 hover:text-purple-700 transition-all duration-200 cursor-pointer px-3 py-2 rounded-lg hover:bg-purple-100/50 backdrop-blur-sm border border-purple-200/30 font-medium flex items-center gap-2"
+                                        className="text-purple-600 hover:text-purple-700 cursor-pointer transition-colors duration-200 text-xs font-medium uppercase tracking-wide px-3 py-1.5 rounded-md bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300 whitespace-nowrap"
                                     >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                        </svg>
                                         {isPasswordEditing ? 'İptal' : 'Şifre Değiştir'}
                                     </span>
                                 </div>
                             
-                            {isPasswordEditing ? (
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Mevcut Şifre</label>
-                                        <input
-                                            type="password"
-                                            name="currentPassword"
-                                            value={passwordData.currentPassword}
-                                            onChange={handlePasswordChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
-                                            placeholder="Mevcut şifrenizi girin"
-                                        />
+                                {isPasswordEditing ? (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Mevcut Şifre</label>
+                                            <input
+                                                type="password"
+                                                name="currentPassword"
+                                                value={passwordData.currentPassword}
+                                                onChange={handlePasswordChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
+                                                placeholder="Mevcut şifrenizi girin"
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Yeni Şifre</label>
+                                            <input
+                                                type="password"
+                                                name="newPassword"
+                                                value={passwordData.newPassword}
+                                                onChange={handlePasswordChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
+                                                placeholder="Yeni şifrenizi girin"
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
+                                            <input
+                                                type="password"
+                                                name="confirmPassword"
+                                                value={passwordData.confirmPassword}
+                                                onChange={handlePasswordChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
+                                                placeholder="Yeni şifrenizi tekrar girin"
+                                            />
+                                        </div>
+                                        
+                                        <div className="flex gap-3 pt-4">
+                                            <span
+                                                onClick={handlePasswordSave}
+                                                className="text-green-500 hover:text-green-600 cursor-pointer transition-colors duration-200 text-sm font-medium"
+                                            >
+                                                Kaydet
+                                            </span>
+                                            <span
+                                                onClick={() => {
+                                                    setIsPasswordEditing(false);
+                                                    setPasswordData({
+                                                        currentPassword: '',
+                                                        newPassword: '',
+                                                        confirmPassword: ''
+                                                    });
+                                                }}
+                                                className="text-red-500 hover:text-red-600 cursor-pointer transition-colors duration-200 text-sm font-medium"
+                                            >
+                                                İptal
+                                            </span>
+                                        </div>
                                     </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Yeni Şifre</label>
-                                        <input
-                                            type="password"
-                                            name="newPassword"
-                                            value={passwordData.newPassword}
-                                            onChange={handlePasswordChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
-                                            placeholder="Yeni şifrenizi girin"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Yeni Şifre (Tekrar)</label>
-                                        <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={passwordData.confirmPassword}
-                                            onChange={handlePasswordChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-colors"
-                                            placeholder="Yeni şifrenizi tekrar girin"
-                                        />
-                                    </div>
-                                    
-                                    <div className="flex gap-4 pt-4">
-                                        <span
-                                            onClick={handlePasswordSave}
-                                            className="px-6 py-3 bg-green-600/90 backdrop-blur-sm text-white rounded-lg hover:bg-green-700/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-2 border border-green-200/30"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Şifreyi Değiştir
-                                        </span>
-                                        <span
-                                            onClick={() => {
-                                                setIsPasswordEditing(false);
-                                                setPasswordData({
-                                                    currentPassword: '',
-                                                    newPassword: '',
-                                                    confirmPassword: ''
-                                                });
-                                            }}
-                                            className="px-6 py-3 bg-gray-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-600/90 transition-all duration-200 font-medium cursor-pointer shadow-sm hover:shadow-md flex items-center gap-2 border border-gray-200/30"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                            İptal
-                                        </span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="text-gray-500 text-sm">Şifrenizi değiştirmek için "Şifre Değiştir" butonuna tıklayın.</p>
-                            )}
-                        </div>
+                                ) : (
+                                    <p className="text-gray-500 text-sm">Şifrenizi değiştirmek için "Şifre Değiştir" butonuna tıklayın.</p>
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>
