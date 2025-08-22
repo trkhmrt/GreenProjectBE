@@ -15,17 +15,17 @@ import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import AdminOffice from "./pages/AdminPanel/AdminOffice.jsx";
 import AdminLayout from "./layout/AdminLayout.jsx";
-import AdminProductPage from "./pages/AdminPanel/AdminProductPage.jsx";
-import AdminProductListing from "./pages/AdminPanel/AdminProductListing.jsx";
 import AdminProductDetail from "./pages/AdminPanel/AdminProductDetail.jsx";
 import AdminCategoryPage from "./pages/AdminPanel/AdminCategoryPage.jsx";
+import AdminOrderPage from "./pages/AdminPanel/AdminOrderPage.jsx";
+import AdminOrderDetail from "./pages/AdminPanel/AdminOrderDetail.jsx";
+import AddProduct from "./pages/AdminPanel/AddProduct.jsx";
+import AdminProductList from "./pages/AdminPanel/AdminProductList.jsx";
 import Profile from "./pages/Profile.jsx";
 import { ToastProvider } from './context/ToastContext';
 import Toaster from './components/Toaster';
 
 function App() {
-
-
     return (
         <>
             <ToastProvider>
@@ -33,13 +33,11 @@ function App() {
                 <AuthProvider>
                     <BrowserRouter>
                         <Routes>
-
                             <Route path={routes.Login} element={
                                 <GuestRoute>
                                     <Login/>
                                 </GuestRoute>
-                            }
-                            >
+                            }>
                             </Route>
                             <Route element={<Layout/>}>
                                 <Route path={routes.Register} element={<Register/>}/>
@@ -47,19 +45,18 @@ function App() {
                                 <Route path="/Basket" element={<Basket/>}></Route>
                                 <Route path="/product/:productId" element={<ProductDetail/>}></Route>
                                 <Route path="/profile" element={<Profile/>}></Route>
-
                                 <Route path={routes.Payment} element={<Payment/>}></Route>
                                 <Route path={routes.Orders} element={<Orders/>}></Route>
                                 <Route path="/category/:categoryId" element={<Products/>}></Route>
                             </Route>
                             <Route element={<AdminLayout/>}>
                                 <Route path={routes.AdminOffice} element={<AdminOffice/>}/>
-                                <Route path={routes.AdminProduct} element={<AdminProductPage/>}/>
-                                <Route path="/admin/products" element={<AdminProductListing/>}/>
                                 <Route path="/admin/products/:productId" element={<AdminProductDetail/>}/>
                                 <Route path={routes.AdminCategory} element={<AdminCategoryPage/>}/>
-
-
+                                <Route path="/admin/orders" element={<AdminOrderPage/>}/>
+                                <Route path="/admin/orders/:orderId" element={<AdminOrderDetail/>}/>
+                                <Route path="/addProductToStore" element={<AddProduct/>}/>
+                                <Route path="/adminproduct" element={<AdminProductList/>}/>
                             </Route>
                             <Route path={routes.PaymentSuccess} element={<PaymentResult/>}></Route>
                         </Routes>

@@ -1,9 +1,13 @@
 package com.ael.customerservice.controller;
 
 import com.ael.customerservice.client.IBasketClient;
+import com.ael.customerservice.dto.request.AddressRequest;
+import com.ael.customerservice.dto.request.PhoneUpdateRequest;
+import com.ael.customerservice.dto.request.EmailUpdateRequest;
 import com.ael.customerservice.dto.response.AddressResponse;
 import com.ael.customerservice.dto.response.CheckoutInfoResponse;
 import com.ael.customerservice.dto.response.CreditCardResponse;
+import com.ael.customerservice.dto.response.CustomerProfileResponse;
 import com.ael.customerservice.dto.response.CustomerResponse;
 import com.ael.customerservice.model.Customer;
 import com.ael.customerservice.service.CustomerService;
@@ -20,7 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerController {
 
-    CustomerService customerService;
+    private final CustomerService customerService;
     ICustomerCreditCardService customerCreditCardService;
     IBasketClient basketClient;
 
@@ -47,7 +51,12 @@ public class CustomerController {
 
     @GetMapping("/getCustomerAddress/{customerId}")
     public ResponseEntity<List<AddressResponse>> getCustomerAddress(@PathVariable Integer customerId) {
-        return ResponseEntity.ok(customerService.getCustomerAddress(customerId));
+        try {
+            List<AddressResponse> addresses = customerService.getCustomerAddress(customerId);
+            return ResponseEntity.ok(addresses);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/getCustomerInfoForCheckOut/{customerId}")
@@ -72,8 +81,90 @@ public class CustomerController {
                 .build();
 
          return ResponseEntity.ok(customerResponse);
-
-
     }
 
+    @GetMapping("/getCustomerProfile/{customerId}")
+    public ResponseEntity<CustomerProfileResponse> getCustomerProfile(@PathVariable Integer customerId) {
+        try {
+            CustomerProfileResponse profile = customerService.getCustomerProfile(customerId);
+            return ResponseEntity.ok(profile);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // ========== ADRES ENDPOINT'LERİ ==========
+
+    @PostMapping("/addAddress")
+    public ResponseEntity<AddressResponse> addCustomerAddress(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @RequestBody AddressRequest addressRequest) {
+        try {
+            AddressResponse address = customerService.addCustomerAddress(customerId, addressRequest);
+            return ResponseEntity.ok(address);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/updateAddress/{addressId}")
+    public ResponseEntity<AddressResponse> updateCustomerAddress(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @PathVariable Integer addressId,
+            @RequestBody AddressRequest addressRequest) {
+        try {
+            AddressResponse address = customerService.updateCustomerAddress(customerId, addressId, addressRequest);
+            return ResponseEntity.ok(address);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/deleteAddress/{addressId}")
+    public ResponseEntity<String> deleteCustomerAddress(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @PathVariable Integer addressId) {
+        try {
+            customerService.deleteCustomerAddress(customerId, addressId);
+            return ResponseEntity.ok("Adres başarıyla silindi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Adres silinirken hata oluştu: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/toggleAddressStatus/{addressId}")
+    public ResponseEntity<String> toggleAddressStatus(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @PathVariable Integer addressId) {
+        try {
+            customerService.toggleAddressStatus(customerId, addressId);
+            return ResponseEntity.ok("Adres durumu başarıyla değiştirildi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Adres durumu değiştirilirken hata oluştu: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/updatePhone")
+    public ResponseEntity<String> updateCustomerPhone(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @RequestBody PhoneUpdateRequest phoneUpdateRequest) {
+        try {
+            customerService.updateCustomerPhone(customerId, phoneUpdateRequest.getPhoneNumber());
+            return ResponseEntity.ok("Telefon numarası başarıyla güncellendi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Telefon numarası güncellenirken hata oluştu: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/updateEmail")
+    public ResponseEntity<String> updateCustomerEmail(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @RequestBody EmailUpdateRequest emailUpdateRequest) {
+        try {
+            customerService.updateCustomerEmail(customerId, emailUpdateRequest.getEmail());
+            return ResponseEntity.ok("E-posta adresi başarıyla güncellendi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("E-posta adresi güncellenirken hata oluştu: " + e.getMessage());
+        }
+    }
 }

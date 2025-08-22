@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import AdminLayout from '../../layout/AdminLayout';
 
 const AdminProductDetail = () => {
     const { productId } = useParams();
@@ -16,14 +17,16 @@ const AdminProductDetail = () => {
     // URL'den filtreleri al
     const searchParams = new URLSearchParams(location.search);
     const filters = {
+        nameFilter: searchParams.get('nameFilter'),
+        idFilter: searchParams.get('idFilter'),
         categoryId: searchParams.get('categoryId'),
-        subCategoryId: searchParams.get('subCategoryId'),
-        searchQuery: searchParams.get('searchQuery'),
-        productTypes: searchParams.get('productTypes')?.split(',') || [],
-        inStock: searchParams.get('inStock') === 'true',
-        outOfStock: searchParams.get('outOfStock') === 'true',
+        minPrice: searchParams.get('minPrice'),
+        maxPrice: searchParams.get('maxPrice'),
+        stockFilter: searchParams.get('stockFilter'),
+        typeFilter: searchParams.get('typeFilter'),
         sortBy: searchParams.get('sortBy'),
-        scrollPosition: searchParams.get('scrollPosition')
+        scrollPosition: searchParams.get('scrollPosition'),
+        currentPage: searchParams.get('currentPage')
     };
 
     useEffect(() => {
@@ -52,17 +55,20 @@ const AdminProductDetail = () => {
         // Filtreleri ve scroll pozisyonunu koruyarak geri dön
         const params = new URLSearchParams();
         
+        // Mevcut filtreleri URL parametrelerine ekle
+        if (filters.nameFilter) params.set('nameFilter', filters.nameFilter);
+        if (filters.idFilter) params.set('idFilter', filters.idFilter);
         if (filters.categoryId) params.set('categoryId', filters.categoryId);
-        if (filters.subCategoryId) params.set('subCategoryId', filters.subCategoryId);
-        if (filters.searchQuery) params.set('searchQuery', filters.searchQuery);
-        if (filters.productTypes.length > 0) params.set('productTypes', filters.productTypes.join(','));
-        if (filters.inStock) params.set('inStock', 'true');
-        if (filters.outOfStock) params.set('outOfStock', 'true');
+        if (filters.minPrice) params.set('minPrice', filters.minPrice);
+        if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+        if (filters.stockFilter) params.set('stockFilter', filters.stockFilter);
+        if (filters.typeFilter) params.set('typeFilter', filters.typeFilter);
         if (filters.sortBy) params.set('sortBy', filters.sortBy);
         if (filters.scrollPosition) params.set('scrollPosition', filters.scrollPosition);
+        if (filters.currentPage) params.set('currentPage', filters.currentPage);
 
         const queryString = params.toString();
-        navigate(`/admin/products${queryString ? `?${queryString}` : ''}`);
+        navigate(`/adminproduct${queryString ? `?${queryString}` : ''}`);
     };
 
     const handleSave = async () => {
@@ -247,7 +253,7 @@ const AdminProductDetail = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <AdminLayout>
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 {/* Header */}
                 <div className="mb-8">
@@ -641,8 +647,10 @@ const AdminProductDetail = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </AdminLayout>
     );
 };
 
 export default AdminProductDetail;
+
+

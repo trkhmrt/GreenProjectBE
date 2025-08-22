@@ -3,6 +3,9 @@ package com.ael.orderservice.service;
 
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
 import com.ael.orderservice.dto.StockUpdateMessage;
+import com.ael.orderservice.dto.response.OrderDetailResponse;
+import com.ael.orderservice.dto.response.OrderResponse;
+import com.ael.orderservice.enums.OrderStatusesEnum;
 import com.ael.orderservice.model.Order;
 import com.ael.orderservice.model.OrderDetail;
 import com.ael.orderservice.model.OrderStatus;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -89,7 +93,110 @@ public class OrderService {
         return orderRepository.getOrderByCustomerId(customerId);
     }
     
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+    
+    public List<OrderResponse> getAllOrdersWithDetails() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+    }
+    
+    public List<OrderResponse> getCustomerOrdersWithDetails(Integer customerId) {
+        List<Order> orders = orderRepository.getOrderByCustomerId(customerId);
+        return orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+    }
+    
+    private OrderResponse convertToOrderResponse(Order order) {
+        List<OrderDetail> orderDetails = orderDetailRepository.findOrderDetailByOrder_OrderId(order.getOrderId());
+        
+        List<OrderDetailResponse> detailResponses = orderDetails.stream()
+                .map(detail -> OrderDetailResponse.builder()
+                        .orderDetailId(detail.getOrderDetailId())
+                        .productId(detail.getProductId())
+                        .quantity(detail.getQuantity())
+                        .unitPrice(detail.getUnitPrice())
+                        .totalPrice(detail.getQuantity() * detail.getUnitPrice())
+                        .build())
+                .collect(Collectors.toList());
+        
+        Double totalAmount = detailResponses.stream()
+                .mapToDouble(OrderDetailResponse::getTotalPrice)
+                .sum();
+        
+        Integer totalItems = detailResponses.stream()
+                .mapToInt(OrderDetailResponse::getQuantity)
+                .sum();
+        
+        return OrderResponse.builder()
+                .orderId(order.getOrderId())
+                .customerId(order.getCustomerId())
+                .basketId(order.getBasketId())
+                .orderAddress(order.getOrderAddress())
+                .orderStatus(order.getOrderStatus().getOrderStatusName())
+                .orderDetails(detailResponses)
+                .totalAmount(totalAmount)
+                .totalItems(totalItems)
+                .build();
+    }
+    
     public List<OrderDetail> getOrderDetailsByOrderId(Integer orderId) {
         return orderDetailRepository.findOrderDetailByOrder_OrderId(orderId);
+    }
+    
+    @Transactional
+    public void initializeOrderStatuses() {
+        // Eğer OrderStatus'lar zaten varsa oluşturma
+        if (orderStatusRepository.count() > 0) {
+            log.info("OrderStatuses already exist, skipping initialization");
+            return;
+        }
+        
+        log.info("Initializing OrderStatuses...");
+        
+        // Enum'dan OrderStatus'ları oluştur
+        for (OrderStatusesEnum statusEnum : OrderStatusesEnum.values()) {
+            OrderStatus orderStatus = OrderStatus.builder()
+                    .orderStatusId(statusEnum.getOrderStatusId())
+                    .orderStatusName(statusEnum.getOrderStatusName())
+                    .build();
+            
+            orderStatusRepository.save(orderStatus);
+            log.info("Created OrderStatus: ID={}, Name={}", 
+                    statusEnum.getOrderStatusId(), statusEnum.getOrderStatusName());
+        }
+        
+        log.info("OrderStatuses initialization completed");
+    }
+    
+    @Transactional
+    public void updateOrderStatus(Integer orderId, Integer statusId) {
+        log.info("Updating order status - OrderId: {}, StatusId: {}", orderId, statusId);
+        
+        // 1. Siparişin var olup olmadığını kontrol et
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+        
+        // 2. StatusId'nin geçerli olup olmadığını kontrol et
+        OrderStatus newStatus = orderStatusRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("OrderStatus not found with ID: " + statusId));
+        
+        // 3. Eski durumu logla
+        String oldStatus = order.getOrderStatus().getOrderStatusName();
+        
+        // 4. Durumu güncelle
+        order.setOrderStatus(newStatus);
+        orderRepository.save(order);
+        
+        log.info("Order status updated successfully - OrderId: {}, OldStatus: {}, NewStatus: {}", 
+                orderId, oldStatus, newStatus.getOrderStatusName());
+    }
+    
+    public List<OrderStatus> getAllOrderStatuses() {
+        return orderStatusRepository.findAll();
     }
 }

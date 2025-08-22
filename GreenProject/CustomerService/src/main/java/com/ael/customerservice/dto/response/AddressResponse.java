@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AddressResponse {
     private Integer AddressId;
+    private String title;
     private String AddressContent;
+    private Boolean isActive;
+    private Boolean isDeleted;
 }

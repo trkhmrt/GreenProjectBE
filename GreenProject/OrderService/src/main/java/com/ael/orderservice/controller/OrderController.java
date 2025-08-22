@@ -2,6 +2,7 @@ package com.ael.orderservice.controller;
 
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
 import com.ael.orderservice.dto.StockUpdateMessage;
+import com.ael.orderservice.dto.request.OrderStatusUpdateRequest;
 import com.ael.orderservice.model.Order;
 import com.ael.orderservice.service.OrderService;
 import com.ael.orderservice.service.RabbitMQProducerService;
@@ -41,6 +42,36 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/getAllOrders")
+    public ResponseEntity<?> getAllOrders() {
+        try {
+            return ResponseEntity.ok(orderService.getAllOrders());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error getting all orders: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getAllOrdersWithDetails")
+    public ResponseEntity<?> getAllOrdersWithDetails() {
+        try {
+            return ResponseEntity.ok(orderService.getAllOrdersWithDetails());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error getting all orders with details: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getCustomerOrdersWithDetails")
+    public ResponseEntity<?> getCustomerOrdersWithDetails(@RequestHeader("X-Customer-Id") Integer customerId) {
+        try {
+            return ResponseEntity.ok(orderService.getCustomerOrdersWithDetails(customerId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error getting customer orders with details: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/getOrderDetails/{orderId}")
     public ResponseEntity<?> getOrderDetailsByOrderId(@PathVariable Integer orderId) {
         try {
@@ -48,6 +79,27 @@ public class OrderController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error getting order details: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/updateOrderStatus")
+    public ResponseEntity<String> updateOrderStatus(@RequestBody OrderStatusUpdateRequest request) {
+        try {
+            orderService.updateOrderStatus(request.getOrderId(), request.getStatusId());
+            return ResponseEntity.ok("Order status updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating order status: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/getAllOrderStatuses")
+    public ResponseEntity<?> getAllOrderStatuses() {
+        try {
+            return ResponseEntity.ok(orderService.getAllOrderStatuses());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error getting order statuses: " + e.getMessage());
         }
     }
     
@@ -83,6 +135,17 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error sending stock decrease message: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/initialize/orderStatuses")
+    public ResponseEntity<String> initializeOrderStatuses() {
+        try {
+            orderService.initializeOrderStatuses();
+            return ResponseEntity.ok("OrderStatuses initialized successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error initializing OrderStatuses: " + e.getMessage());
         }
     }
 }

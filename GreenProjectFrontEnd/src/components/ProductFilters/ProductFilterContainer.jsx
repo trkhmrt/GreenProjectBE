@@ -30,7 +30,7 @@ const ProductFilterContainer = ({ onFilterChange, filters, selectedCategory }) =
         }
         
         return (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                 {generalFilters}
                 {categorySpecificFilters}
             </div>
@@ -38,7 +38,7 @@ const ProductFilterContainer = ({ onFilterChange, filters, selectedCategory }) =
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
             {renderFiltersByCategory()}
         </div>
     );

@@ -17,7 +17,12 @@ public class CustomerAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String title;
     private String address;
+    
+    // Durum alanları
+    private Boolean isActive = true;
+    private Boolean isDeleted = false;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)

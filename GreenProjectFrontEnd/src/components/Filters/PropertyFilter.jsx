@@ -1,114 +1,26 @@
 import React, { useState, useEffect } from 'react';
 
-const PropertyFilter = ({ selectedCategoryId, filters, updateFilter, hierarchicalCategories = [] }) => {
-    console.log('🚀 PropertyFilter: Komponent başlatılıyor');
-    console.log('🚀 PropertyFilter: Props:', { selectedCategoryId, filters, updateFilter, hierarchicalCategories });
+const PropertyFilter = ({ selectedCategoryId, filters, updateFilter }) => {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [lastShownProperties, setLastShownProperties] = useState([]); // Son gösterilen property'ler
 
-    console.log('🔍 PropertyFilter Render:', {
-        selectedCategoryId,
-        filtersCategoryId: filters.categoryId,
-        propertiesCount: properties.length,
-        loading,
-        error,
-        hasSelectedCategory: !!selectedCategoryId
-    });
-
-    // Kategori seçildiğinde property'leri getir
     useEffect(() => {
-        console.log('🔄 PropertyFilter: useEffect tetiklendi, selectedCategoryId:', selectedCategoryId);
-        
-        if (!selectedCategoryId) {
-            console.log('❌ PropertyFilter: Kategori ID yok, property\'ler temizleniyor');
+        if (selectedCategoryId) {
+            // For now, we'll use a simple approach without the API call
+            // since getPropertiesByCategoryId doesn't exist
             setProperties([]);
-            setLastShownProperties([]);
-            setError(null);
-            return;
-        }
-
-        // Kategori verisini bul
-        const findCategory = (categories, categoryId) => {
-            for (const category of categories) {
-                if (category.categoryId === categoryId) {
-                    return category;
-                }
-                if (category.children && category.children.length > 0) {
-                    const found = findCategory(category.children, categoryId);
-                    if (found) return found;
-                }
-            }
-            return null;
-        };
-
-        const selectedCategory = findCategory(hierarchicalCategories, selectedCategoryId);
-        console.log('🔍 PropertyFilter: Seçilen kategori bulundu:', selectedCategory);
-
-        if (!selectedCategory) {
-            console.log('❌ PropertyFilter: Kategori bulunamadı');
-            setProperties([]);
-            setError('Kategori bulunamadı');
-            return;
-        }
-
-        // Kategorinin property'lerini al
-        const categoryProperties = selectedCategory.properties || [];
-        console.log('📋 PropertyFilter: Kategori property\'leri:', categoryProperties);
-
-        if (categoryProperties.length > 0) {
-            // Kategorinin kendi property'leri var
-            console.log('✅ PropertyFilter: Kategori property\'leri yüklendi, sayı:', categoryProperties.length);
-            setProperties(categoryProperties);
-            setLastShownProperties(categoryProperties);
-            setError(null);
+            setLoading(false);
         } else {
-            // Kategorinin property'si yok, parent kategorisini bul
-            const findParentCategory = (categories, parentId) => {
-                for (const category of categories) {
-                    if (category.categoryId === parentId) {
-                        return category;
-                    }
-                    if (category.children && category.children.length > 0) {
-                        const found = findCategory(category.children, parentId);
-                        if (found) return found;
-                    }
-                }
-                return null;
-            };
-
-            const parentCategory = findParentCategory(hierarchicalCategories, selectedCategory.parentId);
-            console.log('🔍 PropertyFilter: Parent kategori bulundu:', parentCategory);
-
-            if (parentCategory && parentCategory.properties && parentCategory.properties.length > 0) {
-                // Parent kategorinin property'leri var
-                console.log('✅ PropertyFilter: Parent kategori property\'leri yüklendi, sayı:', parentCategory.properties.length);
-                setProperties(parentCategory.properties);
-                setLastShownProperties(parentCategory.properties);
-                setError(null);
-            } else {
-                // Parent kategorinin de property'si yok, son gösterilen property'leri koru
-                if (lastShownProperties.length > 0) {
-                    console.log('💾 PropertyFilter: Property bulunamadı, son gösterilen property\'ler korunuyor');
-                    setProperties(lastShownProperties);
-                } else {
-                    console.log('⚠️ PropertyFilter: Property bulunamadı, property\'ler temizleniyor');
-                    setProperties([]);
-                }
-            }
+            setProperties([]);
         }
-
-        setLoading(false);
-    }, [selectedCategoryId, hierarchicalCategories]);
+    }, [selectedCategoryId]);
 
     const handlePropertyChange = (propertyId, value) => {
-        console.log('🎯 PropertyFilter: Property değişti:', { propertyId, value });
-        
         const newProperties = { ...filters.properties };
         
-        if (value) {
-            newProperties[propertyId] = value;
+        if (value.trim()) {
+            newProperties[propertyId] = value.trim();
         } else {
             delete newProperties[propertyId];
         }

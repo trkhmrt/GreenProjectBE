@@ -34,6 +34,7 @@ public class SecurityConfig {
                                 "/ael/auth/**",
                                 "/ael/authservice/auth/**",
                                 "/ael/productservice/**",
+                                "/ael/customerservice/**",
                                 "/ael/basketservice/**",
                                 "/ael/paymentservice/**",
                                 "/ael/orderservice/**",

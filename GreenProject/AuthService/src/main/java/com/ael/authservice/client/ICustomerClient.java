@@ -21,4 +21,7 @@ public interface ICustomerClient {
 
     @GetMapping("/customer/getAllCustomerInfoByCustomerId/{customerId}")
     public ResponseEntity<CustomerResponse> getAllCustomerInfo(@PathVariable Integer customerId);
+    
+    @GetMapping("/customer/getCustomerProfile/{customerId}")
+    public ResponseEntity<Object> getCustomerProfile(@PathVariable Integer customerId);
 }

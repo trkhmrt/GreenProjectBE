@@ -38,7 +38,9 @@ public class GatewayserverApplication {
 				.route(p -> p
 						.path("/ael/customerservice/**")
 						.filters( f -> f.rewritePath("/ael/customerservice/(?<segment>.*)","/${segment}")
-								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()))
+						)
 						.uri("lb://CUSTOMERSERVICE"))
 				.route(p -> p
 						.path("/ael/basketservice/**")
