@@ -28,3 +28,5 @@ public class ImageUploadMessage {
         private String contentType;
     }
 }
+
+

@@ -19,3 +19,5 @@ public class CategoryWithPropertiesResponse {
     private Boolean isActive;
     private List<PropertyResponse> properties;
 }
+
+

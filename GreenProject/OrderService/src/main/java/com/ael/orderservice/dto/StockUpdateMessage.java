@@ -14,3 +14,5 @@ public class StockUpdateMessage {
     private Integer quantity;
     private String updateType; // "DECREASE" veya "INCREASE"
 }
+
+

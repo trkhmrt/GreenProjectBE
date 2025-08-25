@@ -12,3 +12,5 @@ import lombok.NoArgsConstructor;
 public class EmailUpdateRequest {
     private String email;
 }
+
+

@@ -45,3 +45,5 @@ public class CustomerProfileResponse {
     private Integer totalProducts;
     private String memberSince; // Kayıt tarihi
 }
+
+

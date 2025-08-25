@@ -21,3 +21,5 @@ public class CategorySelectionResponse {
     private List<CategorySelectionResponse> children;
     private String selectionPath; // Seçim yolu: "1 > 3 > 5" (ID'ler)
 }
+
+
