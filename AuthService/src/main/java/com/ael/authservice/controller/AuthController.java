@@ -96,4 +96,9 @@ public class AuthController {
         customerClient.createCustomer(customer);
         return ResponseEntity.ok("Customer registered successfully!");
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test Başarılı");
+    }
 }

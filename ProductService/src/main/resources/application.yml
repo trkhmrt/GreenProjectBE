@@ -87,6 +87,25 @@ aws:
     secret-key: ctYGpagc1R2YjUdOuxoTchGeDZVgbp1JS7IR7Ecm
 
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 # elasticsearch:
 #   index:
 #     category: categories

@@ -277,7 +277,7 @@ services:
     ports:
       - "8040:8040"
     healthcheck:
-      test: "wget -q --spider http://localhost:8040/actuator/health/readiness || exit 1"
+      test: "wget -q --spider http://localhost:8040/actuator/health || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
