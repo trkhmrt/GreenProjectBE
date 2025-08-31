@@ -219,7 +219,7 @@ services:
     ports:
       - "8071:8071"
     healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8071/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -237,7 +237,7 @@ services:
       configserver:
         condition: service_healthy
     healthcheck:
-      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8070/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -255,7 +255,7 @@ services:
     ports:
       - "8099:8099"
     healthcheck:
-      test: "curl --fail --silent localhost:8099/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8099/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -277,7 +277,7 @@ services:
     ports:
       - "8040:8040"
     healthcheck:
-      test: "curl --fail --silent localhost:8040/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8040/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -313,7 +313,7 @@ services:
       eurekaserver:
         condition: service_healthy
     healthcheck:
-      test: "curl --fail --silent localhost:8078/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8078/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -338,7 +338,7 @@ services:
       eurekaserver:
         condition: service_healthy
     healthcheck:
-      test: "curl --fail --silent localhost:8085/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8085/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -367,7 +367,7 @@ services:
       eurekaserver:
         condition: service_healthy
     healthcheck:
-      test: "curl --fail --silent localhost:8086/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8086/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -389,7 +389,7 @@ services:
     ports:
       - "8088:8088"
     healthcheck:
-      test: "curl --fail --silent localhost:8088/actuator/health/readiness | grep UP || exit 1"
+      test: "wget -q --spider http://localhost:8088/actuator/health/readiness || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
