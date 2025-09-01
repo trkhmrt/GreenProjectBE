@@ -3,6 +3,8 @@ package com.ael.orderservice.controller;
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
 import com.ael.orderservice.dto.StockUpdateMessage;
 import com.ael.orderservice.dto.request.OrderStatusUpdateRequest;
+import com.ael.orderservice.exception.OrderNotFoundException;
+import com.ael.orderservice.exception.OrderAccessDeniedException;
 import com.ael.orderservice.model.Order;
 import com.ael.orderservice.service.OrderService;
 import com.ael.orderservice.service.RabbitMQProducerService;
@@ -73,9 +75,15 @@ public class OrderController {
     }
 
     @GetMapping("/getOrderDetails/{orderId}")
-    public ResponseEntity<?> getOrderDetailsByOrderId(@PathVariable Integer orderId) {
+    public ResponseEntity<?> getOrderDetailsByOrderId(@RequestHeader("X-Customer-Id") Integer customerId, @PathVariable Integer orderId) {
         try {
-            return ResponseEntity.ok(orderService.getOrderDetailsByOrderId(orderId));
+            return ResponseEntity.ok(orderService.getOrderDetailsByOrderId(customerId, orderId));
+        } catch (OrderNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Order not found: " + e.getMessage());
+        } catch (OrderAccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access denied: " + e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error getting order details: " + e.getMessage());

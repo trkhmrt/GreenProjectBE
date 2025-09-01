@@ -35,4 +35,16 @@ public interface ICustomerAddressRepository extends JpaRepository<CustomerAddres
     @Transactional
     @Query("UPDATE CustomerAddress ca SET ca.isActive = :isActive WHERE ca.id = :addressId AND ca.customer.customerId = :customerId")
     void updateAddressStatus(@Param("addressId") Integer addressId, @Param("customerId") Integer customerId, @Param("isActive") Boolean isActive);
+    
+    // inUse durumunu değiştir
+    @Modifying
+    @Transactional
+    @Query("UPDATE CustomerAddress ca SET ca.inUse = :inUse WHERE ca.id = :addressId AND ca.customer.customerId = :customerId")
+    void updateAddressInUseStatus(@Param("addressId") Integer addressId, @Param("customerId") Integer customerId, @Param("inUse") Boolean inUse);
+    
+    // Diğer adreslerin inUse durumunu false yap (sadece bir adres aktif olabilir)
+    @Modifying
+    @Transactional
+    @Query("UPDATE CustomerAddress ca SET ca.inUse = false WHERE ca.customer.customerId = :customerId AND ca.id != :addressId AND ca.isDeleted = false")
+    void setOtherAddressesInactive(@Param("customerId") Integer customerId, @Param("addressId") Integer addressId);
 }

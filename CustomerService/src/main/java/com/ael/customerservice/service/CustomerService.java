@@ -2,6 +2,7 @@ package com.ael.customerservice.service;
 
 
 import com.ael.customerservice.client.IBasketClient;
+import com.ael.customerservice.client.IOrderClient;
 import com.ael.customerservice.dto.request.AddressRequest;
 import com.ael.customerservice.dto.response.AddressResponse;
 import com.ael.customerservice.dto.response.CheckoutInfoResponse;
@@ -10,9 +11,12 @@ import com.ael.customerservice.dto.response.CustomerResponse;
 import com.ael.customerservice.dto.response.CreditCardResponse;
 import com.ael.customerservice.exception.CustomerAlreadyExistsException;
 import com.ael.customerservice.exception.CustomerNotFoundException;
+import com.ael.customerservice.exception.EmailAlreadyExistsException;
+import com.ael.customerservice.exception.PhoneNumberAlreadyExistsException;
 import com.ael.customerservice.exception.WrongUserNameOrPasswordException;
 import com.ael.customerservice.model.Customer;
 import com.ael.customerservice.model.CustomerAddress;
+import org.springframework.http.ResponseEntity;
 import com.ael.customerservice.repository.ICustomerAddressRepository;
 import com.ael.customerservice.repository.ICustomerRepository;
 import lombok.AllArgsConstructor;
@@ -33,6 +37,7 @@ public class CustomerService {
     ICustomerAddressRepository customerAddressRepository;
     CustomerCreditCardService customerCreditCardService;
     IBasketClient basketClient;
+    IOrderClient orderClient;
 
 
     public Customer createCustomer(Customer customer) {
@@ -106,6 +111,7 @@ public class CustomerService {
                                 .title(address.getTitle())
                                 .isActive(address.getIsActive())
                                 .isDeleted(address.getIsDeleted())
+                                .inUse(address.getInUse())
                                 .build())
                 .collect(Collectors.toList());
     }
@@ -174,6 +180,9 @@ public class CustomerService {
                 .AddressId(savedAddress.getId())
                 .title(savedAddress.getTitle())
                 .AddressContent(savedAddress.getAddress())
+                .isActive(savedAddress.getIsActive())
+                .isDeleted(savedAddress.getIsDeleted())
+                .inUse(savedAddress.getInUse())
                 .build();
     }
 
@@ -195,6 +204,9 @@ public class CustomerService {
                 .AddressId(updatedAddress.getId())
                 .title(updatedAddress.getTitle())
                 .AddressContent(updatedAddress.getAddress())
+                .isActive(updatedAddress.getIsActive())
+                .isDeleted(updatedAddress.getIsDeleted())
+                .inUse(updatedAddress.getInUse())
                 .build();
     }
 
@@ -221,10 +233,33 @@ public class CustomerService {
         Boolean newStatus = !existingAddress.getIsActive();
         customerAddressRepository.updateAddressStatus(addressId, customerId, newStatus);
     }
+    
+    @Transactional
+    public void setAddressAsInUse(Integer customerId, Integer addressId) {
+        // Önce adresin bu müşteriye ait olup olmadığını ve silinmemiş olduğunu kontrol et
+        CustomerAddress existingAddress = customerAddressRepository.findByIdAndIsDeletedFalse(addressId)
+                .orElseThrow(() -> new RuntimeException("Adres bulunamadı"));
+        
+        if (!existingAddress.getCustomer().getCustomerId().equals(customerId)) {
+            throw new RuntimeException("Bu adres bu müşteriye ait değil");
+        }
+        
+        // Önce diğer adreslerin inUse durumunu false yap
+        customerAddressRepository.setOtherAddressesInactive(customerId, addressId);
+        
+        // Sonra bu adresin inUse durumunu true yap
+        customerAddressRepository.updateAddressInUseStatus(addressId, customerId, true);
+    }
 
     @Transactional
     public void updateCustomerPhone(Integer customerId, String newPhoneNumber) {
         Customer customer = findCustomerById(customerId);
+        
+        // Telefon numarasının başka bir kullanıcıda olup olmadığını kontrol et
+        if (customerRepository.existsByPhoneNumberAndCustomerIdNot(newPhoneNumber, customerId)) {
+            throw new PhoneNumberAlreadyExistsException("Bu telefon numarası başka bir kullanıcı tarafından kullanılıyor: " + newPhoneNumber);
+        }
+        
         customer.setPhoneNumber(newPhoneNumber);
         customerRepository.save(customer);
     }
@@ -232,7 +267,69 @@ public class CustomerService {
     @Transactional
     public void updateCustomerEmail(Integer customerId, String newEmail) {
         Customer customer = findCustomerById(customerId);
+        
+        // Email'in başka bir kullanıcıda olup olmadığını kontrol et
+        if (customerRepository.existsByEmailAndCustomerIdNot(newEmail, customerId)) {
+            throw new EmailAlreadyExistsException("Bu email adresi başka bir kullanıcı tarafından kullanılıyor: " + newEmail);
+        }
+        
         customer.setEmail(newEmail);
         customerRepository.save(customer);
+    }
+    
+    @Transactional
+    public void updateCustomerPassword(Integer customerId, String currentPassword, String newPassword) {
+        Customer customer = findCustomerById(customerId);
+        
+        // Mevcut şifrenin doğru olup olmadığını kontrol et
+        if (!customer.getPassword().equals(currentPassword)) {
+            throw new WrongUserNameOrPasswordException("Mevcut şifre hatalı");
+        }
+        
+        // Yeni şifre validasyonu (AuthService'teki gibi)
+        if (newPassword == null || newPassword.length() < 8 ||
+            !newPassword.matches(".*[A-Z].*") ||
+            !newPassword.matches(".*[a-z].*") ||
+            !newPassword.matches(".*\\d.*")) {
+            throw new RuntimeException("Yeni şifre en az 8 karakter olmalı ve büyük harf, küçük harf ve rakam içermelidir");
+        }
+        
+        customer.setPassword(newPassword);
+        customerRepository.save(customer);
+    }
+    
+    // ========== SİPARİŞ ENDPOINT'LERİ ==========
+    
+    /**
+     * Müşterinin tüm siparişlerini getir
+     */
+    public ResponseEntity<?> getCustomerOrders(Integer customerId) {
+        try {
+            return orderClient.getCustomerOrders(customerId);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Siparişler alınırken hata oluştu: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Müşterinin tüm siparişlerini detaylarıyla birlikte getir
+     */
+    public ResponseEntity<?> getCustomerOrdersWithDetails(Integer customerId) {
+        try {
+            return orderClient.getCustomerOrdersWithDetails(customerId);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Sipariş detayları alınırken hata oluştu: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Belirli bir siparişin detaylarını getir (ürün bilgileri dahil)
+     */
+    public ResponseEntity<?> getOrderDetails(Integer customerId, Integer orderId) {
+        try {
+            return orderClient.getOrderDetails(customerId, orderId);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Sipariş detayı alınırken hata oluştu: " + e.getMessage());
+        }
     }
 }

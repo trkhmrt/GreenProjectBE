@@ -6,12 +6,16 @@ import com.ael.orderservice.dto.StockUpdateMessage;
 import com.ael.orderservice.dto.response.OrderDetailResponse;
 import com.ael.orderservice.dto.response.OrderResponse;
 import com.ael.orderservice.enums.OrderStatusesEnum;
+import com.ael.orderservice.exception.OrderNotFoundException;
+import com.ael.orderservice.exception.OrderAccessDeniedException;
 import com.ael.orderservice.model.Order;
 import com.ael.orderservice.model.OrderDetail;
 import com.ael.orderservice.model.OrderStatus;
 import com.ael.orderservice.repository.IOrderDetailRepository;
 import com.ael.orderservice.repository.IOrderRepository;
 import com.ael.orderservice.repository.IOrderStatusRepository;
+import com.ael.orderservice.client.ProductClient;
+import org.springframework.http.ResponseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,7 @@ public class OrderService {
     private final IOrderDetailRepository orderDetailRepository;
     private final IOrderStatusRepository orderStatusRepository;
     private final RabbitMQProducerService rabbitMQProducerService;
+    private final ProductClient productClient;
 
     // Sipariş durumları için static sabitler
     public static final String STATUS_AKTIF = "Aktif";
@@ -144,8 +149,108 @@ public class OrderService {
                 .build();
     }
     
-    public List<OrderDetail> getOrderDetailsByOrderId(Integer orderId) {
-        return orderDetailRepository.findOrderDetailByOrder_OrderId(orderId);
+    public OrderResponse getOrderDetailsByOrderId(Integer customerId, Integer orderId) {
+        // Önce siparişin var olup olmadığını kontrol et
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+        
+        // Siparişin bu müşteriye ait olup olmadığını kontrol et
+        if (!order.getCustomerId().equals(customerId)) {
+            throw new OrderAccessDeniedException("Order does not belong to customer with ID: " + customerId);
+        }
+        
+        // Sipariş detaylarını al
+        List<OrderDetail> orderDetails = orderDetailRepository.findOrderDetailByOrder_OrderId(orderId);
+        
+        // Her detay için ürün bilgilerini al
+        List<OrderDetailResponse> detailResponses = orderDetails.stream()
+                .map(detail -> {
+                    try {
+                        // ProductService'ten ürün bilgilerini al
+                        ResponseEntity<Object> productResponse = productClient.getProduct(detail.getProductId());
+                        Object productData = productResponse.getBody();
+                        
+                        log.info("Product data for productId {}: {}", detail.getProductId(), productData);
+                        
+                        // Ürün bilgilerini parse et
+                        String productName = "Ürün " + detail.getProductId();
+                        String productDescription = "";
+                        Double productPrice = detail.getUnitPrice();
+                        String productImage = "";
+                        
+                        // Eğer productData bir Map ise, bilgileri çıkar
+                        if (productData instanceof java.util.Map) {
+                            java.util.Map<?, ?> productMap = (java.util.Map<?, ?>) productData;
+                            Object nameObj = productMap.get("productName");
+                            productName = nameObj instanceof String ? (String) nameObj : "Ürün " + detail.getProductId();
+                            
+                            Object descObj = productMap.get("productDescription");
+                            productDescription = descObj instanceof String ? (String) descObj : "";
+                            
+                            Object priceObj = productMap.get("productPrice");
+                            productPrice = priceObj instanceof Double ? (Double) priceObj : detail.getUnitPrice();
+                            
+                            Object imageObj = productMap.get("productImageUrl");
+                            productImage = imageObj instanceof String ? (String) imageObj : "";
+                        }
+                        
+                        // Null safety için varsayılan değerler kullan
+                        Integer quantity = detail.getQuantity() != null ? detail.getQuantity() : 1;
+                        Double unitPrice = detail.getUnitPrice() != null ? detail.getUnitPrice() : 0.0;
+                        
+                        return OrderDetailResponse.builder()
+                                .orderDetailId(detail.getOrderDetailId())
+                                .productId(detail.getProductId())
+                                .productName(productName)
+                                .productDescription(productDescription)
+                                .productPrice(productPrice)
+                                .productImage(productImage)
+                                .quantity(quantity)
+                                .unitPrice(unitPrice)
+                                .totalPrice(quantity * unitPrice)
+                                .build();
+                    } catch (Exception e) {
+                        log.warn("Error fetching product details for productId: {}, using default values", detail.getProductId(), e);
+                        // Hata durumunda varsayılan değerlerle devam et
+                        // Null safety için varsayılan değerler kullan
+                        Integer quantity = detail.getQuantity() != null ? detail.getQuantity() : 1;
+                        Double unitPrice = detail.getUnitPrice() != null ? detail.getUnitPrice() : 0.0;
+                        
+                        return OrderDetailResponse.builder()
+                                .orderDetailId(detail.getOrderDetailId())
+                                .productId(detail.getProductId())
+                                .productName("Ürün " + detail.getProductId())
+                                .productDescription("Ürün bilgisi alınamadı")
+                                .productPrice(unitPrice)
+                                .productImage("")
+                                .quantity(quantity)
+                                .unitPrice(unitPrice)
+                                .totalPrice(quantity * unitPrice)
+                                .build();
+                    }
+                })
+                .collect(Collectors.toList());
+        
+        // Toplam tutarı hesapla
+        Double totalAmount = detailResponses.stream()
+                .mapToDouble(OrderDetailResponse::getTotalPrice)
+                .sum();
+        
+        // Toplam ürün sayısını hesapla
+        Integer totalItems = detailResponses.stream()
+                .mapToInt(OrderDetailResponse::getQuantity)
+                .sum();
+        
+        return OrderResponse.builder()
+                .orderId(order.getOrderId())
+                .customerId(order.getCustomerId())
+                .basketId(order.getBasketId())
+                .orderAddress(order.getOrderAddress())
+                .orderStatus(order.getOrderStatus().getOrderStatusName())
+                .orderDetails(detailResponses)
+                .totalAmount(totalAmount)
+                .totalItems(totalItems)
+                .build();
     }
     
     @Transactional

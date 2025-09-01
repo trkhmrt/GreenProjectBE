@@ -52,3 +52,4 @@ echo "📊 Build Summary:"
 echo "Total images built: $(docker images | grep greenproject | wc -l)"
 
 
+

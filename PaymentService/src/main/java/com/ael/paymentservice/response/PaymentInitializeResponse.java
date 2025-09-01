@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PaymentInitializeResponse {
     private Integer paymentId;
+    private String message;
     private String htmlContent;
     private String conversationId;
     private String status;

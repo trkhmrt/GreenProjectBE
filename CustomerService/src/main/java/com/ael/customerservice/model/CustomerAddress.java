@@ -22,6 +22,7 @@ public class CustomerAddress {
     
     // Durum alanları
     private Boolean isActive = true;
+    private Boolean inUse = false;
     private Boolean isDeleted = false;
 
     @ManyToOne

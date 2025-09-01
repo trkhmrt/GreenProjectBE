@@ -8,3 +8,4 @@ INSERT INTO OrderStatuses (order_status_id, order_status_name) VALUES (3, 'İpta
 INSERT INTO OrderStatuses (order_status_id, order_status_name) VALUES (4, 'Kargolandı');
 
 
+

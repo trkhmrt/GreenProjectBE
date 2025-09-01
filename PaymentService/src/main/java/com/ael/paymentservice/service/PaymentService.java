@@ -1,5 +1,7 @@
 package com.ael.paymentservice.service;
 
+import com.ael.paymentservice.clients.ClientModel.Customer;
+import com.ael.paymentservice.clients.CustomerClient;
 import com.ael.paymentservice.config.rabbitmq.model.BasketStatusUpdateEvent;
 import com.ael.paymentservice.config.rabbitmq.model.OrderDetail;
 import com.ael.paymentservice.config.rabbitmq.producer.PaymentEventPublisher;
@@ -38,6 +40,8 @@ public class PaymentService {
     private final IPaymentRepository paymentRepository;
     private final PaymentEventPublisher paymentEventPublisher;
     private final BasketClient basketClient;
+    private final CustomerClient customerClient;
+
 
 
     public void updateInternalPaymentSatatus(String conversationId) {
@@ -52,13 +56,27 @@ public class PaymentService {
 
         //paymentRequest.setConversationId(generateConversationId(paymentRequest.getBasketId(),customerId));
         //Buyer buyer = paymentRequest.getBuyer();
-        //buyer.setId(customerId);
+        Customer customer = customerClient.getCustomer(customerId);
+
+        paymentRequest.getBuyer().setId(customerId);
+        paymentRequest.getBuyer().setEmail(customer.getEmail());
+        paymentRequest.getBuyer().setGsmNumber(customer.getPhoneNumber());
+        paymentRequest.getBuyer().setName(customer.getFirstName());
+        paymentRequest.getBuyer().setSurname(customer.getLastName());
 
         if (StringUtils.isBlank(paymentRequest.getConversationId())) {
             paymentRequest.setConversationId((generateConversationId(paymentRequest.getBasketId(), customerId)));
         }
 
         ThreedsInitialize threedsInitialize = ThreedsInitialize.create(paymentRequest, iyzicoOptions);
+
+        if(threedsInitialize.getStatus().equals("failure")){
+            return PaymentInitializeResponse.builder()
+                    .status("failure")
+                    .message(threedsInitialize.getErrorMessage())
+                    .build();
+        }
+
 
 
         PaymentInternal paymentInternal = PaymentInternal.builder()

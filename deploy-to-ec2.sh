@@ -35,3 +35,4 @@ echo "- Basket Service: http://$EC2_IP:8076"
 echo "- Auth Service: http://$EC2_IP:8077"
 
 
+

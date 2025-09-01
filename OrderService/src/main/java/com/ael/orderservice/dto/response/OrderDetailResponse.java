@@ -12,9 +12,14 @@ import lombok.NoArgsConstructor;
 public class OrderDetailResponse {
     private Integer orderDetailId;
     private Integer productId;
+    private String productName;
+    private String productDescription;
+    private Double productPrice;
+    private String productImage;
     private Integer quantity;
     private Double unitPrice;
     private Double totalPrice;
 }
+
 
 

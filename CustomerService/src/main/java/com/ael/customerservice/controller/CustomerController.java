@@ -4,6 +4,7 @@ import com.ael.customerservice.client.IBasketClient;
 import com.ael.customerservice.dto.request.AddressRequest;
 import com.ael.customerservice.dto.request.PhoneUpdateRequest;
 import com.ael.customerservice.dto.request.EmailUpdateRequest;
+import com.ael.customerservice.dto.request.PasswordUpdateRequest;
 import com.ael.customerservice.dto.response.AddressResponse;
 import com.ael.customerservice.dto.response.CheckoutInfoResponse;
 import com.ael.customerservice.dto.response.CreditCardResponse;
@@ -49,8 +50,8 @@ public class CustomerController {
         return ResponseEntity.ok(customerCreditCardService.getAllCreditCardsByCustomerId(customerId));
     }
 
-    @GetMapping("/getCustomerAddress/{customerId}")
-    public ResponseEntity<List<AddressResponse>> getCustomerAddress(@PathVariable Integer customerId) {
+    @GetMapping("/getCustomerAddress")
+    public ResponseEntity<List<AddressResponse>> getCustomerAddress(@RequestHeader("X-Customer-Id") Integer customerId) {
         try {
             List<AddressResponse> addresses = customerService.getCustomerAddress(customerId);
             return ResponseEntity.ok(addresses);
@@ -64,27 +65,9 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomerInfoForCheckout(customerId));
     }
 
-    @GetMapping("/getAllCustomerInfoByCustomerId/{customerId}")
-    public ResponseEntity<CustomerResponse> getAllCustomerInfo(@PathVariable Integer customerId) {
-        Customer customer = customerService.findCustomerById(customerId);
-        Integer basketId = basketClient.getActiveBasketId(customerId);
 
-        CustomerResponse customerResponse = CustomerResponse.builder()
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .email(customer.getEmail())
-                .phoneNumber(customer.getPhoneNumber())
-                .address(customer.getAddress())
-                .city(customer.getCity())
-                .customerId(customer.getCustomerId())
-                .activeBasketId(basketId)
-                .build();
-
-         return ResponseEntity.ok(customerResponse);
-    }
-
-    @GetMapping("/getCustomerProfile/{customerId}")
-    public ResponseEntity<CustomerProfileResponse> getCustomerProfile(@PathVariable Integer customerId) {
+    @GetMapping("/getCustomerProfile")
+    public ResponseEntity<CustomerProfileResponse> getCustomerProfile(@RequestHeader("X-Customer-Id") Integer customerId) {
         try {
             CustomerProfileResponse profile = customerService.getCustomerProfile(customerId);
             return ResponseEntity.ok(profile);
@@ -143,6 +126,18 @@ public class CustomerController {
             return ResponseEntity.badRequest().body("Adres durumu değiştirilirken hata oluştu: " + e.getMessage());
         }
     }
+    
+    @PutMapping("/setAddressAsInUse/{addressId}")
+    public ResponseEntity<String> setAddressAsInUse(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @PathVariable Integer addressId) {
+        try {
+            customerService.setAddressAsInUse(customerId, addressId);
+            return ResponseEntity.ok("Adres aktif adres olarak ayarlandı");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Adres aktif adres olarak ayarlanırken hata oluştu: " + e.getMessage());
+        }
+    }
 
     @PutMapping("/updatePhone")
     public ResponseEntity<String> updateCustomerPhone(
@@ -166,5 +161,34 @@ public class CustomerController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("E-posta adresi güncellenirken hata oluştu: " + e.getMessage());
         }
+    }
+    
+    @PutMapping("/updatePassword")
+    public ResponseEntity<String> updateCustomerPassword(
+            @RequestHeader("X-Customer-Id") Integer customerId,
+            @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+        try {
+            customerService.updateCustomerPassword(customerId, passwordUpdateRequest.getCurrentPassword(), passwordUpdateRequest.getNewPassword());
+            return ResponseEntity.ok("Şifre başarıyla güncellendi");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Şifre güncellenirken hata oluştu: " + e.getMessage());
+        }
+    }
+    
+    // ========== SİPARİŞ ENDPOINT'LERİ ==========
+    
+    @GetMapping("/orders")
+    public ResponseEntity<?> getCustomerOrders(@RequestHeader("X-Customer-Id") Integer customerId) {
+        return customerService.getCustomerOrders(customerId);
+    }
+    
+    @GetMapping("/orders/withDetails")
+    public ResponseEntity<?> getCustomerOrdersWithDetails(@RequestHeader("X-Customer-Id") Integer customerId) {
+        return customerService.getCustomerOrdersWithDetails(customerId);
+    }
+    
+    @GetMapping("/orders/{orderId}/details")
+    public ResponseEntity<?> getOrderDetails(@RequestHeader("X-Customer-Id") Integer customerId, @PathVariable Integer orderId) {
+        return customerService.getOrderDetails(customerId, orderId);
     }
 }

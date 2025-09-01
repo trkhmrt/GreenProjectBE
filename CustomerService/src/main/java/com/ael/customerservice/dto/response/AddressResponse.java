@@ -15,4 +15,5 @@ public class AddressResponse {
     private String AddressContent;
     private Boolean isActive;
     private Boolean isDeleted;
+    private Boolean inUse;
 }
