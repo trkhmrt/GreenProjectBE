@@ -55,14 +55,36 @@ public class PaymentService {
 
 
         //paymentRequest.setConversationId(generateConversationId(paymentRequest.getBasketId(),customerId));
-        //Buyer buyer = paymentRequest.getBuyer();
+
         Customer customer = customerClient.getCustomer(customerId);
 
         paymentRequest.getBuyer().setId(customerId);
         paymentRequest.getBuyer().setEmail(customer.getEmail());
+        paymentRequest.getBuyer().setIdentityNumber("1234567");
         paymentRequest.getBuyer().setGsmNumber(customer.getPhoneNumber());
         paymentRequest.getBuyer().setName(customer.getFirstName());
         paymentRequest.getBuyer().setSurname(customer.getLastName());
+        paymentRequest.getBuyer().setCity("İstanbul");
+        paymentRequest.getBuyer().setCountry("Türkiye");
+        paymentRequest.getBuyer().setZipCode("34295");
+        paymentRequest.getBuyer().setIp("123.323.23.23");
+        paymentRequest.getBuyer().setRegistrationAddress("Gültepe");
+        paymentRequest.getBuyer().setRegistrationDate(null);
+
+        paymentRequest.getShippingAddress().setCity("İstanbul");
+        paymentRequest.getShippingAddress().setCountry("Türkiye");
+        paymentRequest.getShippingAddress().setZipCode("34295");
+        paymentRequest.getShippingAddress().setContactName(customer.getFirstName());
+
+        paymentRequest.getBillingAddress().setCity("İstanbul");
+        paymentRequest.getBillingAddress().setCountry("Türkiye");
+        paymentRequest.getBillingAddress().setZipCode("34295");
+        paymentRequest.getBillingAddress().setContactName(customer.getLastName());
+
+
+
+
+
 
         if (StringUtils.isBlank(paymentRequest.getConversationId())) {
             paymentRequest.setConversationId((generateConversationId(paymentRequest.getBasketId(), customerId)));
