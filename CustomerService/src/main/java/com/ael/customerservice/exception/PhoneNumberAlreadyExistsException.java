@@ -5,3 +5,4 @@ public class PhoneNumberAlreadyExistsException extends RuntimeException {
         super(message);
     }
 }
+

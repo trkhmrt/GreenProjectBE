@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                 String role = jwtUtil.extractRole(token);
                 Integer customerId = jwtUtil.extractCustomerId(token);
 
-                if (username == null || role == null || customerId == null) {
+                if (username == null || customerId == null) {
                     logger.warn("Failed to extract required information from token");
                     return onError(exchange, "Invalid token content", HttpStatus.UNAUTHORIZED);
                 }

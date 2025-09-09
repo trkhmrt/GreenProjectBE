@@ -7,6 +7,7 @@ import com.ael.authservice.model.LoginRequest;
 import com.ael.authservice.client.ICustomerClient;
 import com.ael.authservice.model.Customer;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpHeaders;
@@ -90,9 +91,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Customer customer) {
-        AuthValidator.validateUsername(customer.getUsername());
-        AuthValidator.validatePassword(customer.getPassword());
+    public ResponseEntity<?> register(@Valid @RequestBody Customer customer) {
+        log.info("Customer validation passed: {}", customer);
         customerClient.createCustomer(customer);
         return ResponseEntity.ok("Customer registered successfully!");
     }

@@ -18,3 +18,4 @@ public interface IOrderClient {
     @GetMapping("/order/getOrderDetails/{orderId}")
     ResponseEntity<?> getOrderDetails(@RequestHeader("X-Customer-Id") Integer customerId, @PathVariable Integer orderId);
 }
+
