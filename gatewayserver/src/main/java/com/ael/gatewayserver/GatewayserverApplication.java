@@ -49,11 +49,16 @@ public class GatewayserverApplication {
 								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
 						.uri("lb://BASKETSERVICE"))
 				.route(p -> p
-						.path("/ael/paymentservice/**")
+						.path("/ael/paymentservice/payment/3ds/callback")
 						.filters( f -> f.rewritePath("/ael/paymentservice/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config()))
 								)
+						.uri("lb://PAYMENTSERVICE"))
+				.route(p -> p
+						.path("/ael/paymentservice/payment/3ds/Initialize")
+						.filters( f -> f.rewritePath("/ael/paymentservice/(?<segment>.*)","/${segment}")
+								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+								.filter(jwtAuthenticationFilter.apply(new JwtAuthenticationFilter.Config())))
 						.uri("lb://PAYMENTSERVICE"))
 				.route(p -> p
 						.path("/ael/productservice/**")

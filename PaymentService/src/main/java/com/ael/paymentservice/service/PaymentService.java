@@ -58,7 +58,8 @@ public class PaymentService {
 
         Customer customer = customerClient.getCustomer(customerId);
 
-        paymentRequest.getBuyer().setId(customerId);
+
+       /* paymentRequest.getBuyer().setId(customerId);
         paymentRequest.getBuyer().setEmail(customer.getEmail());
         paymentRequest.getBuyer().setIdentityNumber("1234567");
         paymentRequest.getBuyer().setGsmNumber(customer.getPhoneNumber());
@@ -81,9 +82,9 @@ public class PaymentService {
         paymentRequest.getBillingAddress().setZipCode("34295");
         paymentRequest.getBillingAddress().setContactName(customer.getLastName());
 
+*/
 
-
-
+        paymentRequest.setCallbackUrl("http://localhost:8072/ael/paymentservice/payment/3ds/callback?customerId=" + customerId);
 
 
         if (StringUtils.isBlank(paymentRequest.getConversationId())) {

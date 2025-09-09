@@ -77,7 +77,7 @@ public class PaymentController {
     public void handle3dsCallback(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Parametreleri logla
         request.getParameterMap().forEach((k, v) -> System.out.println(k + " = " + Arrays.toString(v)));
-
+        String customerId = request.getParameter("customerId");
         String paymentId = request.getParameter("paymentId");
         String conversationData = request.getParameter("conversationData");
         String conversationId = request.getParameter("conversationId");
@@ -88,7 +88,7 @@ public class PaymentController {
         String errorGroup = request.getParameter("errorGroup");
         String errorName = request.getParameter("errorName");
         String mdStatus = request.getParameter("mdStatus");
-        String customerId = request.getHeader("X-Customer-Id");
+
 
         // Başarılı ise 3DS tamamla isteği at
         if ("success".equals(status) && "1".equals(mdStatus)) {
