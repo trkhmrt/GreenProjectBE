@@ -10,3 +10,6 @@ INSERT INTO OrderStatuses (order_status_id, order_status_name) VALUES (4, 'Kargo
 
 
 
+
+
+

@@ -179,6 +179,7 @@ public class BasketService {
 
         return BasketProductUnitResponse.builder()
                 .basketId(basket.getBasketId())
+                .customerId(basket.getCustomerId())
                 .basketProducts(productResponses)
                 .build();
     }

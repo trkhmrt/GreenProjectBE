@@ -1,15 +1,14 @@
-package com.ael.paymentservice.response;
+package com.ael.orderservice.model;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class ProductUnitResponse {
+@Builder
+public class Product {
     private Integer productId;
     private Integer basketProductUnitId;
     private String productName;
@@ -23,10 +22,3 @@ public class ProductUnitResponse {
     private String productModelYear;
     private String productImageUrl;
 }
-
-
-
-
-
-
-

@@ -37,3 +37,6 @@ echo "- Auth Service: http://$EC2_IP:8077"
 
 
 
+
+
+

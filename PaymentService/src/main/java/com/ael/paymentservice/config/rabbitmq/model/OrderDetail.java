@@ -1,6 +1,5 @@
 package com.ael.paymentservice.config.rabbitmq.model;
 
-import com.ael.paymentservice.request.BasketItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDetail {
-    private Integer customerId;
+    private String customerId;
     private Integer basketId;
     private String paymentId;
     private String  orderAddress;
-    private List<BasketItem> basketItems = new ArrayList<>();
+    private String  orderCity;
+    private List<OrderProductUnit> basketItems = new ArrayList<>();
 }

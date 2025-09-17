@@ -79,14 +79,10 @@ public class PaymentController {
         request.getParameterMap().forEach((k, v) -> System.out.println(k + " = " + Arrays.toString(v)));
         String customerId = request.getParameter("customerId");
         String paymentId = request.getParameter("paymentId");
-        String conversationData = request.getParameter("conversationData");
+        String basketId = request.getParameter("basketId");
+
         String conversationId = request.getParameter("conversationId");
         String status = request.getParameter("status");
-        String message = request.getParameter("message");
-        String errorMessage = request.getParameter("errorMessage");
-        String errorCode = request.getParameter("errorCode");
-        String errorGroup = request.getParameter("errorGroup");
-        String errorName = request.getParameter("errorName");
         String mdStatus = request.getParameter("mdStatus");
 
 
@@ -95,7 +91,7 @@ public class PaymentController {
             // 3DS tamamla (auth) isteği
             CreateThreedsPaymentRequest createThreedsPaymentRequest = new CreateThreedsPaymentRequest();
             createThreedsPaymentRequest.setPaymentId(paymentId);
-            ThreedsPayment threedsPayment = paymentService.createThreedsPayment(createThreedsPaymentRequest,customerId);
+            ThreedsPayment threedsPayment = paymentService.createThreedsPayment(createThreedsPaymentRequest,customerId,basketId);
             if ("success".equals(threedsPayment.getStatus())) {
                 // Ödeme kesin olarak başarılı!
                  paymentService.updateInternalPaymentSatatus(conversationId);

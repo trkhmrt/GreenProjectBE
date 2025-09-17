@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -23,8 +27,19 @@ public class OrderDetail {
 
     private Double unitPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    @CreationTimestamp
+    private Instant createdDate;
+
+    @UpdateTimestamp
+    @Column(name = "updated_date")
+    private Instant updatedDate;
+
+    @Column(name = "order_id")
+    private Integer orderId; // Database'de orderId
+
+    // JPA ilişkisi (sadece okuma için)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private Order order;
 }
 

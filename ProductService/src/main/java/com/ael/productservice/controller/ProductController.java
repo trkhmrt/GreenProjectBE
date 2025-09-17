@@ -74,6 +74,11 @@ public class ProductController {
         }
     }
 
+    @PatchMapping("/updateProduct/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable Integer productId,@RequestBody SimpleProductRequest updateProductRequest) {
+        return productService.updateProduct(productId, updateProductRequest);
+    }
+
     @GetMapping("/filterProducts")
     public ResponseEntity<?> filterProducts(@RequestBody FilterRequest filterRequest) {
         List<ProductResponse> filteredProducts = productService.filterProducts(filterRequest);

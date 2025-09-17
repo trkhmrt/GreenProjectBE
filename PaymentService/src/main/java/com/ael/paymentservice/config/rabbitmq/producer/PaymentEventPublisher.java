@@ -30,5 +30,12 @@ public class PaymentEventPublisher {
         );
     }
 
+    public void sendOrderStatusUpdated(Integer orderId) {
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.BASKET_EXCHANGE,
+                RabbitMQConfig.BASKET_ROUTING_KEY
+        );
+    }
+
 
 }

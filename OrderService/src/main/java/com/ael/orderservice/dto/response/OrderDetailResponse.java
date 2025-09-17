@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,7 +17,6 @@ public class OrderDetailResponse {
     private String productName;
     private String productDescription;
     private Double productPrice;
-    private String productImage;
     private Integer quantity;
     private Double unitPrice;
     private Double totalPrice;

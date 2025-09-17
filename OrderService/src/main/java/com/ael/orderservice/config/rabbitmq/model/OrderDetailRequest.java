@@ -1,5 +1,7 @@
 package com.ael.orderservice.config.rabbitmq.model;
 
+import com.ael.orderservice.model.OrderProductUnit;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderDetailRequest {
-    private Integer customerId;
+    private String customerId;
     private Integer basketId;
-    private String orderAddress;
-    private List<BasketItem> basketItems = new ArrayList<>();
+    private String paymentId;
+    private String  orderAddress;
+    private String  orderCity;
+    @Nullable
+    private List<OrderProductUnit> basketItems = new ArrayList<>();
 }

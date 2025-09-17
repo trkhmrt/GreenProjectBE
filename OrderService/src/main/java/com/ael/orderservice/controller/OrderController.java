@@ -1,11 +1,13 @@
 package com.ael.orderservice.controller;
 
+import com.ael.orderservice.client.IProductClient;
 import com.ael.orderservice.config.rabbitmq.model.OrderDetailRequest;
 import com.ael.orderservice.dto.StockUpdateMessage;
 import com.ael.orderservice.dto.request.OrderStatusUpdateRequest;
 import com.ael.orderservice.exception.OrderNotFoundException;
 import com.ael.orderservice.exception.OrderAccessDeniedException;
 import com.ael.orderservice.model.Order;
+import com.ael.orderservice.model.Product;
 import com.ael.orderservice.service.OrderService;
 import com.ael.orderservice.service.RabbitMQProducerService;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final RabbitMQProducerService rabbitMQProducerService;
+    private final IProductClient productClient;
 
     @PostMapping("/createOrder")
     public ResponseEntity<String> createOrder(@RequestBody OrderDetailRequest orderDetailRequest) {
@@ -44,17 +47,8 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/getAllOrders")
-    public ResponseEntity<?> getAllOrders() {
-        try {
-            return ResponseEntity.ok(orderService.getAllOrders());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error getting all orders: " + e.getMessage());
-        }
-    }
 
-    @GetMapping("/getAllOrdersWithDetails")
+    @GetMapping("/orders")
     public ResponseEntity<?> getAllOrdersWithDetails() {
         try {
             return ResponseEntity.ok(orderService.getAllOrdersWithDetails());
@@ -90,29 +84,14 @@ public class OrderController {
         }
     }
 
-    @PutMapping("/updateOrderStatus")
-    public ResponseEntity<String> updateOrderStatus(@RequestBody OrderStatusUpdateRequest request) {
-        try {
-            orderService.updateOrderStatus(request.getOrderId(), request.getStatusId());
-            return ResponseEntity.ok("Order status updated successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating order status: " + e.getMessage());
-        }
+    @PutMapping("/update/orderStatus/{orderId}")
+    public ResponseEntity<String> updateOrderStatus(@PathVariable Integer orderId, @RequestParam String status) {
+        return ResponseEntity.ok(orderService.orderStatusUpdate(orderId, status));
     }
 
-    @GetMapping("/getAllOrderStatuses")
-    public ResponseEntity<?> getAllOrderStatuses() {
-        try {
-            return ResponseEntity.ok(orderService.getAllOrderStatuses());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error getting order statuses: " + e.getMessage());
-        }
-    }
-    
+
     // ========== RABBITMQ STOCK TEST ENDPOINTS ==========
-    
+
     /**
      * Stok düşürme test endpoint'i
      */
@@ -126,7 +105,7 @@ public class OrderController {
                     .quantity(quantity)
                     .updateType("DECREASE")
                     .build();
-            
+
             rabbitMQProducerService.sendStockDecreaseMessage(productId, quantity);
             return ResponseEntity.ok("Stock decrease message sent for productId: " + productId + ", quantity: " + quantity);
         } catch (Exception e) {
@@ -146,14 +125,12 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/initialize/orderStatuses")
-    public ResponseEntity<String> initializeOrderStatuses() {
-        try {
-            orderService.initializeOrderStatuses();
-            return ResponseEntity.ok("OrderStatuses initialized successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error initializing OrderStatuses: " + e.getMessage());
-        }
+
+    @GetMapping("/ptest")
+    public void getProduct() {
+        Product product = productClient.getProduct(31);
+        System.out.println(product);
     }
+
+
 }

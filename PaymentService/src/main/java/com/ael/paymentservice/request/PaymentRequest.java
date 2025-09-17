@@ -1,6 +1,7 @@
 package com.ael.paymentservice.request;
 
 
+import com.iyzipay.request.CreatePaymentRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequest {
-    private Integer customerId;
-    private String Email;
-    private String phone;
-    private String address;
-    private Integer basketId;
-    private CheckOutRequest checkOutRequest;
-    private Integer couponId;
-    private String couponCode;
-    private List<BasketItem> basketItems = new ArrayList<>();
+  private CreatePaymentRequest createPaymentRequest;
+
 }

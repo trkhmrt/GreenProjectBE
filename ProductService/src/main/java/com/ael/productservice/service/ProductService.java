@@ -21,7 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.ael.productservice.request.VariantProductRequest;
 import com.ael.productservice.request.VariantPropertiesRequest;
-
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -332,6 +336,30 @@ public class ProductService {
         } else {
             return buildCompleteProductResponse(foundedProduct);
         }
+    }
+
+    @Transactional
+    public ResponseEntity<String> updateProduct(Integer productId,SimpleProductRequest updateProductRquest){
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+
+        BeanUtils.copyProperties(updateProductRquest, existingProduct,getNullPropertyNames(updateProductRquest));
+        log.info("Product {} updated with BeanUtils", productId);
+
+        return ResponseEntity.ok("Product updated successfully");
+    }
+
+    private String[] getNullPropertyNames(Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<>();
+        for (java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            if (srcValue == null) emptyNames.add(pd.getName());
+        }
+
+        String[] result = new String[emptyNames.size()];
+        return emptyNames.toArray(result);
     }
 
     private ProductResponse buildSimpleProductResponse(Product product) {
