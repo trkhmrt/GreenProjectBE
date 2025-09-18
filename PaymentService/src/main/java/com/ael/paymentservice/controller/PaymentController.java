@@ -95,7 +95,7 @@ public class PaymentController {
             if ("success".equals(threedsPayment.getStatus())) {
                 // Ödeme kesin olarak başarılı!
                  paymentService.updateInternalPaymentSatatus(conversationId);
-                response.sendRedirect(String.format("http://localhost:5173/PaymentResult?status=success&paymentId=%s", paymentId));
+                response.sendRedirect(String.format("http://3.126.72.60:5173/PaymentResult?status=success&paymentId=%s", paymentId));
 
                 /*ÖDEME BAŞARILI OLDUĞUNDA ORDER KUYRUĞUNA BIRAKILACAK*/
                /* publishToOrder.sendOrderDetails(
@@ -104,7 +104,7 @@ public class PaymentController {
             } else {
                 // Limit yetersiz veya başka bir hata
                 response.sendRedirect(String.format(
-                        "http://localhost:5173/PaymentResult?status=failure&paymentId=%s",
+                        "http://3.126.72.60:5173/PaymentResult?status=failure&paymentId=%s",
                         paymentId
                 ));
             }
@@ -112,7 +112,7 @@ public class PaymentController {
             // Kullanıcıya başarılı sayfa göster
         } else {
             // Kullanıcıya hata sayfası göster
-            response.sendRedirect(String.format("http://localhost:5173/PaymentResult?status=failure&paymentId=%s", paymentId));
+            response.sendRedirect(String.format("http://3.126.72.60:5173/PaymentResult?status=failure&paymentId=%s", paymentId));
         }
     }
 

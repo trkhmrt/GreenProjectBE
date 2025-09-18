@@ -3,9 +3,8 @@ package com.ael.basketservice.service;
 import com.ael.basketservice.client.ProductClient;
 import com.ael.basketservice.dto.response.BasketProductUnitResponse;
 import com.ael.basketservice.dto.response.ProductUnitResponse;
+import com.ael.basketservice.enums.BasketStatusEnum;
 import com.ael.basketservice.exception.BasketNotFoundException;
-import com.ael.basketservice.model.BasketStatus;
-import com.ael.basketservice.statics.BasketStatusName;
 import com.ael.basketservice.model.Basket;
 import com.ael.basketservice.model.BasketProductUnit;
 import com.ael.basketservice.repository.IBasketProductUnitRepository;
@@ -33,12 +32,9 @@ public class BasketService {
     public Basket createNewBasket(Integer customerId) {
 
 
-        BasketStatus status = BasketStatus.builder().basketStatusId(Long.valueOf(BasketStatusName.Aktif)).build();
-
-
         Basket newBasket = Basket.builder()
                 .customerId(customerId)
-                .basketStatus(status)
+                .basketStatus(BasketStatusEnum.ACTIVE)
                 .build();
 
         basketRepository.save(newBasket);
@@ -53,7 +49,7 @@ public class BasketService {
         Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException("Sepet Bulunamadı"));
         ProductUnitResponse productUnitResponse = productClient.getProductById(productId);
         // Sadece aktif sepetlere ürün eklenebilir
-        if (basket.getBasketStatus().getBasketStatusId().equals(Long.valueOf(BasketStatusName.Aktif))) {
+        if (basket.getBasketStatusId().equals(BasketStatusEnum.ACTIVE.getId())) {
 
             // Yeni method kullan - Optional döndürür
             Optional<BasketProductUnit> existingProductOpt = basketProductUnitRepository
@@ -110,7 +106,7 @@ public class BasketService {
     public Basket getActiveBasket(Integer customerId) {
         logger.info("Getting active basket for customer: {}", customerId);
 
-        Optional<Basket> existingBasket = basketRepository.findByCustomerIdAndBasketStatus_BasketStatusId(customerId, 1);
+        Optional<Basket> existingBasket = basketRepository.findByCustomerIdAndBasketStatusId(customerId, 1);
 
         if (existingBasket.isPresent()) {
             logger.info("Found existing active basket: {}", existingBasket.get().getBasketId());
@@ -125,7 +121,7 @@ public class BasketService {
     public Basket getActiveBasketOrNull(Integer customerId) {
         logger.info("Getting active basket for customer: {} (will return null if not exists)", customerId);
 
-        Optional<Basket> existingBasket = basketRepository.findByCustomerIdAndBasketStatus_BasketStatusId(customerId, 1);
+        Optional<Basket> existingBasket = basketRepository.findByCustomerIdAndBasketStatusId(customerId, 1);
 
         if (existingBasket.isPresent()) {
             logger.info("Found existing active basket: {}", existingBasket.get().getBasketId());
@@ -137,18 +133,17 @@ public class BasketService {
     }
 
 
-    public BasketStatus getBasketStatus(Integer basketId) {
-        return basketRepository.getBasketStatus(basketId);
-    }
 
 
 
-    public void updateBasketStatus(Integer basketId, Integer newStatus) {
+
+    public void updateBasketStatus(Integer basketId, BasketStatusEnum newStatus) {
         Basket basket = basketRepository.findById(basketId)
                 .orElseThrow(() -> new BasketNotFoundException("Sepet bulunamadı: " + basketId));
 
-        BasketStatus status = BasketStatus.builder().basketStatusId(Long.valueOf(newStatus)).build();
-        basket.setBasketStatus(status);
+
+        basket.setBasketStatus(newStatus);
+
         basketRepository.save(basket);
     }
 

@@ -2,7 +2,6 @@ package com.ael.basketservice.controller;
 
 import com.ael.basketservice.configuration.rabbit.publisher.BasketProducer;
 import com.ael.basketservice.dto.response.BasketProductUnitResponse;
-import com.ael.basketservice.model.BasketStatus;
 import com.ael.basketservice.service.BasketProductUnitService;
 import com.ael.basketservice.service.BasketService;
 import lombok.AllArgsConstructor;
@@ -47,11 +46,6 @@ public class BasketController {
     }
 
 
-    @GetMapping("/getBasketStatus/{basketId}")
-    public ResponseEntity<BasketStatus> getBasketStatus(@PathVariable Integer basketId){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return ResponseEntity.ok(basketService.getBasketStatus(basketId));
-    }
 
     @PutMapping("/incrementProductQuantity/{basketProductUnitId}")
     public ResponseEntity<String> incrementProductQuantity(@PathVariable Integer basketProductUnitId)

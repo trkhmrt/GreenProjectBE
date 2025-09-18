@@ -55,7 +55,7 @@ public class PaymentService {
 
 
         paymentRequest.getBuyer().setId(customerId);
-        paymentRequest.setCallbackUrl(String.format("http://localhost:8072/ael/paymentservice/payment/3ds/callback?customerId=%s&basketId=%s", customerId, paymentRequest.getBasketId()));
+        paymentRequest.setCallbackUrl(String.format("http://3.126.72.60:8072/ael/paymentservice/payment/3ds/callback?customerId=%s&basketId=%s", customerId, paymentRequest.getBasketId()));
         //paymentRequest.setConversationId(generateConversationId(paymentRequest.getBasketId(),customerId));
 
 

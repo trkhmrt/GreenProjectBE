@@ -1,6 +1,7 @@
 package com.ael.basketservice.configuration.rabbit.consumer;
 
 
+import com.ael.basketservice.enums.BasketStatusEnum;
 import com.ael.basketservice.model.BasketStatusUpdateEvent;
 import com.ael.basketservice.service.BasketService;
 import lombok.AllArgsConstructor;
@@ -23,8 +24,10 @@ public class BasketListener {
     public void handleBasketStatusUpdate(BasketStatusUpdateEvent event) {
         logger.info("Received basket status update event: {}", event);
 
+        BasketStatusEnum basketStatusEnum = BasketStatusEnum.fromId( event.getNewStatus());
+
         try {
-            basketService.updateBasketStatus(event.getBasketId(), event.getNewStatus());
+            basketService.updateBasketStatus(event.getBasketId(),basketStatusEnum);
             logger.info("Basket status updated successfully for basketId: {} to status: {}",
                     event.getBasketId(), event.getNewStatus());
         } catch (Exception e) {

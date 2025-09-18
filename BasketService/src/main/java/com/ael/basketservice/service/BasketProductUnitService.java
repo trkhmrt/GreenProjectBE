@@ -22,7 +22,6 @@ public class BasketProductUnitService {
     private static final Logger logger = LoggerFactory.getLogger(BasketProductUnitService.class);
     private final IBasketProductUnitRepository basketProductUnitRepository;
     private final ProductClient productClient;
-    private final IBasketRepository basketRepository;
     private final BasketService basketService;
 
 
